@@ -1,0 +1,7 @@
+# pnpm 11 build-script approvals live here. esbuild and biome resolve their
+# native binaries from optional platform packages (@esbuild/win32-x64,
+# @biomejs/cli-win32-x64); approving the build scripts stops pnpm from erroring
+# on them and blocking `pnpm test` / `pnpm dev`.
+allowBuilds:
+  '@biomejs/biome': true
+  esbuild: true

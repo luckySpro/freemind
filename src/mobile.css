@@ -1,0 +1,146 @@
+/* Mobile-only chrome. The editor is built around inline styles; these rules add the phone behaviours
+   that need media queries (which inline styles can't express). Desktop is untouched. */
+
+/* Editor side panels (Outline / Index / Filter / Styles / Info / History) are 250px flex columns —
+   fine on a wide screen, but on a phone an open panel crushes the canvas. The panels live in one
+   host: transparent on desktop (display:contents → they stay independent flex columns), and a
+   bottom sheet on a phone (fixed + out of flow → the canvas goes full-width and the panel overlays
+   the lower part of the screen, with the toolbar still reachable above it). */
+.mm-panel-host {
+  display: contents;
+}
+
+@media (max-width: 640px) {
+  /* Both side rails — the left panel host AND the right inspector — become the same dismissible
+     bottom sheet on a phone. The inspector previously stayed a fixed 300px column (≈80% of a 390px
+     screen), so editing a topic left almost no canvas; now it docks to the bottom like the panels.
+     ~62vh leaves a usable strip of canvas visible above the sheet. */
+  .mm-panel-host,
+  .mm-inspector {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100% !important;
+    /* vh first as a fallback for older engines; dvh tracks the live visible viewport so the sheet
+       keeps a stable share of the screen as the iOS Safari URL bar shows/hides (plain vh resolves to
+       the LARGE viewport, so the sheet would eat more than 62% while the bar is visible). */
+    height: 62vh;
+    /* --mm-sheet-h is set live by the drag handle (useSheetDrag); 62dvh is the resting default. */
+    height: var(--mm-sheet-h, 62dvh);
+    z-index: 40;
+    background: #fff;
+    border-left: none;
+    border-top: 1px solid #e2e0d8;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.2);
+    overflow: auto;
+    /* Room for the grab handle at the top; the bottom pad clears the iOS home indicator (the inset
+       is 0 unless index.html opts in via viewport-fit=cover, which it now does). */
+    padding-top: 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  /* The inspector is a flex column; restore that under the fixed-sheet positioning. */
+  .mm-inspector {
+    display: flex;
+    flex-direction: column;
+  }
+  /* The inspector sits above the left-panel sheet when both happen to be open. */
+  .mm-inspector {
+    z-index: 41;
+  }
+  /* No panel open → the host has no children → don't let an empty sheet block the canvas. */
+  .mm-panel-host:empty {
+    display: none;
+  }
+  /* Each open panel fills the sheet width (overrides its inline 250px column width). */
+  .mm-panel-host > * {
+    width: 100% !important;
+    border-right: none !important;
+  }
+  /* Snap-to-detent animates on release; suppressed mid-drag (the editor carries data-sheet-dragging)
+     so the sheet tracks the finger 1:1. */
+  .mm-panel-host,
+  .mm-inspector {
+    transition: height 0.16s ease;
+  }
+  .mm-editor[data-sheet-dragging] .mm-panel-host,
+  .mm-editor[data-sheet-dragging] .mm-inspector {
+    transition: none;
+  }
+  /* The real, focusable grab handle (App renders it; was a decorative ::before). A pill straddling the
+     sheet's top edge — pointer-events:auto + touch-action:none so the drag owns the gesture rather than
+     scrolling the page. Tracks the live height via the shared --mm-sheet-h var. */
+  .mm-sheet-handle {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--mm-sheet-h, 62dvh);
+    height: 26px;
+    transform: translateY(50%);
+    z-index: 42;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: row-resize;
+    touch-action: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+  .mm-sheet-handle::before {
+    content: "";
+    width: 38px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.22);
+  }
+  .mm-sheet-handle:focus-visible {
+    outline: 2px solid var(--ed-accent, #1b8a5e);
+    outline-offset: 3px;
+  }
+  .mm-sheet-handle[data-dragging]::before {
+    background: var(--ed-accent, #1b8a5e);
+    width: 46px;
+  }
+  /* The minimized inspector strip (a 40px right column) makes no sense as a phone sheet — hide it;
+     re-selecting a topic re-opens the full inspector sheet. */
+  .mm-inspector-rail {
+    display: none;
+  }
+  /* A tap-out scrim behind whichever sheet is open, so tapping the visible canvas dismisses it. */
+  .mm-sheet-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    background: rgba(0, 0, 0, 0.18);
+    border: none;
+  }
+}
+/* The scrim is mobile-only chrome — never shown on desktop. */
+.mm-sheet-scrim {
+  display: none;
+}
+@media (max-width: 640px) {
+  .mm-sheet-scrim {
+    display: block;
+  }
+}
+
+/* Touch hygiene — applies everywhere, no-ops on a mouse. Kills the grey iOS tap-flash on controls,
+   keeps over-scroll inside the canvas / sheets (no browser pull-to-refresh / rubber-band mid-gesture),
+   and stops a long-press from popping the text-selection callout on chrome labels. */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+.mm-editor,
+.mm-panel-host,
+.mm-inspector,
+.mm-menu-sheet {
+  overscroll-behavior: contain;
+}
+.mm-rail-btn,
+.mm-tbtn,
+.mm-dock-tab {
+  user-select: none;
+}

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MindMap Studio">
+  <rect width="512" height="512" rx="96" fill="#26215c" />
+  <g fill="none" stroke="#cecbf6" stroke-width="14" stroke-linecap="round">
+    <path d="M256 256 C 196 212, 168 184, 132 156" />
+    <path d="M256 256 C 196 300, 168 328, 132 356" />
+    <path d="M256 256 C 316 212, 344 184, 380 156" />
+    <path d="M256 256 C 316 300, 344 328, 380 356" />
+  </g>
+  <circle cx="256" cy="256" r="48" fill="#ffffff" />
+  <g fill="#7f77dd">
+    <circle cx="132" cy="156" r="30" />
+    <circle cx="132" cy="356" r="30" />
+    <circle cx="380" cy="156" r="30" />
+    <circle cx="380" cy="356" r="30" />
+  </g>
+</svg>

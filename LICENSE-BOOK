@@ -1,0 +1,127 @@
+Thinking in Maps — a MindMap Studio guide
+Copyright (c) 2026 Dann Bleeker Pedersen
+
+This book — the text, narrative, exercises, and original diagrams that
+make up the practitioner guide in `docs/guide/` of this repository,
+including the assembled EPUB and PDF artefacts — is licensed under the
+
+    Creative Commons Attribution-NonCommercial 4.0 International License
+    (CC BY-NC 4.0)
+
+SPDX-License-Identifier: CC-BY-NC-4.0
+
+Human-readable summary (the "deed"):
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+Full legal code (the binding license text):
+    https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+================================================================================
+
+What this license lets you do
+-------------------------------------------------------------------------------
+
+You are free to:
+
+  - SHARE — copy and redistribute the material in any medium or format.
+  - ADAPT — remix, transform, and build upon the material.
+
+The licensor cannot revoke these freedoms as long as you follow the
+license terms.
+
+Under the following terms:
+
+  - ATTRIBUTION. You must give appropriate credit ("Dann Bleeker
+    Pedersen, Thinking in Maps"), provide a link to this license, and
+    indicate if changes were made. You may do so in any reasonable
+    manner, but not in any way that suggests the licensor endorses you
+    or your use.
+
+  - NONCOMMERCIAL. You may not use the material for commercial purposes.
+    Use in paid courses, paid consulting deliverables, or any other
+    primarily commercial offering requires prior written permission from
+    the author.
+
+  - NO ADDITIONAL RESTRICTIONS. You may not apply legal terms or
+    technological measures that legally restrict others from doing
+    anything the license permits.
+
+Notices:
+
+  - You do not have to comply with the license for elements of the
+    material in the public domain or where your use is permitted by an
+    applicable exception or limitation.
+
+  - No warranties are given. The license may not give you all of the
+    permissions necessary for your intended use. For example, other
+    rights such as publicity, privacy, or moral rights may limit how you
+    use the material.
+
+================================================================================
+
+Scope of this license
+-------------------------------------------------------------------------------
+
+This license covers only the **original writing and illustrations
+authored by Dann Bleeker Pedersen** for *Thinking in Maps* (the contents
+of `docs/guide/`, the assembled EPUB, and the assembled PDF artefact when
+present).
+
+This license does NOT cover, and cannot grant rights to:
+
+  - **The underlying mind-mapping method** — radiant thinking and the
+    visual note-taking discipline popularised by Tony Buzan and developed
+    by many practitioners since. Methods and processes are generally not
+    copyrightable; the specific *expressions* of those methods in other
+    authors' books are copyrighted by those authors. This book paraphrases
+    and discusses the technique in original prose; nothing in this license
+    grants any rights in other authors' own writing.
+
+  - **Quoted passages from third-party works**, where used. Such quotes
+    are included under fair-use / fair-dealing principles and remain the
+    copyright of their respective authors.
+
+  - **Third-party product names and trademarks** mentioned in the text
+    (MindManager, XMind, FreeMind, Freeplane, "Mind Map" / the Buzan
+    Organisation, etc.). See `NOTICE.md` in the repository root for the
+    full trademark notice.
+
+  - **The MindMap Studio source code**, which is licensed separately under
+    the Apache License 2.0. See `LICENSE` in the repository root.
+
+================================================================================
+
+Commercial use
+-------------------------------------------------------------------------------
+
+Examples of uses that are NOT permitted without prior written
+permission from the author:
+
+  - Republishing the book, in whole or in substantial part, as a paid
+    product (print, ebook, audiobook, or other).
+  - Including the book or substantial excerpts in a paid training
+    course or commercial consulting deliverable.
+  - Selling printed copies.
+
+Examples of uses that ARE permitted under this license:
+
+  - Reading and sharing the book freely with anyone.
+  - Using it as a free reference inside any organization (including
+    for-profit ones) for their own internal practice of mind mapping.
+  - Quoting passages in articles, posts, talks, or academic writing
+    with attribution.
+  - Translating the book or adapting individual chapters for
+    non-commercial educational use, with attribution.
+  - Citing the book in research.
+
+If you want to use the book commercially, please open an issue on the
+project's GitHub repository to discuss permission.
+
+================================================================================
+
+Contact
+-------------------------------------------------------------------------------
+
+For questions about commercial use, attribution, or any other matter
+relating to this license, open an issue on the MindMap Studio repository
+at https://github.com/dannbleeker/mindmap-studio.

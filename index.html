@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- viewport-fit=cover lets the PWA draw into the notch/home-bar area AND makes every
+         env(safe-area-inset-*) resolve to a real value (it's 0 without this) so the sheets can pad
+         for it on iOS standalone. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Brand emerald for the mobile browser/PWA chrome tint (was a legacy off-brand indigo). Static
+         HTML can't read a CSS var, so this mirrors --st-accent / the editor accent as a literal. -->
+    <meta name="theme-color" content="#1b8a5e" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="icon" type="image/png" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>MindMap Studio</title>
+    <style>
+      html,
+      body,
+      #root {
+        margin: 0;
+        height: 100%;
+      }
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

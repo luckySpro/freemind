@@ -1,0 +1,351 @@
+{
+  "generatedAt": "2026-10-05T14:39:42.040Z",
+  "commit": "1f3aa0a",
+  "headline": {
+    "linesTsJs": 86606,
+    "tests": 2306,
+    "lineCoveragePct": 90.48,
+    "commits": 1238,
+    "ageDays": 115,
+    "trackedFiles": 548,
+    "featureManualPct": 100,
+    "featureBookPct": 96.9,
+    "featureExamplePct": 58.6
+  },
+  "code": [
+    {
+      "category": "App code (src)",
+      "files": 249,
+      "lines": 50614
+    },
+    {
+      "category": "Unit tests",
+      "files": 222,
+      "lines": 33384
+    },
+    {
+      "category": "Build scripts",
+      "files": 13,
+      "lines": 2608
+    },
+    {
+      "category": "Styles (CSS)",
+      "files": 4,
+      "lines": 2793
+    },
+    {
+      "category": "Docs (Markdown)",
+      "files": 18,
+      "lines": 3371
+    }
+  ],
+  "coverage": {
+    "lines": {
+      "pct": 90.48,
+      "covered": 32412,
+      "total": 35819
+    },
+    "statements": {
+      "pct": 90.48,
+      "covered": 32412,
+      "total": 35819
+    },
+    "functions": {
+      "pct": 78.62,
+      "covered": 1964,
+      "total": 2498
+    },
+    "branches": {
+      "pct": 87.09,
+      "covered": 9332,
+      "total": 10715
+    }
+  },
+  "tests": {
+    "unit": 2306,
+    "e2e": 0,
+    "durationMs": 119183,
+    "slowest": [
+      {
+        "file": "test/flowmindmap.test.tsx",
+        "ms": 29527
+      },
+      {
+        "file": "test/app-integration.test.tsx",
+        "ms": 25578
+      },
+      {
+        "file": "test/panels.test.tsx",
+        "ms": 10150
+      },
+      {
+        "file": "test/toolbar.test.tsx",
+        "ms": 9454
+      },
+      {
+        "file": "test/book-build.test.ts",
+        "ms": 6540
+      }
+    ]
+  },
+  "domain": {
+    "components": 75,
+    "hooks": 28,
+    "ioModules": 40,
+    "canvasThemes": 4,
+    "markers": 15,
+    "templates": 21,
+    "exportFormats": 18
+  },
+  "footprint": {
+    "depsProd": 7,
+    "depsDev": 21,
+    "biggestFiles": [
+      {
+        "name": "Panels.tsx",
+        "lines": 4517
+      },
+      {
+        "name": "mindmap/FlowMindMap.tsx",
+        "lines": 3277
+      },
+      {
+        "name": "App.tsx",
+        "lines": 2953
+      },
+      {
+        "name": "mindmap/flow/ops.ts",
+        "lines": 1992
+      },
+      {
+        "name": "components/Toolbar.tsx",
+        "lines": 1524
+      }
+    ]
+  },
+  "quality": {
+    "mutationScore": null,
+    "leastCovered": [
+      {
+        "file": "components/InspectorRail.tsx",
+        "pct": 14.28
+      },
+      {
+        "file": "mindmap/flow/ShapeLayer.tsx",
+        "pct": 20.33
+      },
+      {
+        "file": "components/start/useLibrary.ts",
+        "pct": 40.67
+      },
+      {
+        "file": "io/importDispatch.ts",
+        "pct": 55
+      },
+      {
+        "file": "components/InspectorResizer.tsx",
+        "pct": 56.81
+      }
+    ],
+    "churnHotspots": [
+      {
+        "file": "i18n/core.ts",
+        "commits": 30
+      },
+      {
+        "file": "mindmap/flow/messages.ts",
+        "commits": 18
+      },
+      {
+        "file": "mindmap/FlowMindMap.tsx",
+        "commits": 15
+      },
+      {
+        "file": "App.tsx",
+        "commits": 14
+      },
+      {
+        "file": "components/Toolbar.tsx",
+        "commits": 12
+      }
+    ],
+    "risky": [
+      {
+        "file": "App.tsx",
+        "pct": 58.8,
+        "commits": 14
+      },
+      {
+        "file": "mindmap/flow/ShapeLayer.tsx",
+        "pct": 20.33,
+        "commits": 5
+      }
+    ]
+  },
+  "hygiene": {
+    "todo": 0,
+    "fixme": 0,
+    "hack": 0,
+    "anyCount": 7,
+    "tsIgnore": 0,
+    "tsExpectError": 0,
+    "biomeIgnore": 50,
+    "nonNull": 3
+  },
+  "bundle": {
+    "jsGzipKb": 540,
+    "cssGzipKb": 10.6,
+    "totalGzipKb": 550.6,
+    "entryGzipKb": 158.5,
+    "firstLoadGzipKb": 182.8,
+    "budgetKb": 184,
+    "withinBudget": true
+  },
+  "docs": {
+    "bookWords": 26925,
+    "chapters": 12,
+    "appLoc": 50614,
+    "docToCodeRatio": 0.53
+  },
+  "featureCoverage": {
+    "total": 256,
+    "manual": 256,
+    "manualPct": 100,
+    "book": 248,
+    "bookPct": 96.9,
+    "bookExample": 150,
+    "bookExamplePct": 58.6,
+    "byArea": {
+      "structure": {
+        "total": 36,
+        "manual": 36,
+        "book": 34
+      },
+      "styling": {
+        "total": 28,
+        "manual": 28,
+        "book": 27
+      },
+      "export": {
+        "total": 26,
+        "manual": 26,
+        "book": 26
+      },
+      "navigation": {
+        "total": 59,
+        "manual": 59,
+        "book": 57
+      },
+      "editing": {
+        "total": 33,
+        "manual": 33,
+        "book": 31
+      },
+      "markers": {
+        "total": 15,
+        "manual": 15,
+        "book": 15
+      },
+      "library": {
+        "total": 22,
+        "manual": 22,
+        "book": 22
+      },
+      "presentation": {
+        "total": 6,
+        "manual": 6,
+        "book": 6
+      },
+      "notes": {
+        "total": 6,
+        "manual": 6,
+        "book": 5
+      },
+      "images": {
+        "total": 3,
+        "manual": 3,
+        "book": 3
+      },
+      "import": {
+        "total": 18,
+        "manual": 18,
+        "book": 18
+      },
+      "pwa": {
+        "total": 4,
+        "manual": 4,
+        "book": 4
+      }
+    },
+    "gaps": {
+      "noManual": [],
+      "noBook": [
+        {
+          "id": "stylebar-reflects-state",
+          "name": "StyleBar reflects the selection's active style (shape / fill / border / bold / shadow / font) with touch-sized, grouped controls",
+          "since": "2026-07-02"
+        },
+        {
+          "id": "side-aware-grips",
+          "name": "Relate + wrap-width grips mirror to a left-growing branch's outward edge",
+          "since": "2026-07-02"
+        },
+        {
+          "id": "long-press-menu",
+          "name": "Long-press context menu on touch/pen",
+          "since": "2026-07-01"
+        },
+        {
+          "id": "search-result-context",
+          "name": "Search-across-maps results show ancestor breadcrumb + note snippet",
+          "since": "2026-06-30"
+        },
+        {
+          "id": "in-note-app-links",
+          "name": "In-note in-app links — [text](#node=…/#map=…) jump through the canvas",
+          "since": "2026-06-30"
+        },
+        {
+          "id": "node-popover-more",
+          "name": "Topic quick-action popover More button (opens the full context menu)",
+          "since": "2026-06-28"
+        },
+        {
+          "id": "note-editor-dock",
+          "name": "Dockable note editor — full-height note editing in the rail",
+          "since": "2026-06-21"
+        },
+        {
+          "id": "inline-link-label",
+          "name": "Inline relationship label editing (double-click the line)",
+          "since": "2026-06-21"
+        }
+      ]
+    }
+  },
+  "git": {
+    "born": "2026-06-11T20:30:20+02:00",
+    "ageDays": 115,
+    "commits": 1238,
+    "commits7d": 0,
+    "authors": [
+      {
+        "name": "Dann Bleeker Pedersen",
+        "count": 590
+      },
+      {
+        "name": "github-actions[bot]",
+        "count": 555
+      },
+      {
+        "name": "Claude",
+        "count": 75
+      }
+    ],
+    "churn30d": {
+      "added": 1533,
+      "removed": 531
+    },
+    "changelogEntries": 470
+  }
+}

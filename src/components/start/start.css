@@ -1,0 +1,792 @@
+/* Start screen — structure + interaction. Theming comes from the --st-* custom properties set on
+   .start by startThemeVars(), so Light/Dark/Ocean/Sunset all work. Emerald accent is fixed. */
+
+.start {
+  height: 100%;
+  display: flex;
+  background: var(--st-page);
+  color: var(--st-ink);
+  font: 14px / 1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Corner-radius scale (theme-independent) — mirrors design/tokens.ts so Start corners line up with the
+     editor. Every non-pill border-radius below resolves to one of these four rungs (the old scattered
+     9/10/14px literals snap to the nearest). Pills (.st-search-bar, .st-recent-item) stay literal 999px. */
+  --st-radius-sm: 5px;
+  --st-radius-md: 6px;
+  --st-radius-lg: 8px;
+  --st-radius-xl: 12px;
+}
+.start *,
+.start *::before,
+.start *::after {
+  box-sizing: border-box;
+}
+.start-mono {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* --- sidebar --- */
+.st-sidebar {
+  width: 228px;
+  flex-shrink: 0;
+  background: var(--st-sidebar);
+  border-right: 1px solid var(--st-border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  gap: 14px;
+  overflow-y: auto;
+}
+.st-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 2px 6px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.st-brand svg {
+  flex-shrink: 0;
+}
+.st-new {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 38px;
+  border: none;
+  border-radius: var(--st-radius-lg);
+  background: var(--st-accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.st-new:hover {
+  background: var(--st-accent-hover);
+}
+/* Hamburger + drawer backdrop are mobile-only chrome (≤640px); hidden on the desktop rail. */
+.st-hamburger {
+  display: none;
+}
+.st-nav-backdrop {
+  display: none;
+}
+.st-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.st-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--st-radius-lg);
+  background: transparent;
+  color: var(--st-ink2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.st-nav-item:hover {
+  background: var(--st-accent-tint);
+  color: var(--st-ink);
+}
+.st-nav-item[aria-current="true"] {
+  background: var(--st-accent-tint);
+  color: var(--st-ink);
+  font-weight: 600;
+}
+.st-nav-item[aria-current="true"] .st-nav-icon {
+  color: var(--st-accent);
+}
+.st-nav-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.st-nav-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--st-muted);
+  background: var(--st-card);
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  padding: 0 7px;
+  line-height: 17px;
+}
+.st-foot {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--st-radius-xl);
+  background: var(--st-card);
+  border: 1px solid var(--st-border);
+  font-size: 11.5px;
+  color: var(--st-muted);
+  line-height: 1.45;
+}
+
+/* --- main column --- */
+.st-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.st-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 30px;
+  border-bottom: 1px solid var(--st-divider);
+  flex-shrink: 0;
+}
+.st-header h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.st-cmdk-trigger {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-card);
+  color: var(--st-muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.12s ease;
+}
+.st-cmdk-trigger:hover {
+  border-color: var(--st-accent);
+}
+.st-kbd {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: var(--st-radius-sm);
+  border: 1px solid var(--st-border);
+  background: var(--st-page);
+  color: var(--st-ink2);
+}
+.st-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+.st-content {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* --- shared primitives --- */
+.st-eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--st-accent);
+  font-weight: 600;
+}
+.st-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.st-section-sub {
+  color: var(--st-ink2);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.st-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.st-link {
+  background: none;
+  border: none;
+  color: var(--st-accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.st-link:hover {
+  color: var(--st-accent-hover);
+  text-decoration: underline;
+}
+.st-card {
+  background: var(--st-card);
+  border: 1px solid var(--st-border);
+  /* 12px to match the editor's card radius (was 14) so the two surfaces read as one product. */
+  border-radius: var(--st-radius-xl);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+.st-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--st-shadow);
+  border-color: var(--st-accent);
+}
+.st-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.st-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-card);
+  color: var(--st-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.st-btn:hover {
+  border-color: var(--st-accent);
+}
+.st-btn-primary {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+  color: #fff;
+}
+.st-btn-primary:hover {
+  background: var(--st-accent-hover);
+  border-color: var(--st-accent-hover);
+}
+.st-input,
+.st-textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 12px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-xl);
+  background: var(--st-page);
+  color: var(--st-ink);
+  font: inherit;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.st-textarea {
+  min-height: 132px;
+  resize: vertical;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.st-input:focus,
+.st-textarea:focus {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+}
+.st-pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  padding: 3px 11px;
+  background: var(--st-card);
+  color: var(--st-ink2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, color 0.12s ease;
+}
+.st-pill:hover {
+  border-color: var(--st-accent);
+  color: var(--st-accent);
+}
+.st-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 9px;
+  background: var(--st-accent-tint);
+  color: var(--st-accent);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* --- tiles (map + template cards) --- */
+.st-tile {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--st-ink);
+  font: inherit;
+}
+.st-thumb {
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: var(--st-page);
+  border-bottom: 1px solid var(--st-divider);
+  /* The MiniMap central node inherits this via currentColor — was a hardcoded indigo (#26215c) that
+     went ~invisible on the dark page; a token tracks light/dark and stays on-brand. */
+  color: var(--st-ink);
+}
+.st-thumb-btn {
+  border: none;
+  width: 100%;
+  cursor: pointer;
+}
+.st-tile-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.st-card-title {
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.st-card-meta {
+  font-size: 11.5px;
+  color: var(--st-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* One-line template/example use-case under the node count (O6). */
+.st-card-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--st-ink2);
+  margin: 4px 0 0;
+}
+.st-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+/* --- kebab --- */
+.st-kebab {
+  position: relative;
+  flex-shrink: 0;
+}
+.st-kebab > summary {
+  list-style: none;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--st-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--st-muted);
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease;
+}
+.st-kebab > summary::-webkit-details-marker {
+  display: none;
+}
+.st-tile:hover .st-kebab > summary,
+.st-kebab[open] > summary {
+  opacity: 1;
+}
+.st-kebab > summary:hover {
+  background: var(--st-accent-tint);
+  color: var(--st-ink);
+}
+.st-kebab-menu {
+  position: absolute;
+  right: 0;
+  top: 26px;
+  z-index: 5;
+  min-width: 132px;
+  padding: 4px;
+  background: var(--st-card);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow);
+  display: flex;
+  flex-direction: column;
+}
+.st-kebab-menu button {
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--st-ink);
+  font: inherit;
+  padding: 6px 9px;
+  border-radius: var(--st-radius-md);
+  cursor: pointer;
+}
+.st-kebab-menu button:hover {
+  background: var(--st-accent-tint);
+}
+
+/* --- capture hero --- */
+.st-hero {
+  padding: 22px;
+}
+.st-hero h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 8px 0 4px;
+}
+.st-hero-sub {
+  color: var(--st-ink2);
+  margin: 0 0 16px;
+}
+.st-tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--st-page);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-xl);
+  margin-bottom: 14px;
+}
+.st-tab {
+  border: none;
+  background: transparent;
+  color: var(--st-ink2);
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: var(--st-radius-lg);
+  cursor: pointer;
+}
+.st-tab[aria-selected="true"] {
+  background: var(--st-card);
+  color: var(--st-ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.st-capture-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.st-try {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--st-muted);
+}
+.st-explain {
+  color: var(--st-ink2);
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+.st-explain kbd {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  padding: 1px 5px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-page);
+}
+.st-layout-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.st-layout-chip {
+  width: 78px;
+  height: 56px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-page);
+  color: #26215c;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--st-muted);
+  transition: border-color 0.12s ease;
+}
+.st-layout-chip:hover {
+  border-color: var(--st-accent);
+}
+
+/* --- list view (All maps) --- */
+.st-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-xl);
+  overflow: hidden;
+}
+.st-list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--st-divider);
+  background: var(--st-card);
+}
+.st-list-row:last-child {
+  border-bottom: none;
+}
+.st-list-row:hover {
+  background: var(--st-accent-tint);
+}
+.st-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.st-select {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-card);
+  color: var(--st-ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.st-empty {
+  text-align: center;
+  color: var(--st-muted);
+  padding: 40px 20px;
+}
+/* The actionable empty-state "New map" button — auto-width + centred (the sidebar .st-new is full-width). */
+.st-empty-new {
+  width: auto;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+/* "New here?" onboarding banner (O9) — a dismissible accent-tinted strip above the capture hero. */
+.st-newhere {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid var(--st-accent);
+  background: var(--st-accent-tint);
+  border-radius: var(--st-radius-xl);
+  color: var(--st-ink);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.st-newhere-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.st-newhere-x {
+  border: none;
+  background: transparent;
+  color: var(--st-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--st-radius-md);
+  padding: 2px 8px;
+}
+.st-newhere-x:hover {
+  background: var(--st-card);
+  color: var(--st-ink);
+}
+
+/* --- learn / about prose --- */
+.st-prose {
+  color: var(--st-ink2);
+  line-height: 1.6;
+  max-width: 640px;
+}
+.st-principles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.st-principle {
+  padding: 16px;
+}
+.st-principle h3 {
+  margin: 8px 0 4px;
+  font-size: 14px;
+}
+.st-principle p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--st-ink2);
+}
+
+/* The command-palette (⌘K) modal styles moved to a co-located CommandPalette.css imported by the
+   component, so they load in the editor too — this start.css is lazy-loaded with the Start screen, which
+   left ⌘K unstyled (a full-viewport list) when a map opened straight into the editor. The Start-only
+   `.st-cmdk-trigger` button (the header search field) stays here. */
+
+/* Keyboard focus across all Start interactive controls. The editor gives its chrome a visible
+   :focus-visible ring; mirror it here so keyboard focus reads identically on the landing surface
+   (WCAG 2.4.7). Inputs keep their own focus box-shadow (above); these are the button / link / tile /
+   nav surfaces that otherwise fall back to a clipped UA outline. */
+.st-new:focus-visible,
+.st-nav-item:focus-visible,
+.st-cmdk-trigger:focus-visible,
+.st-link:focus-visible,
+.st-btn:focus-visible,
+.st-pill:focus-visible,
+.st-tab:focus-visible,
+.st-tile:focus-visible,
+.st-thumb-btn:focus-visible,
+.st-hamburger:focus-visible,
+.st-newhere-x:focus-visible,
+.st-kebab > summary:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 1px;
+}
+
+/* Tactile press feedback — a 1px down-nudge on pointer-down, the cosmetic sibling of the editor's
+   .mm-tbtn:active. Nulled under reduced-motion below. */
+.st-btn:active,
+.st-new:active,
+.st-pill:active {
+  transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start * {
+    transition: none !important;
+  }
+  .st-card-hover:hover {
+    transform: none;
+  }
+  .st-btn:active,
+  .st-new:active,
+  .st-pill:active {
+    transform: none;
+  }
+}
+
+/* --- phones: the fixed 228px rail would crush the content, so stack it into a top nav --- */
+@media (max-width: 640px) {
+  .start {
+    flex-direction: column;
+  }
+  .st-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid var(--st-border);
+    padding: 10px 12px;
+    gap: 8px;
+    overflow-y: visible;
+  }
+  .st-brand {
+    margin-right: auto; /* push the New-map button + hamburger to the right */
+  }
+  .st-new {
+    width: auto;
+    min-height: 34px;
+    padding: 0 14px;
+  }
+  /* Hamburger toggle — shown only on the narrow top bar. */
+  .st-hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    min-height: 34px;
+    border: 1px solid var(--st-border);
+    border-radius: var(--st-radius-lg);
+    background: var(--st-card);
+    color: var(--st-ink);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  /* The section nav becomes a slide-in drawer off the left edge. */
+  .st-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 50;
+    width: 264px;
+    max-width: 82vw;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 12px;
+    background: var(--st-sidebar);
+    border-right: 1px solid var(--st-border);
+    box-shadow: var(--ed-shadow-pop, 0 12px 30px rgba(0, 0, 0, 0.2));
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.18s ease;
+  }
+  .st-nav.is-open {
+    transform: translateX(0);
+  }
+  .st-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    border: none;
+    background: rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+  }
+  .st-foot {
+    display: none; /* privacy footer is noise on a narrow top bar */
+  }
+  .st-header {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .st-kbd {
+    display: none; /* no physical ⌘K on a phone */
+  }
+  .st-content {
+    padding: 18px 16px;
+  }
+}

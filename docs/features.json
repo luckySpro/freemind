@@ -1,0 +1,2324 @@
+{
+  "$comment": "Curated catalogue of user-facing capabilities — the denominator for documentation coverage. One row per capability. `manual` = covered in USER_GUIDE.md; `book` = covered in a docs/guide chapter; `bookExample` = that chapter carries a worked example. `since` is the date the capability shipped (YYYY-MM-DD). Guarded by scripts/check-feature-coverage.mjs and consumed by scripts/build-stats.mjs.",
+  "reviewedThroughChangelogBullets": 470,
+  "areas": [
+    "editing",
+    "notes",
+    "markers",
+    "styling",
+    "images",
+    "structure",
+    "navigation",
+    "library",
+    "import",
+    "export",
+    "presentation",
+    "pwa"
+  ],
+  "features": [
+    {
+      "id": "canvas-shapes",
+      "name": "Free background shapes (rectangle / ellipse / block arrow / chevron) — a positioned, resizable canvas-object layer for SWOT/Venn/risk composition",
+      "area": "structure",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "smart-containers",
+      "name": "Smart containers (swimlane / matrix) that capture and move their contained topics when dragged",
+      "area": "structure",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "stylebar-reflects-state",
+      "name": "StyleBar reflects the selection's active style (shape / fill / border / bold / shadow / font) with touch-sized, grouped controls",
+      "area": "styling",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": false,
+      "bookExample": false
+    },
+    {
+      "id": "deck-live-map-slides",
+      "name": "Live-map slides (HTML & PowerPoint deck exports render each branch as its actual map image, not bullets)",
+      "area": "export",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "board-group-source",
+      "name": "Board grouping by marker group or schedule dates (drag a card to re-mark or re-schedule the topic)",
+      "area": "navigation",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "png-export-options",
+      "name": "PNG export options: 2×/4× scale factor and transparent background",
+      "area": "export",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "export-pdf-file",
+      "name": "Direct PDF file export with page-size (fit / A4 / Letter) and orientation (distinct from print-to-PDF)",
+      "area": "export",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "mmap-export-fidelity",
+      "name": "MindManager .mmap export fidelity: writes topic tags, task metadata and embedded images",
+      "area": "export",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "smart-paste-v",
+      "name": "Smart Ctrl+V routing (image / outline / URL / internal branch clipboard handled automatically)",
+      "area": "editing",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "shift-project-dates",
+      "name": "Move project: shift all task start/due dates ±N days (branch or whole map) in one undo step",
+      "area": "markers",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "drag-detach-copy",
+      "name": "Drag modifiers: Shift-drag detaches a topic to floating, Ctrl-drag copies the subtree",
+      "area": "structure",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "relationship-context-menu",
+      "name": "Relationship right-click menu (edit label, arrowheads/direction, line style, semantic type, delete)",
+      "area": "structure",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "keyboard-zoom",
+      "name": "Keyboard zoom shortcuts: Ctrl/⌘ + / − / 0 (zoom in / out / reset)",
+      "area": "navigation",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "tag-accelerator",
+      "name": "Inline #tag accelerator: typing # mid-topic pops the tag picker to assign an existing or new tag",
+      "area": "markers",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "quick-filter-from-marker",
+      "name": "Quick Filter from any marker or tag row in the Markers & tags index (pre-fills the Power Filter)",
+      "area": "navigation",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "search-history",
+      "name": "Find & Replace search history (recalls the last ~10 queries)",
+      "area": "navigation",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "sticky-note-colours",
+      "name": "Sticky-note colour set at insert time with a remembered preferred default",
+      "area": "structure",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "custom-theme-designer",
+      "name": "Custom theme designer (build / save / import-export your own canvas themes)",
+      "area": "styling",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "library-folders",
+      "name": "Library folders / workspaces (group maps into named folders; ⌘K switcher groups by folder)",
+      "area": "library",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "relationship-types",
+      "name": "Typed relationship categories (relates-to / depends-on / causes / supports / blocks, with labels + filtering)",
+      "area": "structure",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "export-branch",
+      "name": "Export a single branch / subtree (\"Export this branch…\" from the node menu, any format)",
+      "area": "export",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "deck-speaker-notes",
+      "name": "Speaker notes in the exported HTML slide deck + PowerPoint (per-slide notes; N to toggle / notes slides)",
+      "area": "export",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "natural-language-dates",
+      "name": "Natural-language date entry (type \"tomorrow\", \"next monday\", \"+3d\" in date fields)",
+      "area": "editing",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "touch-outline-reorder",
+      "name": "Touch drag-to-reorder in the Outline (long-press a row and drag on touch devices)",
+      "area": "editing",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "space-pan-mode",
+      "name": "Space-bar pan mode (hold Space + drag to pan from anywhere, even over a topic)",
+      "area": "navigation",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "trash-undo-delete",
+      "name": "Trash / undo-delete for maps (recoverable soft-delete + Trash view)",
+      "area": "library",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "cross-tab-clobber-guard",
+      "name": "Cross-tab clobber guard (warn when a map is open in two tabs)",
+      "area": "library",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "file-conflict-detection",
+      "name": "External-file conflict detection (prompt before overwriting a disk file that changed)",
+      "area": "library",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "open-recent-files",
+      "name": "Open Recent — reopen recently-opened disk files from the File menu",
+      "area": "library",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "big-map-virtualisation",
+      "name": "Big-map virtualisation (render only visible elements above ~500 nodes)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "cinematic-walkthrough",
+      "name": "Cinematic visual-map walkthrough (guided walk frames each branch with animated zoom)",
+      "area": "presentation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "free-colour-pickers",
+      "name": "Free colour pickers for node text / fill / branch (StyleBar)",
+      "area": "styling",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "paste-url-title",
+      "name": "Paste a URL → a node titled from the URL (offline)",
+      "area": "editing",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "copy-map-image",
+      "name": "Copy the map to the clipboard as a PNG image",
+      "area": "export",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "presenter-timer",
+      "name": "Presenter pacing timer + budget colour + B/W blackout",
+      "area": "presentation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "cross-map-switcher",
+      "name": "Switch to another library map from the ⌘K palette",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "reveal-in-outline",
+      "name": "Selecting a node scrolls its row into view in the Outline",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "sort-children",
+      "name": "Sort a topic's children by name / priority / due date / progress",
+      "area": "editing",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "multi-branch-clipboard",
+      "name": "Copy + paste multiple selected branches at once (cross-map)",
+      "area": "editing",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "outgoing-links-inspector",
+      "name": "\"Links to\" inspector section (outgoing links + relationships)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "relationships-panel",
+      "name": "Map-wide Relationships panel (every link + relationship, click-to-jump)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "promote-branch-to-map",
+      "name": "New map from this topic (promote a branch to its own library map)",
+      "area": "library",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "merge-map-as-branch",
+      "name": "Insert a library map as a branch under the selected topic",
+      "area": "library",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "add-affordances",
+      "name": "＋ to add a child or sibling topic (on hover; in the action bar on touch)",
+      "area": "editing",
+      "since": "2026-06-18",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "overlay-context-menu",
+      "name": "Right-click menu on overlays (recolour / shape / outline / delete)",
+      "area": "structure",
+      "since": "2026-06-28",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "node-popover-more",
+      "name": "Topic quick-action popover More button (opens the full context menu)",
+      "area": "editing",
+      "since": "2026-06-28",
+      "manual": true,
+      "book": false,
+      "bookExample": false
+    },
+    {
+      "id": "canvas-gestures",
+      "name": "Pan, scroll-zoom & double-click the canvas to add a topic",
+      "area": "navigation",
+      "since": "2026-06-18",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "cmdk-jump",
+      "name": "Jump to any topic from ⌘K (fuzzy over text + notes)",
+      "area": "navigation",
+      "since": "2026-06-18",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "shortcuts-cheatsheet",
+      "name": "Keyboard shortcuts cheat-sheet (? button / ⌘K)",
+      "area": "navigation",
+      "since": "2026-06-18",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "first-run-tips",
+      "name": "First-run \"3 things to try\" card, re-openable from Settings, ⌘K & the help rail",
+      "area": "navigation",
+      "since": "2026-06-28",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "keyboard-editing",
+      "name": "Keyboard editing (Enter/Tab/Ctrl+Enter/Delete)",
+      "area": "editing",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "edit-in-place",
+      "name": "Edit a topic in place — type to edit, F2, or double-click",
+      "area": "editing",
+      "since": "2026-06-18",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "drag-reparent",
+      "name": "Drag to re-parent a node",
+      "area": "editing",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "undo-redo",
+      "name": "Undo / redo (model-synced)",
+      "area": "editing",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "node-menu",
+      "name": "Node editor panel (icons, tags, font size/colour, link)",
+      "area": "editing",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "edit-capture",
+      "name": "Canvas edits captured into the canonical model",
+      "area": "editing",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "rich-text-topics",
+      "name": "Inline rich-text topics (bold / italic / underline)",
+      "area": "editing",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "notes-editor",
+      "name": "Notes editor for the selected node",
+      "area": "notes",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "notes-markdown",
+      "name": "Markdown preview for node notes",
+      "area": "notes",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "topic-info-panel",
+      "name": "Unified topic info panel (note/markers/tags/style/links)",
+      "area": "editing",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "tag-editing",
+      "name": "Add / remove tags on a node",
+      "area": "markers",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "task-progress",
+      "name": "Task progress (0–100%) with automatic parent roll-up",
+      "area": "markers",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "task-priority",
+      "name": "Task priority (High/Med/Low) with a priority filter",
+      "area": "markers",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "task-dates",
+      "name": "Start / due dates with overdue highlighting + a due-date filter",
+      "area": "markers",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "marker-palette",
+      "name": "Marker palette (click to toggle on a node)",
+      "area": "markers",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "imported-icon-emoji",
+      "name": "Imported .mmap icons rendered as emoji",
+      "area": "markers",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "per-topic-style",
+      "name": "Per-topic styling (shape, fill, border, bold)",
+      "area": "styling",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "theme-gallery",
+      "name": "Canvas theme gallery (Light/Dark/Ocean/Sunset)",
+      "area": "styling",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "app-dark-mode",
+      "name": "App-wide dark mode (System / Light / Dark chrome, honours prefers-color-scheme)",
+      "area": "styling",
+      "since": "2026-06-28",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "canvas-background",
+      "name": "Per-map canvas background colour",
+      "area": "styling",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "canvas-background-image",
+      "name": "Per-map canvas background image (data URL behind the map; canvas == export)",
+      "area": "styling",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "sticker-library",
+      "name": "Built-in sticker / illustration library (inline-SVG glyphs applied as a node image)",
+      "area": "styling",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "per-topic-font",
+      "name": "Per-topic font size / colour / background",
+      "area": "styling",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "map-typography",
+      "name": "Per-map typography (base font family + size scale; canvas == export)",
+      "area": "styling",
+      "since": "2026-06-22",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "node-images",
+      "name": "Attach images to nodes",
+      "area": "images",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "boundaries",
+      "name": "Boundaries — filled-box enclosures (render + draw + label, two-way)",
+      "area": "structure",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "summary-topics",
+      "name": "Summary topics — a labelled bracket beside a branch (side-aware, renamable)",
+      "area": "structure",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "node-shapes",
+      "name": "Node shapes — diamond / oval / parallelogram / hexagon / cylinder (flowchart vocabulary), canvas == export",
+      "area": "structure",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "extended-shapes",
+      "name": "Extended vector shapes — trapezoid / octagon / document / callout / star / cloud, from the one shared path builder (canvas == export)",
+      "area": "styling",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "freeform-mode",
+      "name": "Free-canvas / whiteboard mode — 🧲 Free layout: drag nodes anywhere (pos persisted; auto-layout pauses)",
+      "area": "structure",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "diagram-backdrops",
+      "name": "Diagram backdrops — ◎ Diagram builder: onion / funnel / Venn (2,3) frames; drop topics into regions (canvas == export)",
+      "area": "structure",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "relationships",
+      "name": "Relationship arrows — directional arrowhead at the target (render + draw)",
+      "area": "structure",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "relationship-presets",
+      "name": "Relationship style presets (one-click dash/width/curve/arrowhead looks)",
+      "area": "structure",
+      "since": "2026-06-22",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "line-jumps",
+      "name": "Line-jumps on crossing connectors (per-map toggle; hop on one of two crossing relationships)",
+      "area": "styling",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "floating-topics",
+      "name": "Floating topics (imported, editable)",
+      "area": "structure",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "detach-branch",
+      "name": "Detach a branch to a floating topic (and re-attach)",
+      "area": "structure",
+      "since": "2026-06-22",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "cross-map-links",
+      "name": "Cross-map links between maps",
+      "area": "structure",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "node-jump-links",
+      "name": "In-map topic→topic jump links (click 🔗)",
+      "area": "structure",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "callouts",
+      "name": "Anchored callout annotations on nodes",
+      "area": "structure",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "outline",
+      "name": "Outline side panel (click to focus)",
+      "area": "navigation",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "outline-filter",
+      "name": "Filter the outline by topic",
+      "area": "navigation",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "marker-tag-index",
+      "name": "Marker & tag index panel (click to jump)",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "auto-numbering",
+      "name": "Auto-numbering of topics (1, 1.2, …)",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "power-filter",
+      "name": "Read-only Power Filter (dim by marker/tag/text)",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "focus-branch",
+      "name": "Focus / isolate a branch (dim the rest)",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "saved-filters",
+      "name": "Saved Power Filter presets (named, reusable across maps)",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "find-replace",
+      "name": "Find (topics + notes) & Replace",
+      "area": "navigation",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "replace-scope",
+      "name": "Replace scope: topics, notes, or both",
+      "area": "navigation",
+      "since": "2026-06-22",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "fuzzy-find",
+      "name": "Typo-tolerant Find (fuzzy fallback)",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "find-shortcut",
+      "name": "Press / to focus Find",
+      "area": "navigation",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "arrow-nav",
+      "name": "Arrow-key topic navigation (←parent / →child / ↑↓ siblings)",
+      "area": "navigation",
+      "since": "2026-06-22",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "library-search",
+      "name": "Library-wide search (all maps)",
+      "area": "navigation",
+      "since": "2026-06-13",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "collapse-expand",
+      "name": "Collapse / expand all branches",
+      "area": "navigation",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "fit",
+      "name": "Fit map to viewport",
+      "area": "navigation",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "minimap-zoom",
+      "name": "Status-bar zoom menu (in/out/100%/fit) with a show-minimap toggle; corner minimap",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "layout-direction",
+      "name": "Layout direction (both / right / left)",
+      "area": "navigation",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "alternate-layouts",
+      "name": "Alternate layouts (org-chart, radial, timeline, fishbone, grid/matrix, brace map)",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "per-branch-layout",
+      "name": "Per-branch layout — right-click a branch → Branch layout; its subtree uses its own kind (blob-sized, composes)",
+      "area": "navigation",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "multi-map-library",
+      "name": "Multi-map library (switch / new / delete)",
+      "area": "library",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "templates",
+      "name": "New-map templates (blank + structured-thinking starters)",
+      "area": "library",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "example-gallery",
+      "name": "Pre-built example maps (20 worked examples)",
+      "area": "library",
+      "since": "2026-06-13",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "duplicate-map",
+      "name": "Duplicate the current map",
+      "area": "library",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "version-history",
+      "name": "Per-map version history (snapshot + restore)",
+      "area": "library",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "history-playback",
+      "name": "Version-history timeline playback (play / scrub a map's snapshots)",
+      "area": "library",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "library-backup",
+      "name": "Whole-library backup & restore",
+      "area": "library",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "autosave-reload",
+      "name": "Autosave + restore last-opened map",
+      "area": "library",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "panel-persistence",
+      "name": "Remembered open-panel workspace",
+      "area": "library",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-mmap",
+      "name": "Import MindManager .mmap (lossy, one-way)",
+      "area": "import",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-docx",
+      "name": "Import Word .docx (outline → tree)",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-xlsx",
+      "name": "Import Excel .xlsx (indented outline → tree)",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-markdown",
+      "name": "Import Markdown outlines",
+      "area": "import",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "paste-text",
+      "name": "Paste text → map (outline/bullets/Markdown to topics)",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "styles-organizer",
+      "name": "Styles organizer (save + reuse named node styles)",
+      "area": "styling",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "conditional-formatting",
+      "name": "Conditional formatting (auto-style by tag / marker / completion)",
+      "area": "styling",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "tag-colour",
+      "name": "Tag → colour mapping (swatch per tag tints matching topics)",
+      "area": "styling",
+      "since": "2026-06-22",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "kanban-board",
+      "name": "Board view (Kanban) — topics grouped into columns by tag, drag a card to re-tag",
+      "area": "navigation",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "file-attachments",
+      "name": "File attachments on topics (inline, downloadable)",
+      "area": "notes",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "quick-add",
+      "name": "Quick add box (rapid topic capture from the header)",
+      "area": "editing",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "drop-link",
+      "name": "Drop a link/text onto the canvas → floating topic",
+      "area": "editing",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "brainstorm-timer",
+      "name": "Brainstorm timer (timeboxed idea sprints)",
+      "area": "editing",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-json",
+      "name": "Import native .json (lossless)",
+      "area": "import",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-opml",
+      "name": "Import OPML outlines",
+      "area": "import",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-freemind",
+      "name": "Import FreeMind / Freeplane .mm",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-mermaid",
+      "name": "Import Mermaid mindmap",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-xmind",
+      "name": "Import XMind .xmind (content.json + legacy content.xml)",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-mindmup",
+      "name": "Import MindMup (.mup) JSON maps",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-markmap",
+      "name": "Import Markmap Markdown (frontmatter + multi-level headings)",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-smmx",
+      "name": "Import SimpleMind .smmx",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-ithoughts",
+      "name": "Import iThoughts .itmz",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-mindmeister",
+      "name": "Import MindMeister .mind",
+      "area": "import",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "batch-import",
+      "name": "Multi-file batch import",
+      "area": "import",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-json",
+      "name": "Export native .json (lossless)",
+      "area": "export",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-markdown",
+      "name": "Export Markdown",
+      "area": "export",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-opml",
+      "name": "Export OPML",
+      "area": "export",
+      "since": "2026-06-12",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-freemind",
+      "name": "Export FreeMind / Freeplane .mm",
+      "area": "export",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-mermaid",
+      "name": "Export Mermaid mindmap",
+      "area": "export",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-xmind",
+      "name": "Export XMind .xmind (2020+)",
+      "area": "export",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-smmx",
+      "name": "Export SimpleMind .smmx",
+      "area": "export",
+      "since": "2026-06-14",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-mmap",
+      "name": "Export MindManager .mmap",
+      "area": "export",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-image",
+      "name": "Export PNG / SVG",
+      "area": "export",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-html",
+      "name": "Export self-contained HTML",
+      "area": "export",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-interactive-html",
+      "name": "Export interactive (collapsible + filterable) HTML",
+      "area": "export",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-pdf",
+      "name": "Print to PDF",
+      "area": "export",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-deck",
+      "name": "Export standalone HTML slide deck",
+      "area": "export",
+      "since": "2026-06-13",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-docx",
+      "name": "Export Word .docx outline",
+      "area": "export",
+      "since": "2026-06-13",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-pptx",
+      "name": "Export PowerPoint .pptx deck",
+      "area": "export",
+      "since": "2026-06-13",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "export-xlsx",
+      "name": "Export Excel .xlsx outline",
+      "area": "export",
+      "since": "2026-06-13",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "copy-outline",
+      "name": "Copy outline (Markdown) to clipboard",
+      "area": "export",
+      "since": "2026-06-13",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "presentation-mode",
+      "name": "Walk-Through presentation mode (true fullscreen, key-hint footer, Home → first slide)",
+      "area": "presentation",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "presenter-view",
+      "name": "Presenter view (speaker notes, next-up, agenda map)",
+      "area": "presentation",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "pwa-offline",
+      "name": "Offline-capable (precached app shell)",
+      "area": "pwa",
+      "since": "2026-06-11",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "pwa-install",
+      "name": "Installable to desktop / home screen (in-app Install button + iOS Add-to-Home hint)",
+      "area": "pwa",
+      "since": "2026-06-28",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "pwa-self-update",
+      "name": "Self-update prompt (New version — Refresh now)",
+      "area": "pwa",
+      "since": "2026-06-13",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "start-screen",
+      "name": "Start screen (home: capture hero, library, templates, layouts, ⌘K palette)",
+      "area": "library",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "cross-map-branch-paste",
+      "name": "Cross-map branch copy/paste (right-click Copy branch / Paste branch here; persistent clipboard)",
+      "area": "editing",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "sticky-notes",
+      "name": "Sticky-note topics (🗒 Note — a free-floating amber note)",
+      "area": "structure",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "mobile-responsive",
+      "name": "Mobile-friendly responsive layout (compact toolbar + bottom-sheet panels + stacked start nav on phones)",
+      "area": "pwa",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "multi-map-rollups",
+      "name": "Automated multi-map roll-ups (bind a node to another map; 🔄 refresh pulls its branches)",
+      "area": "library",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "per-topic-font-family",
+      "name": "Per-topic font family (Sans / Serif / Mono picker in the Styles bar; canvas == export)",
+      "area": "styling",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "import-textbundle",
+      "name": "Import TextBundle / TextPack (.textpack — Bear / Ulysses / iA Writer Markdown)",
+      "area": "import",
+      "since": "2026-06-15",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "inspector-node-timestamps",
+      "name": "Per-node created / modified timestamps (shown in the inspector)",
+      "area": "editing",
+      "since": "2026-06-17",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "bulk-markers-tags",
+      "name": "Bulk markers + tags across a multi-selection (tri-state add/remove)",
+      "area": "markers",
+      "since": "2026-06-17",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "overlay-inspector",
+      "name": "Click a boundary / summary / callout to edit it in the inspector (label, delete)",
+      "area": "structure",
+      "since": "2026-06-17",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "overlay-colours",
+      "name": "Per-overlay colours (boundary / summary / callout / backdrop, canvas == export)",
+      "area": "styling",
+      "since": "2026-06-17",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "editor-command-palette",
+      "name": "In-editor command palette (⌘K) — fuzzy search + run any toolbar action",
+      "area": "navigation",
+      "since": "2026-06-17",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "accessible-menus",
+      "name": "Keyboard-accessible toolbar / context menus + mobile bottom sheets",
+      "area": "navigation",
+      "since": "2026-06-17",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "files-mmst",
+      "name": "Work with maps as files on disk (.mmst): Open / Save / autosave + Windows file association",
+      "area": "library",
+      "since": "2026-06-19",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "gtd-areas-example",
+      "name": "GTD Areas of Focus worked example",
+      "area": "library",
+      "since": "2026-06-19",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "detail-levels",
+      "name": "Detail levels — expand the map to a chosen depth",
+      "area": "structure",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "format-painter",
+      "name": "Format painter — copy a topic's style and paste it across the selection",
+      "area": "styling",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "auto-colour-branches",
+      "name": "Auto-colour branches from the theme palette",
+      "area": "styling",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "rich-text-toolbar",
+      "name": "Inline rich-text mini-toolbar (bold / italic / underline / colour) while editing",
+      "area": "notes",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "hover-peek",
+      "name": "Hover-peek for notes & attachments",
+      "area": "notes",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "drag-markers",
+      "name": "Drag markers from the inspector onto topics",
+      "area": "markers",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "canvas-breadcrumb",
+      "name": "Canvas breadcrumb bar — click an ancestor to centre it",
+      "area": "navigation",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "drill-in",
+      "name": "Drill in (focus on topic) — re-root the view at a topic's subtree",
+      "area": "navigation",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "fullscreen-editing",
+      "name": "Full-screen editing (chrome hidden; browser full screen where allowed)",
+      "area": "navigation",
+      "since": "2026-09-24",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "read-only-mode",
+      "name": "Read-only mode (🔒) — lock editing for the session; folding still works",
+      "area": "presentation",
+      "since": "2026-09-24",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "inspector-on-request",
+      "name": "Topic inspector opens on request (action-bar ⓘ); opt-in open-on-select setting",
+      "area": "editing",
+      "since": "2026-09-24",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "status-bar",
+      "name": "Canvas status bar — visible topic count, selection size, live zoom",
+      "area": "navigation",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "align-distribute",
+      "name": "Align & distribute selected topics (free-canvas mode)",
+      "area": "structure",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "lock-position",
+      "name": "Lock a topic's position (pin in place; un-draggable, align/distribute skip it)",
+      "area": "structure",
+      "since": "2026-06-22",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "keyboard-restructure",
+      "name": "Keyboard restructuring — move topics up/down, promote/demote",
+      "area": "editing",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "paste-image",
+      "name": "Paste an image from the clipboard onto a topic",
+      "area": "images",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "find-highlight-all",
+      "name": "Find highlights every match on the canvas",
+      "area": "navigation",
+      "since": "2026-06-20",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "marker-library",
+      "name": "Searchable marker library",
+      "area": "markers",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "marker-groups",
+      "name": "Marker groups (single-select sets: Priority / Status / Mood / Vote)",
+      "area": "markers",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "tag-manager",
+      "name": "Tag autocomplete + map-wide tag manager (rename / merge / delete)",
+      "area": "markers",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "topic-fills",
+      "name": "Branch-colour topic fills (tint & gradient)",
+      "area": "styling",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "image-fill",
+      "name": "Image fill for topics (a picture covering the whole card)",
+      "area": "images",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "design-gallery",
+      "name": "Design gallery — one-click theme + connector looks",
+      "area": "styling",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "smartrules",
+      "name": "Conditional-format triggers: overdue / priority / text-contains / has-attachment",
+      "area": "styling",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "editable-outline",
+      "name": "Editable outline panel — rename, promote/demote, drag-reorder",
+      "area": "structure",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "numbering-schemes",
+      "name": "Outline numbering schemes (decimal / legal outline)",
+      "area": "structure",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "map-statistics",
+      "name": "Map statistics panel (+ word count & reading time)",
+      "area": "navigation",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "filter-hide-extract",
+      "name": "Power Filter hide mode + extract matches to a new map",
+      "area": "navigation",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "map-legend",
+      "name": "On-canvas map legend (markers / tags / rules), carried into exports",
+      "area": "navigation",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "paste-table",
+      "name": "Paste a spreadsheet selection as topics (row → topic, columns → note / tags)",
+      "area": "import",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "drag-relate",
+      "name": "Drag-to-relate — draw a cross-link by dragging from a topic's grip",
+      "area": "editing",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "guided-walk",
+      "name": "Guided walk — step through topics with a spotlight + speaker notes",
+      "area": "presentation",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "copy-table",
+      "name": "Copy map as a table (TSV) — Topic / Depth / Note / Tags to the clipboard",
+      "area": "export",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "map-parts",
+      "name": "Map parts — insert a ready-made mini-structure (SWOT / pros-cons / 5W1H / agenda)",
+      "area": "editing",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "task-checkbox",
+      "name": "Quick task toggle — a hover checkbox to cycle not-a-task / to-do / done",
+      "area": "editing",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "group-selection",
+      "name": "Group a multi-selection of topics in one boundary box",
+      "area": "structure",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "marker-suggestions",
+      "name": "Auto-marker suggestions from a topic's text",
+      "area": "markers",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "note-editor-dock",
+      "name": "Dockable note editor — full-height note editing in the rail",
+      "area": "notes",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": false,
+      "bookExample": false
+    },
+    {
+      "id": "saved-views",
+      "name": "Saved views — bookmark pan/zoom + drill + filter and jump back",
+      "area": "navigation",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "align-guides",
+      "name": "Smart alignment guides + snapping (free-canvas drag)",
+      "area": "structure",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "isolate-branch",
+      "name": "Isolate branch — collapse other top branches and reveal the path to a topic",
+      "area": "navigation",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "spellcheck-toggle",
+      "name": "Spell-check toggle for the topic + note editors",
+      "area": "editing",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "numbered-export",
+      "name": "Bake outline numbers into the copied outline / Markdown export",
+      "area": "export",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "topic-wrap-width",
+      "name": "Per-topic wrap width (long topics wrap instead of stretching)",
+      "area": "styling",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "inline-link-label",
+      "name": "Inline relationship label editing (double-click the line)",
+      "area": "structure",
+      "since": "2026-06-21",
+      "manual": true,
+      "book": false,
+      "bookExample": false
+    },
+    {
+      "id": "library-filter",
+      "name": "Filter your maps by title (All maps search box)",
+      "area": "library",
+      "since": "2026-06-29",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "pin-map",
+      "name": "Pin a map to the top of the library",
+      "area": "library",
+      "since": "2026-06-29",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "search-all-fields",
+      "name": "Find searches every node field (tags, markers, hyperlink, callouts, attachments, resources)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "search-operators",
+      "name": "Scoped / operator search (tag:, marker:, priority:, due:, has:, level:, -exclude, \"phrase\")",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "deep-link-node",
+      "name": "Deep-link to a node (?node= URL + Copy link to this topic)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "nav-back-forward",
+      "name": "Back / forward navigation history (Alt+← / Alt+→)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "search-result-context",
+      "name": "Search-across-maps results show ancestor breadcrumb + note snippet",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": false,
+      "bookExample": false
+    },
+    {
+      "id": "find-results-list",
+      "name": "In-map Find 'List all' — clickable list of every match (vs only next/prev)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "filter-completion",
+      "name": "Power Filter by completion status (Done / In progress / Not done)",
+      "area": "structure",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "settings-shortcut",
+      "name": "Ctrl/⌘+, opens Settings & preferences",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "reduced-motion",
+      "name": "Reduced-motion support — OS prefers-reduced-motion + in-app toggle (canvas + guided walk)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "cross-map-topic-links",
+      "name": "Cross-map topic links — #map=<id>&node=<id> opens another map + focuses a topic",
+      "area": "structure",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "in-note-app-links",
+      "name": "In-note in-app links — [text](#node=…/#map=…) jump through the canvas",
+      "area": "structure",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": false,
+      "bookExample": false
+    },
+    {
+      "id": "burst-quick-capture",
+      "name": "Multi-line burst quick-capture — a pasted outline becomes a subtree in one step",
+      "area": "editing",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "outline-keyboard-reorder",
+      "name": "Keyboard Outline reorder/indent (Shift+Arrows)",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "sr-overlay-lists",
+      "name": "Screen-reader lists for boundaries / summaries / callouts",
+      "area": "navigation",
+      "since": "2026-06-30",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "cross-map-backlinks",
+      "name": "Cross-map backlinks — inspector 'Linked from other maps'",
+      "area": "structure",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "cross-map-topic-picker",
+      "name": "Cross-map topic picker — refine a #map= link to a specific topic",
+      "area": "structure",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "smart-paste-markdown",
+      "name": "Markdown shorthand on paste — checkboxes, links, and emphasis parse into structure",
+      "area": "editing",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "long-press-menu",
+      "name": "Long-press context menu on touch/pen",
+      "area": "navigation",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": false,
+      "bookExample": false
+    },
+    {
+      "id": "quick-capture-inbox",
+      "name": "Quick-capture inbox — map-independent 'Unfiled' bucket, file onto a map later",
+      "area": "editing",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": true
+    },
+    {
+      "id": "high-contrast-theme",
+      "name": "High-contrast theme — OS prefers-contrast/forced-colors + in-app toggle",
+      "area": "navigation",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "multiple-hyperlinks",
+      "name": "Multiple hyperlinks per topic — additional links beyond the primary (inspector-managed)",
+      "area": "structure",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "slash-command-menu",
+      "name": "Slash / command menu in the topic editor — keyboard insert of child/task/date/boundary/note/marker",
+      "area": "editing",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "link-autocomplete",
+      "name": "[[ / @ name-based link autocomplete — pick a topic by name to attach a link",
+      "area": "structure",
+      "since": "2026-07-01",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "rules-and-not-conditions",
+      "name": "Conditional rules: AND-ed extra conditions, each independently NOT-negatable",
+      "area": "styling",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "rules-due-soon-trigger",
+      "name": "Conditional rules: a \"due soon\" trigger kind (reuses the filter/search due-soon window)",
+      "area": "styling",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "priority-full-range",
+      "name": "Full 1-9 task priority in every picker, Power Filter, and Ctrl/Cmd+Shift+1-9 shortcuts",
+      "area": "markers",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "insert-menu-submenus",
+      "name": "Insert menu fly-out submenus (Map parts / Templates) via a reusable MenuSub primitive",
+      "area": "editing",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "layout-gallery",
+      "name": "Visual Layout gallery (SVG thumbnails) in the Map panel, replacing the text-only layout select",
+      "area": "styling",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "design-gallery-map-panel",
+      "name": "Design presets gallery consolidated into the Map panel (moved from the Toolbar Canvas menu)",
+      "area": "styling",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    },
+    {
+      "id": "side-aware-grips",
+      "name": "Relate + wrap-width grips mirror to a left-growing branch's outward edge",
+      "area": "editing",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": false,
+      "bookExample": false
+    },
+    {
+      "id": "status-bar-view-switcher",
+      "name": "Status-bar Map / Outline / Board view switcher (one-click peer projections)",
+      "area": "navigation",
+      "since": "2026-07-02",
+      "manual": true,
+      "book": true,
+      "bookExample": false
+    }
+  ]
+}

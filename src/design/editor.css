@@ -1,0 +1,1767 @@
+/* editor.css — redesigned editor chrome (icon rail, two-row top bar, inspector, map-stats).
+ *
+ * Consumes the `--ed-*` custom properties emitted by editorThemeVars() on the `.mm-editor` root, so
+ * the whole chrome re-themes with the canvas theme (Light / Dark / Ocean / Sunset). The warm-cream
+ * surfaces + emerald accent match the shipped start screen, so the editor and start screen read as
+ * one product. The canvas itself keeps its own theme system (mindmap/theme.ts) — untouched here.
+ */
+
+.mm-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  background: var(--ed-page);
+  color: var(--ed-ink);
+  font-family: var(--ed-font-sans);
+}
+
+.mm-editor-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mm-editor *,
+.mm-editor *::before,
+.mm-editor *::after {
+  box-sizing: border-box;
+}
+
+.mm-mono {
+  font-family: var(--ed-font-mono);
+}
+
+/* ── Icon rail ────────────────────────────────────────────────────────────── */
+.mm-rail {
+  width: 56px;
+  flex-shrink: 0;
+  background: var(--ed-sidebar);
+  border-right: 1px solid var(--ed-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 11px 0;
+  gap: 4px;
+}
+
+.mm-rail-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--ed-dur-fast), color var(--ed-dur-fast);
+  background: transparent;
+  color: var(--ed-muted);
+  font-family: inherit;
+}
+.mm-rail-btn:hover {
+  background: rgba(127, 119, 90, 0.1);
+  color: var(--ed-ink);
+}
+.mm-rail-btn[aria-pressed="true"] {
+  background: var(--ed-accent-tint);
+  color: var(--ed-accent);
+}
+/* A 3px accent edge on the active rail item — selection should be the strongest state, not the faintest
+   (the tint alone is weak, especially in dark mode). Matches the doctab/dock-tab accent-edge language. */
+.mm-rail-btn[aria-pressed="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--ed-accent);
+}
+/* Tactile press feedback — a 1px down-nudge on pointer-down (closes the interaction loop, esp. on touch). */
+.mm-tbtn:active,
+.mm-rail-btn:active {
+  transform: translateY(1px);
+}
+.mm-rail-sep {
+  width: 22px;
+  height: 1px;
+  background: var(--ed-border);
+  margin: 2px 0 6px;
+}
+.mm-rail-spacer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+.mm-rail-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  margin-top: 4px;
+  background: var(--ed-accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+/* ── Left dock (tabbed side panels) ───────────────────────────────────────────
+   The read-mostly side panels (Outline / Index / Stats / Agenda / Maps / Deck / Note / Filter /
+   Styles / History) share ONE tabbed column instead of stacking as N 250px columns that could crush
+   the canvas. One panel shows at a time; the tab strip switches between the open ones. */
+.mm-dock {
+  width: 280px;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ed-card);
+  border-right: 1px solid var(--ed-border);
+  overflow: hidden;
+}
+.mm-dock-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 6px 0;
+  overflow-x: auto;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--ed-divider);
+  scrollbar-width: thin;
+}
+.mm-dock-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 4px 5px 9px;
+  border: none;
+  border-radius: 7px 7px 0 0;
+  background: transparent;
+  color: var(--ed-muted);
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mm-dock-tab:hover {
+  color: var(--ed-ink);
+}
+.mm-dock-tab[data-active] {
+  background: var(--ed-page);
+  color: var(--ed-ink);
+  font-weight: 600;
+}
+.mm-dock-tab-close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.55;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0 3px;
+  border-radius: 5px;
+}
+.mm-dock-tab-close:hover {
+  opacity: 1;
+  background: var(--ed-accent-tint);
+}
+.mm-dock-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* The hosted panel fills the dock (overrides its own fixed 250px column width). */
+.mm-dock-body > * {
+  width: 100% !important;
+  flex: 1;
+  min-height: 0;
+  border-right: none !important;
+}
+
+/* ── Top bar (two rows) ───────────────────────────────────────────────────── */
+.mm-topbar {
+  flex-shrink: 0;
+  background: var(--ed-card);
+  border-bottom: 1px solid var(--ed-border);
+}
+.mm-topbar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+}
+.mm-topbar-row1 {
+  height: 48px;
+  border-bottom: 1px solid var(--ed-divider);
+}
+.mm-topbar-row2 {
+  height: 50px;
+  gap: 6px;
+  overflow-x: auto;
+}
+.mm-topbar-row2.mm-wrap {
+  height: auto;
+  flex-wrap: wrap;
+  row-gap: 6px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+.mm-crumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ed-faint);
+  font-family: var(--ed-font-mono);
+  flex-shrink: 0;
+}
+.mm-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ed-ink);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: text;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  padding: 0 2px;
+  max-width: 320px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.mm-title-input {
+  border-bottom: 2px solid var(--ed-accent);
+  min-width: 120px;
+}
+.mm-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--ed-muted);
+  flex-shrink: 0;
+}
+.mm-saved-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--ed-accent);
+}
+/* Saving → amber pulse; error → red, so a failed write reads as a problem (not a calm "Saved"). */
+.mm-saved[data-state="saving"] .mm-saved-dot {
+  background: #d9a514;
+  animation: mm-saved-pulse 1s ease-in-out infinite;
+}
+.mm-saved[data-state="error"] {
+  color: var(--ed-danger);
+}
+.mm-saved[data-state="error"] .mm-saved-dot {
+  background: var(--ed-danger);
+}
+@keyframes mm-saved-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+.mm-grow {
+  flex: 1;
+}
+
+/* generic toolbar button (icon or icon+label) */
+.mm-tbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--ed-ink2);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background var(--ed-dur-fast), color var(--ed-dur-fast), border-color
+    var(--ed-dur-fast);
+}
+.mm-tbtn:hover {
+  background: rgba(127, 119, 90, 0.08);
+  color: var(--ed-ink);
+}
+.mm-tbtn[aria-pressed="true"] {
+  background: var(--ed-accent-tint);
+  color: var(--ed-accent);
+}
+.mm-tbtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.mm-tbtn-icon {
+  padding: 0;
+  width: 32px;
+}
+.mm-tbtn-danger:hover {
+  background: rgba(178, 59, 58, 0.1);
+  color: var(--ed-danger);
+}
+.mm-tbtn-ghost {
+  border: 1px solid var(--ed-border);
+  background: var(--ed-card);
+}
+.mm-tbtn-ghost:hover {
+  border-color: var(--ed-faint);
+}
+.mm-tbtn-primary {
+  background: var(--ed-accent);
+  color: #fff;
+}
+.mm-tbtn-primary:hover {
+  background: var(--ed-accent-hover);
+  color: #fff;
+}
+/* Accent trigger — a subtle emerald-tinted button for the core "Insert" action so it reads as the
+   primary creative control without shouting like the solid primary button. Fills on hover. */
+.mm-tbtn-accent {
+  border: 1px solid var(--ed-accent);
+  background: var(--ed-accent-tint);
+  color: var(--ed-accent);
+}
+.mm-tbtn-accent:hover {
+  background: var(--ed-accent);
+  color: #fff;
+}
+
+.mm-vdiv {
+  width: 1px;
+  height: 22px;
+  background: var(--ed-divider);
+  flex-shrink: 0;
+}
+.mm-cluster {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.mm-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ed-faint);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-family: var(--ed-font-mono);
+}
+
+/* native select styled as a toolbar control */
+.mm-select {
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--ed-border);
+  background: var(--ed-card);
+  color: var(--ed-ink2);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 0 8px;
+  cursor: pointer;
+}
+.mm-input {
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--ed-border);
+  background: var(--ed-card);
+  color: var(--ed-ink);
+  font-size: 12.5px;
+  font-family: inherit;
+  padding: 0 10px;
+  outline: none;
+}
+.mm-input:focus {
+  border-color: var(--ed-accent);
+  box-shadow: 0 0 0 3px var(--ed-accent-ring);
+}
+/* Find-bar toggles (Match case "Aa", Regex ".*") — square monospace chips that light up when on. */
+.mm-toggle-btn {
+  height: 32px;
+  min-width: 32px;
+  padding: 0 7px;
+  border-radius: 8px;
+  border: 1px solid var(--ed-border);
+  background: var(--ed-card);
+  color: var(--ed-muted);
+  font-family: var(--ed-font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.mm-toggle-btn:hover {
+  border-color: var(--ed-accent);
+}
+.mm-toggle-btn.is-on {
+  background: var(--ed-accent-tint);
+  border-color: var(--ed-accent);
+  color: var(--ed-accent);
+}
+
+/* ── Dropdown / popover menu ──────────────────────────────────────────────── */
+.mm-menu-wrap {
+  position: relative;
+}
+.mm-menu {
+  /* Fixed (not absolute) so the dropdown escapes the toolbar row's overflow clip
+     (.mm-topbar-row2 sets overflow-x:auto for horizontal scroll, which coerces
+     overflow-y and would crop an absolutely-positioned child). Coordinates are
+     supplied inline from the trigger button's rect. No transformed ancestor exists
+     above the toolbar, so fixed resolves against the viewport. */
+  position: fixed;
+  z-index: 60;
+  min-width: 200px;
+  background: var(--ed-card);
+  border: 1px solid var(--ed-border);
+  border-radius: 12px;
+  box-shadow: var(--ed-shadow-pop);
+  padding: 6px;
+  max-height: 70vh;
+  max-height: 70dvh; /* track the live viewport on mobile (URL-bar show/hide); vh above is the fallback */
+  overflow-y: auto;
+}
+/* Phone layout: a menu opens as a full-width bottom sheet instead of an anchored popover. */
+.mm-menu-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  width: 100%;
+  min-width: 0;
+  max-height: 65vh;
+  max-height: 65dvh; /* live-viewport height on mobile; vh above is the older-engine fallback */
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.22);
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+.mm-menu-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ed-faint);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-family: var(--ed-font-mono);
+  padding: 8px 10px 4px;
+}
+.mm-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--ed-ink);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mm-menu-item:hover {
+  background: var(--ed-page);
+}
+/* A fly-out submenu row's trailing ▸ (MenuSub) — muted so it reads as a disclosure hint, not content. */
+.mm-menu-sub-caret {
+  margin-left: auto;
+  color: var(--ed-faint);
+}
+/* The fly-out popup itself is a plain .mm-menu, just anchored beside its trigger row instead of below
+   the toolbar button (MenuSub supplies top/left inline, same viewport-fixed positioning as .mm-menu). */
+.mm-menu-sub {
+  min-width: 180px;
+}
+/* Keyboard focus ring for the primitive control button (controlStyle carries none) — the toolbar /
+ * dialog / inspector buttons all render .mm-prim-btn, so keyboard users get a visible focus indicator.
+ * :focus-visible → shown only for keyboard nav, never on mouse click. Matches the menu-chip idiom. */
+.mm-prim-btn:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 1px;
+}
+
+/* Keyboard focus on the rest of the editor chrome — the rail buttons, the two-row toolbar buttons /
+ * menu triggers, the find-bar toggle chips and the native selects all render border:none (or a faint
+ * border) whose UA outline is routinely clipped on rounded controls. Mirror the .mm-prim-btn ring so
+ * every operable control shows a clear keyboard focus indicator (WCAG 2.4.7). :focus-visible →
+ * keyboard nav only, never on mouse click. */
+.mm-rail-btn:focus-visible,
+.mm-tbtn:focus-visible,
+.mm-toggle-btn:focus-visible,
+.mm-select:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 1px;
+}
+
+/* Non-colour cue for the "on" state of toolbar toggles + find-bar chips: an inset accent ring, so a
+ * pressed / enabled control differs from off — and from a mere hover — by edge weight, not hue alone
+ * (WCAG 1.4.1 Use of Color). The accent tint fill stays underneath. */
+.mm-tbtn[aria-pressed="true"],
+.mm-toggle-btn.is-on {
+  box-shadow: inset 0 0 0 1.5px var(--ed-accent);
+}
+
+/* Skip-to-canvas link — the first focusable element in the editor shell, so keyboard / switch users
+ * can jump past the rail + both toolbar rows to the map (WCAG 2.4.1 Bypass Blocks). Off-screen until
+ * focused, then it pins to the top-left corner. */
+.mm-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 8px 14px;
+  background: var(--ed-accent);
+  color: #fff;
+  border-radius: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.mm-skip-link:focus {
+  left: 0;
+}
+
+/* Visually-hidden utility — present in the a11y tree (announced by screen readers) but off-screen for
+ * sighted users. Used for the canvas selection live region. */
+.mm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Keyboard focus inside a menu (roving Arrow/Home/End) — a clear ring without moving layout. */
+.mm-menu-item:focus-visible {
+  outline: none;
+  background: var(--ed-page);
+  box-shadow: inset 0 0 0 2px var(--ed-accent);
+}
+
+/* Outline panel as an accessible tree (role="tree"). The roving treeitem rows show a clear keyboard
+   focus ring; the row matching the canvas selection gets a soft tint (aria-selected). */
+.mm-outline-row:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--ed-accent);
+  border-radius: 4px;
+}
+.mm-outline-row[aria-selected="true"] {
+  background: var(--ed-accent-tint);
+}
+.mm-menu-item:disabled,
+.mm-menu-item[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.mm-menu-item:disabled:hover {
+  background: transparent;
+}
+.mm-menu-item-danger {
+  color: var(--ed-danger);
+}
+.mm-menu-item-danger:hover {
+  background: rgba(178, 59, 58, 0.09);
+}
+.mm-menu-sep {
+  height: 1px;
+  background: var(--ed-divider);
+  margin: 4px 2px;
+}
+
+/* ── Inspector / MapPanel (right panel) ───────────────────────────────────── */
+.mm-inspector {
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--ed-card);
+  border-left: 1px solid var(--ed-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+/* Drag gutter on the inspector's left (canvas-facing) edge to resize it. */
+.mm-inspector-resizer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 5;
+  background: transparent;
+}
+.mm-inspector-resizer:hover,
+.mm-inspector-resizer:focus-visible {
+  background: var(--ed-accent-tint);
+  outline: none;
+}
+/* The left dock's resize handle — mirror of the inspector resizer, on the dock's RIGHT (canvas-facing)
+   edge (the dock is docked left, so dragging right widens it). */
+.mm-dock-resizer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 5;
+  background: transparent;
+}
+.mm-dock-resizer:hover,
+.mm-dock-resizer:focus-visible {
+  background: var(--ed-accent-tint);
+  outline: none;
+}
+@media (max-width: 640px) {
+  .mm-inspector-resizer,
+  .mm-dock-resizer {
+    display: none;
+  }
+  /* Reclaim the 56px rail on phones — every rail action (Home, Paste, Insert image, Getting-started,
+     Settings, Shortcuts) is also reachable from the toolbar Row-1 / the More + Insert menus / ⌘K, so
+     hiding it gives the canvas back ~14% of a 390px screen instead of a column of redundant buttons. */
+  .mm-rail {
+    display: none;
+  }
+  /* Tighter spacing on phones so the slimmed rows fit. */
+  .mm-topbar-row {
+    gap: 4px;
+    padding: 0 8px;
+  }
+  /* Safety net: if the slimmed row-1 essentials still exceed a very narrow phone, scroll rather
+     than clip (row 2's overflow controls already live behind the Options menu). */
+  .mm-topbar-row1 {
+    overflow-x: auto;
+  }
+}
+
+/* Tablet tier (coarse pointer, between the phone bottom-sheet breakpoint and the desktop comfort zone):
+   iPad portrait got the full desktop chrome — 56 (rail) + 280 (dock) + 300 (inspector) ≈ 636px, leaving
+   almost no canvas. The dock stays a capped sidebar, but the inspector — which auto-opens on every
+   selection and at 240px crushed the canvas to ~33% — now docks to a bottom SHEET (the same pattern as
+   phones), out of flow so the canvas runs full-width behind it. Deselecting (tap the canvas above the
+   sheet) or the inspector's own minimise closes it; the 40px rail is hidden here as on phones. min-width
+   641 keeps this clear of the ≤640 phone rules. */
+@media (pointer: coarse) and (min-width: 641px) and (max-width: 1024px) {
+  .mm-dock {
+    /* max-width (not width) so it caps the now-inline resizable dock width on tablets. */
+    max-width: 220px;
+  }
+  .mm-inspector {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100% !important;
+    max-width: none;
+    /* vh fallback then dvh (tracks the live visible viewport); --mm-sheet-h falls back to 62dvh on
+       tablet, where the drag handle (mobile-only) isn't present. */
+    height: 62vh;
+    height: var(--mm-sheet-h, 62dvh);
+    z-index: 41;
+    display: flex;
+    flex-direction: column;
+    background: var(--ed-card, #fff);
+    border-left: none;
+    border-top: 1px solid var(--ed-border, #e2e0d8);
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.2);
+    overflow: auto;
+    padding-top: 14px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  /* The minimised 40px inspector strip makes no sense as a sheet — hide it; re-selecting reopens. */
+  .mm-inspector-rail {
+    display: none;
+  }
+}
+.mm-inspector-head {
+  flex-shrink: 0;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ed-divider);
+}
+/* The minimized inspector — a thin right-edge strip with an expand button (mirrors the left rail). */
+.mm-inspector-rail {
+  width: 40px;
+  flex-shrink: 0;
+  background: var(--ed-card);
+  border-left: 1px solid var(--ed-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10px;
+}
+/* Minimize button in a docked panel's header (sits beside the title). */
+.mm-inspector-min {
+  margin-left: auto;
+  border: 1px solid var(--ed-border);
+  background: var(--ed-page);
+  color: var(--ed-ink2);
+  border-radius: 7px;
+  width: 26px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.mm-inspector-min:hover {
+  background: var(--ed-accent-tint);
+  color: var(--ed-accent);
+}
+.mm-inspector-path {
+  font-size: 11px;
+  color: var(--ed-faint);
+  font-family: var(--ed-font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mm-inspector-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.mm-stat-grid {
+  display: flex;
+  gap: 10px;
+}
+.mm-stat {
+  flex: 1;
+  background: var(--ed-page);
+  border: 1px solid var(--ed-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.mm-stat-num {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ed-ink);
+  letter-spacing: -0.03em;
+  font-family: var(--ed-font-mono);
+  line-height: 1;
+}
+.mm-stat-label {
+  font-size: 11.5px;
+  color: var(--ed-muted);
+  margin-top: 4px;
+}
+
+/* Map-properties panel (MapPanel): a settings section above the read-only stats. Raw controls themed
+   on --ed-* (not the static-light primitives) so they stay legible in every theme, like .mm-stat. */
+.mm-map-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ed-faint);
+  margin-bottom: 2px;
+}
+.mm-map-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ed-muted);
+}
+.mm-map-field > span {
+  flex-shrink: 0;
+}
+.mm-map-control {
+  border: 1px solid var(--ed-border);
+  background: var(--ed-page);
+  color: var(--ed-ink);
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 3px 6px;
+}
+.mm-map-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* The Layout gallery's trigger (a Menu button standing in for a <select>) needs the icon+label row
+   layout a native <select> gets for free. */
+.mm-layout-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Re-theme the Topic-info inspector's shared primitives onto --ed-*, scoped under .mm-inspector so
+   the left-rail panels (same primitives, static light palette) are untouched. The primitives apply
+   their look via INLINE styles, so these overrides need !important. Priority/semantic-colour buttons
+   opt out with .mm-keep-color so their red/amber/blue survive in every theme. */
+.mm-inspector .mm-prim-section {
+  color: var(--ed-faint) !important;
+}
+.mm-inspector .mm-prim-btn:not(.mm-keep-color) {
+  background: var(--ed-card) !important;
+  color: var(--ed-ink2) !important;
+  border-color: var(--ed-border) !important;
+}
+.mm-inspector .mm-prim-btn:not(.mm-keep-color):hover {
+  background: var(--ed-accent-tint) !important;
+  color: var(--ed-accent) !important;
+}
+.mm-inspector .mm-prim-btn:not(.mm-keep-color)[aria-pressed="true"] {
+  background: var(--ed-accent) !important;
+  color: #fff !important;
+  border-color: var(--ed-accent) !important;
+}
+.mm-inspector .mm-prim-input,
+.mm-inspector .mm-prim-select {
+  background: var(--ed-card) !important;
+  color: var(--ed-ink) !important;
+  border-color: var(--ed-border) !important;
+}
+.mm-inspector .mm-prim-input:focus,
+.mm-inspector .mm-prim-select:focus {
+  border-color: var(--ed-accent) !important;
+  box-shadow: 0 0 0 3px var(--ed-accent-ring);
+}
+.mm-inspector .mm-prim-tablist {
+  background: var(--ed-page) !important;
+  border-color: var(--ed-border) !important;
+}
+.mm-inspector .mm-prim-tab {
+  color: var(--ed-muted) !important;
+}
+.mm-inspector .mm-prim-tab[aria-selected="true"] {
+  background: var(--ed-card) !important;
+  color: var(--ed-ink) !important;
+}
+.mm-inspector .mm-prim-chip[aria-pressed="true"] {
+  background: var(--ed-accent) !important;
+  color: #fff !important;
+  border-color: var(--ed-accent) !important;
+}
+
+/* ── Notes editor (contentEditable WYSIWYG in the Topic-info panel) ────────── */
+.mm-note-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--ed-faint);
+  pointer-events: none;
+}
+.mm-note-editor p {
+  margin: 0 0 6px;
+}
+.mm-note-editor ul,
+.mm-note-editor ol {
+  margin: 0 0 6px;
+  padding-left: 20px;
+}
+.mm-note-editor h1,
+.mm-note-editor h2,
+.mm-note-editor h3 {
+  margin: 4px 0;
+  font-size: 1.05em;
+}
+/* Inline note images + simple tables (#11). Images never overflow the editor; tables get light
+   cell borders + a tinted header so they read as a grid. */
+.mm-note-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+.mm-note-editor table {
+  border-collapse: collapse;
+  margin: 4px 0;
+  font-size: 0.95em;
+}
+.mm-note-editor th,
+.mm-note-editor td {
+  border: 1px solid var(--ed-border);
+  padding: 2px 6px;
+  text-align: left;
+}
+.mm-note-editor th {
+  background: var(--ed-hover, rgba(0, 0, 0, 0.05));
+  font-weight: 600;
+}
+/* Highlight, fenced code block, and checklist items (#10). */
+.mm-note-editor mark {
+  background: #fff3a3;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.mm-note-editor pre {
+  margin: 4px 0;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: var(--ed-hover, rgba(0, 0, 0, 0.05));
+  font-family: monospace;
+  font-size: 0.9em;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+.mm-note-editor li input[type="checkbox"] {
+  margin-right: 4px;
+}
+
+/* Node affordances (＋, collapse toggle, relate grip, task box, coach hints) counter-scale by
+   --mm-aff-scale (AffordanceScale → nodeChrome.affordanceScale) so zooming in doesn't inflate them. */
+
+/* On-node ＋ add affordances (#1). Sizing lives here so a coarse pointer (touch) gets a ≥44px
+   target; the per-button colour comes in via --mm-add-color (the node's branch / ring colour). */
+.mm-node-add {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--mm-add-color, #1b8a5e);
+  background: var(--mm-node-bg, #fff);
+  color: var(--mm-add-color, #1b8a5e);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 1px 4px rgba(40, 30, 16, 0.18);
+  transition: background var(--ed-dur-fast) var(--ed-ease), color var(--ed-dur-fast) var(--ed-ease);
+}
+.mm-node-add:hover {
+  background: var(--mm-add-color, #1b8a5e);
+  color: #fff;
+}
+.mm-node-add:focus-visible {
+  outline: 2px solid var(--mm-add-color, #1b8a5e);
+  outline-offset: 2px;
+}
+/* On touch the on-node ＋ buttons are hidden: at a 44px target they covered most of a short topic's
+   label. The selection action bar (NodePopover) carries Add child / Add sibling there instead
+   (.mm-pop-touch below). */
+@media (pointer: coarse) {
+  .mm-node-add {
+    display: none;
+  }
+}
+
+/* The status bar's zoom % — a text-as-button trigger (no chrome) for the zoom menu. */
+.mm-stat-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.mm-stat-btn:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+.mm-stat-btn:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 1px;
+}
+@media (pointer: coarse) {
+  /* A tappable target for the zoom menu on touch. */
+  .mm-stat-btn {
+    min-height: 32px;
+    padding: 4px 8px;
+  }
+}
+
+/* Contextual action-bar buttons (NodePopover, UI-3) — the on-selection toolbar above the node.
+   Sizing/colour are inline (PopBtn); these add the hover + keyboard-focus affordances. */
+.mm-pop-btn:hover {
+  background: rgba(0, 0, 0, 0.07) !important;
+  color: var(--ed-ink, #23211c) !important;
+}
+.mm-pop-btn:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 1px;
+}
+/* Touch-only action-bar buttons (Add child / Add sibling — a mouse has them as on-node ＋). On touch
+   every bar button grows to a 40px target; !important beats PopBtn's inline 30px sizing. */
+.mm-pop-touch {
+  display: none !important;
+}
+@media (pointer: coarse) {
+  .mm-pop-touch {
+    display: flex !important;
+  }
+  .mm-pop-btn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+
+/* "Double-click to edit" first-hover microcopy (#5) — a small tooltip above the node. */
+.mm-node-hint {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) scale(var(--mm-aff-scale, 1));
+  transform-origin: 50% 100%;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  font-size: 11px;
+  border-radius: 6px;
+  background: var(--ed-ink, #23211c);
+  color: var(--ed-card, #fff);
+  box-shadow: var(--ed-shadow-pop, 0 8px 22px rgba(0, 0, 0, 0.18));
+  pointer-events: none;
+  z-index: 3;
+}
+/* The hint carries both the mouse phrasing ("Double-click or F2") and the touch phrasing
+   ("Double-tap") in the DOM; the pointer swaps which one shows so a phone never sees keyboard-only
+   gestures it can't perform. */
+.mm-hint-touch {
+  display: none;
+}
+@media (pointer: coarse) {
+  .mm-hint-mouse {
+    display: none;
+  }
+  .mm-hint-touch {
+    display: inline;
+  }
+}
+/* One onboarding helper at a time. The first-run "3 things to try" card outranks the empty-map
+   coachmark, which outranks the per-topic hover coaches — they used to stack (card + hover hint on
+   desktop; card + coachmark on a phone). CSS-only: each helper keeps its own show/retire logic. */
+.mm-editor:has(.mm-firstrun) :is(.mm-node-hint, .mm-relate-hint, .mm-coachmark),
+.mm-editor:has(.mm-coachmark) :is(.mm-node-hint, .mm-relate-hint) {
+  display: none;
+}
+/* One-time drag-to-relate coach (C7) — same top-centre anchor as the edit hint (the two are sequential,
+   never shown together) but accent-tinted to read as a "try this" nudge rather than a plain tip. */
+.mm-relate-hint {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) scale(var(--mm-aff-scale, 1));
+  transform-origin: 50% 100%;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  font-size: 11px;
+  border-radius: 6px;
+  background: var(--ed-accent, #1b8a5e);
+  color: #fff;
+  box-shadow: var(--ed-shadow-pop, 0 8px 22px rgba(0, 0, 0, 0.18));
+  pointer-events: none;
+  z-index: 3;
+}
+@media (pointer: coarse) {
+  .mm-relate-hint {
+    display: none; /* the grip itself is hidden on touch */
+  }
+}
+
+/* Drag-to-reparent "Make child of X" label (#11) — rides above the highlighted drop target. */
+.mm-drop-label {
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: var(--ed-accent, #1b8a5e);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--ed-shadow-pop, 0 8px 22px rgba(0, 0, 0, 0.2));
+  pointer-events: none;
+}
+
+/* Space-bar pan (A1): while the space bar is held the canvas wrapper gets `.mm-space-pan`. Topics go
+   pointer-inert so a left drag falls through to React Flow's pane and pans even when it starts over a
+   topic (a plain node drag would re-parent it in tree mode); the pane shows a grab / grabbing cursor.
+   React Flow sets `pointer-events:all` inline on every node and marks it `.nopan`, so `!important` is
+   the only way a class can beat that inline style. */
+.mm-space-pan .react-flow__node {
+  pointer-events: none !important;
+}
+.mm-space-pan .react-flow__pane {
+  cursor: grab;
+}
+.mm-space-pan .react-flow__pane:active {
+  cursor: grabbing;
+}
+
+/* Drag-to-relate grip — hidden until the topic is hovered (or the grip itself is), so it's
+   discoverable without cluttering every node. React Flow renders handles inside .react-flow__node. */
+.react-flow__node .mm-relate-handle {
+  opacity: 0;
+  transition: opacity var(--ed-dur-fast) var(--ed-ease);
+}
+.react-flow__node:hover .mm-relate-handle {
+  opacity: 0.7;
+}
+.react-flow__node .mm-relate-handle:hover {
+  opacity: 1;
+}
+/* Touch: hover doesn't exist and the 44px ＋ dominates, so drop the relate grip from the canvas and
+   route linking to long-press → the context menu's "Link to…". Keep collapse, but make it tap-sized so
+   a collapsed branch stays expandable without the menu (C4). */
+@media (pointer: coarse) {
+  .react-flow__node .mm-relate-handle {
+    display: none;
+  }
+  .mm-collapse-toggle {
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+    line-height: 26px;
+  }
+}
+
+/* On-canvas wrap-width resize grip (10b Layer 2) — a slim vertical bar on a node's TOP-right edge.
+   Position/size/background are set inline (driven by wrapHandleGeometry + the node's ring colour); this
+   carries the look + interaction affordances. Desktop only: on a coarse pointer the inspector Wrap
+   slider is the wrap control, so the grip is hidden (matching the relate grip). */
+.mm-wrap-handle {
+  padding: 0;
+  border: 1px solid #fff;
+  border-radius: 3px;
+  opacity: 0.55;
+  cursor: ew-resize;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(40, 30, 16, 0.32);
+  transition: opacity var(--ed-dur-fast) var(--ed-ease);
+}
+.mm-wrap-handle:hover,
+.mm-wrap-handle:focus-visible {
+  opacity: 1;
+}
+.mm-wrap-handle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+@media (pointer: coarse) {
+  .mm-wrap-handle {
+    display: none;
+  }
+}
+
+/* Quick task toggle — a hover checkbox on a topic's left edge (mirrors the relate grip on the right).
+   Hidden until the topic is hovered (or the box itself), so it stays out of the way. A checked box
+   (☑, set by aria-pressed) stays visible so completed tasks read at a glance. */
+.mm-task-check {
+  position: absolute;
+  /* Centred on the node's left edge, so the box straddles it rather than covering the label. */
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%) scale(var(--mm-aff-scale, 1));
+  /* 24×24 hit target (WCAG 2.5.8); the ☑ glyph stays small via font-size. */
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--ed-ink, #23211c);
+  opacity: 0;
+  transition: opacity var(--ed-dur-fast) var(--ed-ease);
+  /* Above the topic's label, which follows it in the DOM and otherwise swallowed the tap: on touch a
+     tap on ☑ selected the topic (popping the action bar) instead of unticking it. */
+  z-index: 2;
+}
+/* Hover reveal only where hover is real: on touch :hover sticks after a tap, which left the ☐ sitting
+   over the first letter of the selected topic. A done ☑ always shows. */
+@media (hover: hover) {
+  .react-flow__node:hover .mm-task-check {
+    opacity: 0.8;
+  }
+}
+.mm-task-check[aria-pressed="true"] {
+  opacity: 0.8;
+}
+/* …and while hidden on touch it must not be a live 44px target over the label either (a tap on the
+   first word silently made the topic a task). Touch sets task state from the inspector's Progress. */
+@media (hover: none) {
+  .mm-task-check:not([aria-pressed="true"]) {
+    pointer-events: none;
+  }
+}
+.mm-task-check:hover,
+/* Reveal + ring on keyboard focus so a Tab-focused checkbox isn't invisible (WCAG 2.4.7). */
+  .mm-task-check:focus-visible {
+  opacity: 1;
+}
+.mm-task-check:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+/* Branch-tip collapse toggle — size/shape/font here (the branch-coloured border/text are inline) so
+   the coarse-pointer escalation below isn't outranked by an inline width. 24px desktop hit target
+   (WCAG 2.5.8); 28px on touch. */
+.mm-collapse-toggle {
+  /* No inline transform on the toggle, so the individual `scale` property is safe here. */
+  scale: var(--mm-aff-scale, 1);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 13px;
+  line-height: 22px;
+}
+.mm-collapse-toggle:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .mm-task-check {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    /* Centre the 44px target on the node's left edge (not 12px inside it), so the ☑ glyph sits on
+       the edge instead of over the label's first letter. */
+    left: -22px;
+  }
+}
+
+/* Empty-map onboarding coachmark (#1) — anchored under the root, theme-reactive via --ed-*. */
+.mm-coachmark {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 280px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--ed-card, #fff);
+  border: 1px solid var(--ed-border, #e7e4dc);
+  color: var(--ed-ink, #23211c);
+  box-shadow: var(--ed-shadow-pop, 0 12px 30px rgba(0, 0, 0, 0.2));
+  font-size: 12px;
+  line-height: 1.45;
+}
+.mm-coachmark strong {
+  font-size: 13px;
+}
+.mm-coachmark kbd {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 4px;
+  border: 1px solid var(--ed-border, #d8d4cc);
+  background: var(--ed-page, #f4f2ec);
+  font-family: var(--ed-font-mono, monospace);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Inline marker / priority quick-setter rows inside the right-click menu (#3). */
+.mm-menu-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 240px;
+  padding: 2px 10px 6px;
+}
+.mm-menu-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 28px;
+  padding: 0 7px;
+  border-radius: 6px;
+  border: 1px solid var(--ed-border, #e7e4dc);
+  background: var(--ed-card, #fff);
+  color: var(--ed-ink, #23211c);
+  font-size: 14px;
+  cursor: pointer;
+}
+.mm-menu-chip:hover {
+  background: var(--ed-accent-tint, #e3f1ea);
+}
+.mm-menu-chip[data-on] {
+  background: var(--ed-accent, #1b8a5e);
+  border-color: var(--ed-accent, #1b8a5e);
+  color: #fff;
+}
+.mm-menu-chip:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 1px;
+}
+@media (pointer: coarse) {
+  .mm-menu-chip {
+    min-width: 44px;
+    height: 44px;
+  }
+}
+
+/* Right-aligned keyboard hint inside a menu row (#2). aria-hidden, so it never alters the item name. */
+.mm-menu-shortcut {
+  margin-left: auto;
+  padding-left: 16px;
+  font-size: 11px;
+  color: var(--ed-muted, #6b675e);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shortcuts cheat-sheet content (#2), rendered inside the shared <Dialog>. */
+.mm-shortcuts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 28px;
+}
+.mm-shortcuts-group h3 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ed-accent, #1b8a5e);
+}
+.mm-shortcuts-group dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mm-shortcut-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.mm-shortcut-row dt {
+  flex: 0 0 auto;
+}
+.mm-shortcut-row dd {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ed-ink2, #4a463e);
+}
+.mm-shortcuts kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--ed-border, #d8d4cc);
+  background: var(--ed-page, #f4f2ec);
+  color: var(--ed-ink, #23211c);
+  font-family: var(--ed-font-mono, monospace);
+  font-size: 11px;
+  white-space: nowrap;
+}
+@media (max-width: 540px) {
+  .mm-shortcuts {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* First-run "3 things to try" card (#13) — a dismissible overlay, anchored to the top of the
+   canvas (dead space below the toolbar) so it never covers the auto-centred map or crowds the
+   bottom edge (minimap + zoom pill). */
+.mm-firstrun {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+  max-width: 250px;
+  padding: 12px 32px 12px 14px;
+  border-radius: 10px;
+  background: var(--ed-card, #fff);
+  border: 1px solid var(--ed-border, #e7e4dc);
+  color: var(--ed-ink, #23211c);
+  box-shadow: var(--ed-shadow-pop, 0 12px 30px rgba(0, 0, 0, 0.2));
+  font-size: 12.5px;
+}
+.mm-firstrun-title {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.mm-firstrun-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.45;
+}
+.mm-firstrun-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  background: transparent;
+  color: var(--ed-muted, #6b675e);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+.mm-firstrun-close:hover {
+  background: var(--ed-accent-tint, #e3f1ea);
+  color: var(--ed-ink, #23211c);
+}
+.mm-firstrun-close:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 1px;
+}
+.mm-firstrun kbd {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 4px;
+  border: 1px solid var(--ed-border, #d8d4cc);
+  background: var(--ed-page, #f4f2ec);
+  font-family: var(--ed-font-mono, monospace);
+  font-size: 11px;
+}
+/* Phones: shrink the first-run card so it doesn't dominate a narrow viewport. */
+@media (max-width: 640px) {
+  .mm-firstrun {
+    max-width: 200px;
+    padding: 10px 26px 10px 12px;
+    font-size: 12px;
+  }
+  .mm-firstrun-title {
+    font-size: 12.5px;
+  }
+  .mm-firstrun-list {
+    gap: 3px;
+  }
+}
+
+/* Find & Replace overlay — non-modal panel anchored to the top-right of the canvas (Ctrl/⌘+F or
+   "/"). Replaces the old inline toolbar form so the top bar stays light. */
+.mm-find-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 11;
+  width: 260px;
+  padding: 10px 12px 12px;
+  border-radius: 10px;
+  background: var(--ed-card, #fff);
+  border: 1px solid var(--ed-border, #e7e4dc);
+  color: var(--ed-ink, #23211c);
+  box-shadow: var(--ed-shadow-pop, 0 12px 30px rgba(0, 0, 0, 0.2));
+}
+.mm-find-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.mm-find-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+.mm-find-close {
+  border: none;
+  background: transparent;
+  color: var(--ed-muted, #6b675e);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 0 6px;
+}
+.mm-find-close:hover {
+  background: var(--ed-accent-tint, #e3f1ea);
+  color: var(--ed-ink, #23211c);
+}
+.mm-find-close:focus-visible {
+  outline: 2px solid var(--ed-accent, #1b8a5e);
+  outline-offset: 1px;
+}
+.mm-find-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mm-find-body .mm-input {
+  width: 100%;
+}
+.mm-find-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mm-find-row .mm-input {
+  width: auto;
+  flex: 1;
+}
+.mm-find-info {
+  font-size: 11px;
+  color: var(--ed-muted, #6b675e);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-editor * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* The in-app "Reduce motion" toggle (useReducedMotion) sets body.reduce-motion, so the user can drop
+   chrome transitions/animations even when the OS preference isn't set (and we honour the OS value too,
+   above). JS-driven canvas/walk animations are handled separately by passing a 0 duration. */
+.reduce-motion .mm-editor * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Slash `/` command menu — the popup under the inline topic editor (TopicNode). Anchored to the
+   editor span (its parent is position:relative), floats above neighbouring nodes. Keyboard-driven:
+   the highlighted row carries data-active; hover mirrors it. */
+.mm-slash-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  background: var(--ed-card, #fff);
+  color: var(--ed-ink, #222);
+  border: 1px solid var(--ed-border, #cfcfe0);
+  border-radius: 8px;
+  box-shadow: var(--ed-shadow-pop, 0 12px 32px rgba(40, 30, 16, 0.18));
+  font-size: 13px;
+  text-align: left;
+  white-space: nowrap;
+}
+.mm-slash-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.mm-slash-item[data-active] {
+  background: var(--ed-accent-tint, rgba(27, 138, 94, 0.1));
+}
+.mm-slash-hint {
+  color: var(--ed-muted, #706a5f);
+  font-size: 12px;
+}
+
+/* High-contrast mode (useHighContrast → body.high-contrast, or the OS prefers-contrast/forced-colors
+   under "system"). The heavy lifting is token-level: editorThemeVars(dark, true) pushes borders,
+   dividers and text to their extremes. These supplements cover what tokens can't: bolder, always-on
+   focus rings so keyboard focus is unmissable, and underlined chrome links so colour isn't the only
+   affordance. Canvas node colours (per-topic fills) are left alone — the mind map keeps its palette. */
+.high-contrast .mm-editor :focus-visible {
+  outline: 3px solid var(--ed-accent-ring);
+  outline-offset: 2px;
+}
+.high-contrast .mm-editor a {
+  text-decoration: underline;
+}
+
+/* Forced-colors (Windows High Contrast): the browser overrides our palette with system colours. Keep
+   the canvas mind map exact — its per-topic fills/markers carry meaning — while letting the chrome
+   adopt system colours as intended. Focus uses the system Highlight so it tracks the active scheme. */
+@media (forced-colors: active) {
+  .react-flow__renderer,
+  .react-flow__viewport {
+    forced-color-adjust: none;
+  }
+  .mm-editor :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+/* --- document tabs (open maps) --- */
+.mm-doctabs {
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  height: 38px;
+  background: var(--ed-card);
+  border-bottom: 1px solid var(--ed-border);
+  padding: 0 8px;
+  gap: 2px;
+}
+.mm-doctabs-scroll {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  min-width: 0;
+  flex: 1;
+}
+.mm-doctab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px 0 10px;
+  max-width: 200px;
+  border-bottom: 2px solid transparent;
+  color: var(--ed-ink2);
+}
+.mm-doctab[data-active] {
+  border-bottom-color: var(--ed-accent);
+  color: var(--ed-ink);
+}
+.mm-doctab:hover {
+  background: var(--ed-accent-tint);
+}
+.mm-doctab-main {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 8px 0;
+}
+.mm-doctab[data-active] .mm-doctab-main {
+  font-weight: 600;
+}
+.mm-doctab-x {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--ed-faint);
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+.mm-doctab-x:hover {
+  background: var(--ed-accent-tint);
+  color: var(--ed-danger);
+}
+.mm-doctab-new {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  border: none;
+  background: transparent;
+  color: var(--ed-ink2);
+  cursor: pointer;
+  border-radius: 6px;
+}
+.mm-doctab-new:hover {
+  background: var(--ed-accent-tint);
+}
+
+/* React Flow's built-in zoom / fit controls default to ~26px — below the touch minimum the app
+   already adopted for its own affordances (40–44px). On a touch device wheel-zoom is unavailable and
+   pinch is imprecise, so these are the primary canvas controls; size them up to match. */
+@media (pointer: coarse) {
+  .react-flow__controls button {
+    width: 40px;
+    height: 40px;
+  }
+  .react-flow__controls button svg {
+    width: 18px;
+    height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+  }
+  /* On a narrow screen the bottom-centre status bar (view switcher + counts) is wide enough to reach
+     into the bottom-right corner and overlap the Minimap toggle. Lift the right-hand panel (the toggle,
+     and the minimap itself when open) above the status-bar row so the two stop colliding. */
+  .react-flow__panel.bottom.right {
+    margin-bottom: 56px;
+  }
+}
+
+/* Full-screen editing (useFullscreen): the canvas takes the window; one floating button leaves. */
+.mm-editor[data-fullscreen] :is(.mm-rail, .mm-topbar, .mm-doctabs, .mm-breadcrumb) {
+  display: none;
+}
+.mm-fs-exit {
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: 10px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--ed-border);
+  background: var(--ed-card);
+  color: var(--ed-ink);
+  box-shadow: var(--ed-shadow-pop);
+  cursor: pointer;
+  opacity: 0.85;
+}
+.mm-fs-exit:hover,
+.mm-fs-exit:focus-visible {
+  opacity: 1;
+}
+.mm-fs-exit:focus-visible {
+  outline: 2px solid var(--ed-accent);
+  outline-offset: 2px;
+}
+
+/* View mode: the toolbar's editing menus (Insert, Canvas, Quick add) go too. */
+.mm-editor[data-view-only] .mm-edit-chrome {
+  display: none !important;
+}
+/* View mode (read-only): no node editing affordances. Collapse toggles stay — folding is reading. */
+.mm-view-only
+  :is(
+    .mm-node-add,
+    .mm-task-check,
+    .mm-relate-handle,
+    .mm-wrap-handle,
+    .mm-node-hint,
+    .mm-relate-hint,
+    .mm-coachmark
+  ) {
+  display: none !important;
+}

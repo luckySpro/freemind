@@ -1,0 +1,126 @@
+name: Rebuild book artifacts
+
+# Keeps the book's two downloads in sync with their source automatically:
+#
+#   public/Thinking-in-Maps.epub   — reflowable, Kindle-friendly
+#   public/Thinking-in-Maps.pdf    — fixed A4, cover + clickable TOC + bookmarks
+#
+# Both are deterministic derivatives of docs/guide/*.md + the book scripts, so the
+# review happens on the inputs (the markdown); a binary diff isn't human-reviewable.
+# The workflow rebuilds and commits the refreshed artifacts straight back to main.
+#
+# Pure Node — jszip + marked (EPUB) and pdf-lib + marked (PDF). No Chromium, no
+# LaTeX, no system packages, so this is just `pnpm install` + `pnpm book`.
+#
+# Loop guard: the job is skipped when the triggering commit's actor is the bot, so
+# the bot's own artifact push can't re-trigger a rebuild. The `[skip pdf]` marker in
+# the bot's commit message is an informational echo of that, for humans reading the log.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/guide/**.md"
+      - "scripts/build-book-epub.mjs"
+      - "scripts/build-book-pdf.mjs"
+      - "scripts/lib/bookChapters.mjs"
+      - "scripts/lib/bookDiagrams.mjs"
+  workflow_dispatch:
+    inputs:
+      send_to_kindle:
+        description: "Also email the freshly-built EPUB to the Kindle address (needs the KINDLE_TO / SMTP_* secrets)."
+        type: boolean
+        default: false
+
+jobs:
+  rebuild:
+    name: Rebuild EPUB + PDF
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.0.9
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Rebuild EPUB + PDF
+        run: pnpm book
+
+      - name: Commit refreshed artifacts if changed
+        env:
+          TRIGGER_SUBJECT: ${{ github.event.head_commit.message }}
+        run: |
+          EPUB=public/Thinking-in-Maps.epub
+          PDF=public/Thinking-in-Maps.pdf
+          if git diff --quiet "$EPUB" "$PDF"; then
+            echo "Book artifacts unchanged — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$EPUB" "$PDF"
+          FIRST_LINE="$(printf '%s' "${TRIGGER_SUBJECT}" | head -n 1)"
+          git commit -m "docs: rebuild book (EPUB + PDF) [skip pdf]" -m "Triggered by: ${FIRST_LINE}"
+          pushed=false
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase --autostash origin main && git push origin main; then
+              pushed=true; echo "pushed on attempt $attempt"; break
+            fi
+            echo "push attempt $attempt rejected; retrying in 5s…"; sleep 5
+          done
+          if [ "$pushed" != true ]; then
+            echo "::error::book-artifact push failed after 5 attempts"; exit 1
+          fi
+
+      # Opt-in Send-to-Kindle. Emails the freshly-built EPUB when a manual run ticks
+      # the input, or when the triggering commit message contains `[kindle]`. Skips
+      # silently unless KINDLE_TO (+ SMTP_USER / SMTP_PASS) secrets are configured.
+      - name: Decide whether to send to Kindle
+        id: kindle
+        env:
+          HEAD_MSG: ${{ github.event.head_commit.message }}
+          DISPATCH_SEND: ${{ inputs.send_to_kindle }}
+          KINDLE_TO: ${{ secrets.KINDLE_TO }}
+        run: |
+          send=false
+          if [ -n "$KINDLE_TO" ]; then
+            if printf '%s' "$HEAD_MSG" | grep -qF '[kindle]'; then send=true; fi
+            if [ "$DISPATCH_SEND" = "true" ]; then send=true; fi
+          fi
+          echo "send=$send" >> "$GITHUB_OUTPUT"
+          echo "Send to Kindle: $send"
+
+      - name: Stage a date-stamped EPUB
+        if: steps.kindle.outputs.send == 'true'
+        run: |
+          NAME="Thinking-in-Maps-$(date +%Y-%m-%d).epub"
+          cp public/Thinking-in-Maps.epub "$NAME"
+          echo "KINDLE_EPUB=$NAME" >> "$GITHUB_ENV"
+
+      - name: Email the EPUB to Kindle
+        if: steps.kindle.outputs.send == 'true'
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: ${{ secrets.SMTP_HOST || 'smtp.gmail.com' }}
+          server_port: ${{ secrets.SMTP_PORT || 465 }}
+          secure: true
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASS }}
+          from: MindMap Studio Book <${{ secrets.SMTP_USER }}>
+          to: ${{ secrets.KINDLE_TO }}
+          subject: "Thinking in Maps — book update"
+          body: |
+            The latest build of "Thinking in Maps" is attached.
+            Sent automatically by the Rebuild book artifacts workflow.
+            Commit: ${{ github.sha }}
+          attachments: ${{ env.KINDLE_EPUB }}

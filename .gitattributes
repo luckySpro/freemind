@@ -1,0 +1,14 @@
+# Normalize all text files to LF in the repo and on checkout, so Biome's LF
+# formatting and the `pnpm gate` behave identically on Windows, macOS, Linux,
+# and CI. Without this, Windows autocrlf flips files to CRLF on checkout and the
+# gate can go red locally while green on CI.
+* text=auto eol=lf
+
+# Never line-ending-munge binary assets.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.woff  binary
+*.woff2 binary

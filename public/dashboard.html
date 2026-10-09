@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindMap Studio — Live GitHub Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7fb;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e6e8ef;
+    --indigo:#4f46e5;--indigo-soft:#eef2ff;--teal:#0d9488;--amber:#d97706;
+    --rose:#e11d48;--green:#16a34a;--violet:#7c3aed;--sky:#0284c7;
+    --shadow:0 1px 2px rgba(15,23,42,.04),0 4px 16px rgba(15,23,42,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 22px 56px}
+  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:8px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--indigo),var(--violet));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;letter-spacing:.5px;box-shadow:var(--shadow)}
+  h1{font-size:24px;margin:0;letter-spacing:-.02em}
+  .subtitle{color:var(--muted);font-size:13px;margin-top:2px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+    padding:5px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--muted);box-shadow:var(--shadow)}
+  .pill.green{color:var(--green);border-color:#bbf7d0;background:#f0fdf4}
+  .pill.live{color:#fff;background:linear-gradient(135deg,var(--green),#15803d);border-color:transparent}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+  .pill.live .dot{background:#fff;animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  a{color:var(--indigo);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:30px 2px 12px;display:flex;align-items:center;gap:10px}
+  .tag-live{font-size:10px;font-weight:700;color:var(--green);background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:2px 7px;letter-spacing:.04em}
+  .tag-ci{font-size:10px;font-weight:700;color:var(--sky);background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:2px 7px;letter-spacing:.04em}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:38px 0 0}
+  .grid{display:grid;gap:14px}
+  .headline{grid-template-columns:repeat(6,1fr)}
+  .four{grid-template-columns:repeat(4,1fr)}
+  .rich{grid-template-columns:repeat(4,1fr)}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;box-shadow:var(--shadow)}
+  .stat .num{font-size:25px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+  .stat .lbl{font-size:12px;color:var(--muted);margin-top:4px}
+  .stat .accent{display:block;height:3px;width:30px;border-radius:3px;margin-bottom:11px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 14px;font-size:15px;letter-spacing:-.01em}
+  .card h3 .sub{font-weight:500;color:var(--muted);font-size:12px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .cols-wide{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}
+  .livecard{background:linear-gradient(135deg,#0b1220,#1e293b);color:#e2e8f0;border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .livecard h3{margin:0 0 4px;font-size:15px;color:#fff;display:flex;align-items:center;gap:8px}
+  .livecard .commit{margin-top:14px;font-size:13px;color:#cbd5e1}
+  .livecard .commit b{color:#fff}
+  .livecard .commit .msg{display:block;margin-top:4px;color:#e2e8f0;line-height:1.4}
+  .fetched{position:absolute;top:18px;right:20px;font-size:11px;color:#94a3b8}
+  .skel{color:#64748b}
+  canvas{max-height:240px}
+  .spark{max-height:150px}
+  .rows{list-style:none;margin:0;padding:0}
+  .rows li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+  .rows li:last-child{border-bottom:none}
+  .rows .sha{font-size:12px;color:var(--indigo);font-weight:600}
+  .rows .m{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rows .w{color:var(--muted);font-size:11px;white-space:nowrap}
+  .badge{font-size:10px;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+  .badge.bot{color:#475569;background:#f1f5f9;border:1px solid #e2e8f0}
+  .badge.you{color:var(--indigo);background:var(--indigo-soft);border:1px solid #c7d2fe}
+  .empty{color:var(--muted);font-size:13px;padding:8px 2px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:last-child td{border-bottom:none}
+  .swatch{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:8px;vertical-align:middle}
+  .note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5}
+  .cov{display:flex;flex-direction:column;gap:16px}
+  .cov-row{display:grid;grid-template-columns:96px 1fr 150px;align-items:center;gap:12px}
+  .cov-row .name{font-size:13px;font-weight:600}
+  .cov-track{height:12px;border-radius:7px;background:#eef1f6;overflow:hidden}
+  .cov-fill{height:100%;border-radius:7px;transition:width .5s ease}
+  .cov-val{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+  .cov-val b{color:var(--ink);font-size:13px}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;box-shadow:var(--shadow)}
+  .chip .v{font-size:22px;font-weight:800;letter-spacing:-.02em}
+  .chip .k{font-size:12px;color:var(--muted);margin-top:3px}
+  .filerow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:9px 0 3px;font-size:13px}
+  .filetrack{background:#eef1f6;border-radius:6px;height:8px}
+  .filebar{height:8px;border-radius:6px}
+  .doccov-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .dc-pct{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}
+  #dc-manual{color:var(--indigo)} #dc-book{color:var(--teal)}
+  .dc.secondary{align-self:end}
+  .dc.secondary .dc-pct{font-size:24px;color:var(--muted)}
+  .dc-lbl{font-size:13px;font-weight:600;margin-top:8px}
+  .dc.secondary .dc-lbl{font-weight:500;color:var(--muted)}
+  .dc-sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .areas{max-height:360px;overflow:auto}
+  .rows.two li{grid-template-columns:1fr auto}
+  @media(max-width:560px){.doccov-stats{grid-template-columns:1fr}}
+  .pending{background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:18px 20px;color:#92400e;font-size:13px;line-height:1.6}
+  .pending b{color:#7c2d12}
+  .pending code{background:#fff7ed;border:1px solid #fed7aa;border-radius:5px;padding:1px 6px;font-size:12px}
+  .ci-banner{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--muted);margin-bottom:14px}
+  footer{margin-top:30px;color:var(--muted);font-size:12px;line-height:1.6;text-align:center}
+  @media(max-width:900px){
+    .headline{grid-template-columns:repeat(3,1fr)}
+    .four{grid-template-columns:repeat(2,1fr)}
+    .cols,.cols-wide{grid-template-columns:1fr}
+    .rich{grid-template-columns:repeat(2,1fr)}
+    .cov-row{grid-template-columns:80px 1fr 130px}
+    .fetched{position:static;display:block;margin-top:6px}
+  }
+  @media(max-width:520px){.headline{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo">MM</div>
+      <div>
+        <h1>MindMap Studio — Live Dashboard</h1>
+        <div class="subtitle"><a href="https://github.com/dannbleeker/mindmap-studio" target="_blank" rel="noopener">dannbleeker/mindmap-studio</a> · <span id="sub-lang">…</span></div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="pill live"><span class="dot"></span>LIVE · GitHub</span>
+      <span class="pill mono" id="pill-branch">main @ …</span>
+      <span class="pill green" id="pill-stars"><span class="dot"></span>★ …</span>
+    </div>
+  </header>
+
+  <!-- REPO PULSE (live) -->
+  <div class="section-title">Repo pulse <span class="tag-live">● real-time from GitHub</span></div>
+  <div class="grid headline">
+    <div class="stat"><span class="accent" style="background:var(--amber)"></span><div class="num" id="s-age">…</div><div class="lbl">days old</div></div>
+    <div class="stat"><span class="accent" style="background:var(--indigo)"></span><div class="num" id="s-7d">…</div><div class="lbl">commits · last 7d</div></div>
+    <div class="stat"><span class="accent" style="background:var(--violet)"></span><div class="num" id="s-30d">…</div><div class="lbl">commits · last 30d</div></div>
+    <div class="stat"><span class="accent" style="background:var(--teal)"></span><div class="num" id="s-push">…</div><div class="lbl">last push</div></div>
+    <div class="stat"><span class="accent" style="background:var(--green)"></span><div class="num" id="s-prs">…</div><div class="lbl">PRs merged</div></div>
+    <div class="stat"><span class="accent" style="background:var(--rose)"></span><div class="num" id="s-issues">…</div><div class="lbl">open issues / PRs</div></div>
+  </div>
+
+  <!-- LATEST COMMIT (live) -->
+  <div class="section-title">Latest commit <span class="tag-live">● live</span></div>
+  <div class="livecard">
+    <span class="fetched" id="fetched">fetching…</span>
+    <h3>🧠 <span class="mono" style="font-weight:600">dannbleeker/mindmap-studio</span> · branch <span class="mono" id="lc-branch" style="font-weight:600">…</span></h3>
+    <div class="commit" id="gh-commit"><span class="skel">Loading latest commit…</span></div>
+  </div>
+
+  <!-- COMMIT ACTIVITY (live) -->
+  <div class="section-title">Commit activity <span class="tag-live">● live</span></div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Commits per day <span class="sub">— last 30 days</span></h3>
+    <canvas id="activityChart"></canvas>
+  </div>
+  <div class="cols">
+    <div class="card"><h3>Commit types <span class="sub" id="type-sub">— last 30 days</span></h3><canvas id="typeChart"></canvas></div>
+    <div class="card"><h3>Authorship <span class="sub" id="auth-sub">— last 30 days</span></h3><canvas id="authorChart"></canvas></div>
+  </div>
+
+  <!-- COMMIT RHYTHM (live) -->
+  <div class="section-title">Commit rhythm <span class="tag-live">● live</span></div>
+  <div class="cols">
+    <div class="card"><h3>By day of week <span class="sub">— last 30 days</span></h3><canvas id="dowChart"></canvas></div>
+    <div class="card"><h3>By hour of day <span class="sub">— local time</span></h3><canvas id="hourChart"></canvas></div>
+  </div>
+
+  <!-- PULL REQUESTS (live) -->
+  <div class="section-title">Pull requests <span class="tag-live">● live</span></div>
+  <div class="cols-wide" style="margin-bottom:14px">
+    <div class="card"><h3>Merged per day <span class="sub">— last 30 days</span></h3><canvas id="prChart"></canvas></div>
+    <div class="card">
+      <h3>Who merges <span class="sub" id="pr-sub">— all merged PRs</span></h3>
+      <canvas id="prSplitChart"></canvas>
+      <div class="legend"><span><i style="background:#4f46e5"></i>You</span><span><i style="background:#94a3b8"></i>Bot (automation)</span></div>
+    </div>
+  </div>
+  <div class="card"><h3>Recently merged</h3><ul class="rows" id="pr-list"><li class="empty">Loading…</li></ul></div>
+
+  <!-- RECENT COMMITS (live) -->
+  <div class="section-title">Recent commits <span class="tag-live">● live</span></div>
+  <div class="card"><ul class="rows" id="commit-list"><li class="empty">Loading…</li></ul></div>
+
+  <div class="divider"></div>
+
+  <!-- ================= PROJECT METRICS (from stats.json) ================= -->
+  <div class="section-title">Project metrics <span class="tag-ci">● from CI · stats.json</span></div>
+
+  <div id="stats-pending" class="pending" style="display:none">
+    <b>Waiting for <code>stats.json</code>.</b> The Stats workflow generates it on every push to
+    <code>main</code> — this whole section fills in automatically on the next reload. These are the metrics
+    GitHub's API can't compute: lines of code, coverage, test counts, the documentation-coverage map, trends,
+    the risk map (high-churn × low-coverage files), code hygiene, domain richness, footprint and bundle size.
+  </div>
+
+  <div id="stats-body" style="display:none">
+    <div class="ci-banner">
+      <span>Generated by the <b>Stats</b> workflow from the repo's own tooling (Vitest coverage, git, file &amp; build scan).</span>
+      <span id="stats-fresh" class="mono"></span>
+    </div>
+
+    <div class="grid four" style="margin-bottom:14px">
+      <div class="stat"><span class="accent" style="background:var(--indigo)"></span><div class="num" id="m-lines">…</div><div class="lbl">lines of TS/JS</div></div>
+      <div class="stat"><span class="accent" style="background:var(--teal)"></span><div class="num" id="m-tests">…</div><div class="lbl">tests</div></div>
+      <div class="stat"><span class="accent" style="background:var(--green)"></span><div class="num" id="m-cov">…</div><div class="lbl">line coverage</div></div>
+      <div class="stat"><span class="accent" style="background:var(--sky)"></span><div class="num" id="m-files">…</div><div class="lbl">tracked files</div></div>
+    </div>
+
+    <!-- DOCUMENTATION COVERAGE (featureCoverage) -->
+    <div id="doccov-section" style="display:none">
+      <div class="section-title" style="margin-top:6px">Documentation coverage</div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="doccov-stats">
+          <div class="dc"><div class="dc-pct" id="dc-manual">—</div><div class="dc-lbl">User manual</div><div class="dc-sub" id="dc-manual-sub"></div></div>
+          <div class="dc"><div class="dc-pct" id="dc-book">—</div><div class="dc-lbl">Book</div><div class="dc-sub" id="dc-book-sub"></div></div>
+          <div class="dc secondary"><div class="dc-pct" id="dc-example">—</div><div class="dc-lbl">Book + worked example</div><div class="dc-sub" id="dc-example-sub"></div></div>
+        </div>
+      </div>
+      <div class="cols">
+        <div class="card"><h3>Book coverage by area <span class="sub">— weakest first</span></h3><div class="areas" id="doccov-areas"></div></div>
+        <div class="card"><h3>Top undocumented <span class="sub">— not yet in the book</span></h3><ul class="rows two" id="doccov-gaps"></ul></div>
+      </div>
+    </div>
+
+    <!-- TRENDS (stats-history.json) -->
+    <div id="trends-section" style="display:none">
+      <div class="section-title" style="margin-top:6px">Trends <span class="tag-ci" id="trend-range">● over time</span></div>
+      <div class="grid four" id="trend-grid"></div>
+    </div>
+
+    <div class="cols" style="margin:14px 0">
+      <div class="card"><h3>Lines by category</h3><canvas id="codeChart"></canvas></div>
+      <div class="card">
+        <h3>Breakdown</h3>
+        <table><thead><tr><th>Category</th><th class="r">Files</th><th class="r">Lines</th></tr></thead><tbody id="code-rows"></tbody></table>
+        <div class="note" id="code-note"></div>
+      </div>
+    </div>
+
+    <div class="card" id="cov-card" style="margin-bottom:14px">
+      <h3>Test coverage</h3>
+      <div class="cov" id="cov-bars"></div>
+      <div class="note" id="test-note"></div>
+    </div>
+
+    <!-- QUALITY / RISK (stats.quality) -->
+    <div id="quality-section" style="display:none">
+      <div class="section-title" style="margin-top:6px">Quality &amp; risk</div>
+      <div class="grid four" id="quality-stats" style="margin-bottom:14px"></div>
+      <div class="cols">
+        <div class="card"><h3>Least-covered files <span class="sub">— test these next</span></h3><div id="least-covered"></div></div>
+        <div class="card"><h3>Churn hotspots <span class="sub">— most-changed (90d)</span></h3><div id="hotspots"></div></div>
+      </div>
+      <div class="note" id="risky-note" style="margin-left:2px"></div>
+    </div>
+
+    <!-- HYGIENE (stats.hygiene) -->
+    <div id="hygiene-section" style="display:none">
+      <div class="section-title" style="margin-top:6px">Code hygiene</div>
+      <div class="grid rich" id="hygiene-chips"></div>
+    </div>
+
+    <!-- DOMAIN -->
+    <div class="section-title" style="margin-top:6px">Domain richness</div>
+    <div class="grid rich" id="domain-chips" style="margin-bottom:14px"></div>
+
+    <!-- FOOTPRINT -->
+    <div class="cols">
+      <div class="card">
+        <h3>Footprint</h3>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-.02em" id="m-deps">…</div>
+        <div class="note" id="m-deps-sub" style="margin-top:2px"></div>
+        <div class="note" id="m-bundle" style="margin-top:10px"></div>
+        <div class="note" id="m-churn" style="margin-top:4px"></div>
+        <div class="note" id="m-changelog" style="margin-top:4px"></div>
+        <div class="note" id="m-docs" style="margin-top:4px"></div>
+      </div>
+      <div class="card"><h3>Biggest source files <span class="sub">(lines)</span></h3><div id="bigfiles"></div></div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="tag-live">● live</span> Repo pulse, commits, PRs and rhythm come from the GitHub API on each open.
+    <br><span class="tag-ci">● from CI</span> Everything under “Project metrics” is read from
+    <a href="https://github.com/dannbleeker/mindmap-studio/blob/main/public/stats.json" target="_blank" rel="noopener"><code>stats.json</code></a>
+    /<a href="https://github.com/dannbleeker/mindmap-studio/blob/main/public/stats-history.json" target="_blank" rel="noopener"><code>stats-history.json</code></a>,
+    regenerated by the Stats workflow on every push. Reload to refresh.
+  </footer>
+</div>
+
+<script>
+  const OWNER='dannbleeker', REPO='mindmap-studio';
+  const API='https://api.github.com';
+  const RAW='https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/main/public/';
+
+  function asArray(d){ return Array.isArray(d) ? d : (d && (d.items||d.commits||d.issues||d.data)) || []; }
+  function rel(iso){
+    const d=new Date(iso), s=(Date.now()-d)/1000;
+    if(s<3600) return Math.max(1,Math.round(s/60))+'m ago';
+    if(s<86400) return Math.round(s/3600)+'h ago';
+    const days=Math.round(s/86400);
+    return days<30 ? days+'d ago' : d.toISOString().slice(0,10);
+  }
+  function daysSince(iso){ return Math.floor((Date.now()-new Date(iso))/86400000); }
+  function esc(s){ return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function nfmt(n){ return (n==null||isNaN(n)) ? '—' : Number(n).toLocaleString(); }
+  async function ghJson(url){
+    const r=await fetch(url,{headers:{'Accept':'application/vnd.github+json'}});
+    if(!r.ok) throw new Error('GitHub '+r.status);
+    return r.json();
+  }
+  // Maps the dashboard's tool-style calls to the public GitHub REST API (unauthenticated).
+  async function call(tool,args){
+    const base=API+'/repos/'+OWNER+'/'+REPO;
+    if(tool==='search_repositories'){ return { items:[ await ghJson(base) ] }; }
+    if(tool==='list_commits'){
+      const p=new URLSearchParams();
+      if(args.sha) p.set('sha',args.sha);
+      if(args.since) p.set('since',args.since);
+      p.set('per_page', String(args.perPage||30));
+      if(args.page) p.set('page', String(args.page));
+      return ghJson(base+'/commits?'+p.toString());
+    }
+    if(tool==='list_pull_requests'){
+      const p=new URLSearchParams();
+      p.set('state', args.state||'all');
+      p.set('per_page', String(args.perPage||30));
+      if(args.page) p.set('page', String(args.page));
+      return ghJson(base+'/pulls?'+p.toString());
+    }
+    throw new Error('unknown tool '+tool);
+  }
+
+  const fontColor='#64748b';
+  const doughOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:fontColor,boxWidth:10,boxHeight:10,padding:10,font:{size:12}}}},cutout:'60%'};
+  const refs={};
+  function dough(id,labels,data,colors,extra){
+    const el=document.getElementById(id); if(!el||!window.Chart) return;
+    if(refs[id]) refs[id].destroy();
+    refs[id]=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},options:Object.assign({},doughOpts,extra||{})});
+  }
+  function bar(id,labels,data,color,maxTicks){
+    const el=document.getElementById(id); if(!el||!window.Chart) return;
+    if(refs[id]) refs[id].destroy();
+    refs[id]=new Chart(el,{type:'bar',data:{labels,datasets:[{data,backgroundColor:color,borderRadius:3,maxBarThickness:18}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{display:false},ticks:{color:fontColor,maxRotation:0,autoSkip:true,maxTicksLimit:maxTicks||8,font:{size:11}}},
+                y:{beginAtZero:true,grid:{color:'#eef1f6'},ticks:{color:fontColor,precision:0,font:{size:11}}}}}});
+  }
+  function spark(el,labels,data,color,pct){
+    if(!el||!window.Chart) return;
+    new Chart(el,{type:'line',data:{labels,datasets:[{data,borderColor:color,backgroundColor:color+'22',fill:true,tension:.3,pointRadius:0,borderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{intersect:false,mode:'index'}},
+        scales:{x:{display:false},y:{display:false,beginAtZero:!pct,suggestedMin:pct?Math.max(0,Math.min(...data)-5):undefined,suggestedMax:pct?100:undefined}}}});
+  }
+
+  const cdate=cm=>{const c=cm.commit||{};return (c.author&&c.author.date)||(c.committer&&c.committer.date);};
+
+  // ===== LIVE (GitHub API) =====
+  async function loadLive(){
+    const fetchedEl=document.getElementById('fetched');
+    try{
+      const repos=asArray(await call('search_repositories',{query:'user:'+OWNER,perPage:50}));
+      const repo=repos.find(r=>r.name===REPO||r.full_name===OWNER+'/'+REPO)||{};
+      const branch=repo.default_branch||'main';
+      document.getElementById('sub-lang').textContent=(repo.language||'—');
+      document.getElementById('s-age').textContent=repo.created_at?daysSince(repo.created_at):'—';
+      document.getElementById('s-push').textContent=repo.pushed_at?rel(repo.pushed_at):'—';
+      document.getElementById('s-issues').textContent=repo.open_issues_count!=null?repo.open_issues_count:'—';
+      document.getElementById('pill-stars').innerHTML='<span class="dot"></span>★ '+(repo.stargazers_count!=null?repo.stargazers_count:'—');
+      document.getElementById('lc-branch').textContent=branch;
+
+      const since=new Date(Date.now()-30*86400000).toISOString();
+      let commits=[],page=1;
+      for(;page<=8;page++){
+        const batch=asArray(await call('list_commits',{owner:OWNER,repo:REPO,sha:branch,since:since,perPage:100,page:page}));
+        commits=commits.concat(batch);
+        if(batch.length<100) break;
+      }
+      const more=page>8?'+':'';
+      let latest=commits[0];
+      if(!latest) latest=asArray(await call('list_commits',{owner:OWNER,repo:REPO,sha:branch,perPage:1}))[0];
+      const wk=Date.now()-7*86400000;
+      document.getElementById('s-7d').textContent=commits.filter(cm=>new Date(cdate(cm))>=wk).length;
+      document.getElementById('s-30d').textContent=commits.length+more;
+
+      if(latest){
+        const sha=latest.sha?latest.sha.slice(0,7):'???????';
+        const c=latest.commit||{}, when=cdate(latest);
+        const msg=(c.message||'').split('\n')[0].replace(/^﻿/,'').slice(0,100);
+        const who=(latest.author&&latest.author.login)||(c.author&&c.author.name)||'';
+        const url=latest.html_url||('https://github.com/'+OWNER+'/'+REPO+'/commit/'+latest.sha);
+        document.getElementById('pill-branch').textContent=branch+' @ '+sha;
+        document.getElementById('gh-commit').innerHTML='<a class="mono" style="color:#93c5fd" href="'+url+'" target="_blank" rel="noopener"><b>'+sha+'</b></a> · '+(when?rel(when):'')+(who?' · '+esc(who):'')+'<span class="msg">'+esc(msg)+'</span>';
+      }
+
+      const days=[],idx={};
+      for(let i=29;i>=0;i--){const d=new Date(Date.now()-i*86400000);const k=d.toISOString().slice(0,10);idx[k]=days.length;days.push({label:d.toLocaleDateString(undefined,{month:'short',day:'numeric'}),n:0});}
+      commits.forEach(cm=>{const k=(cdate(cm)||'').slice(0,10); if(k in idx) days[idx[k]].n++;});
+      bar('activityChart',days.map(d=>d.label),days.map(d=>d.n),'#4f46e5');
+
+      const TYPES={feat:'#4f46e5',fix:'#e11d48',refactor:'#0d9488',test:'#7c3aed',docs:'#0284c7',chore:'#64748b',perf:'#d97706',style:'#16a34a',ci:'#0891b2',build:'#9333ea',revert:'#be123c'};
+      const tc={};
+      commits.forEach(cm=>{const m=((cm.commit&&cm.commit.message)||'').split('\n')[0].replace(/^﻿/,'');const mt=m.match(/^([a-zA-Z]+)/);let t=mt?mt[1].toLowerCase():'other';if(!(t in TYPES))t='other';tc[t]=(tc[t]||0)+1;});
+      const te=Object.entries(tc).sort((a,b)=>b[1]-a[1]);
+      dough('typeChart',te.map(e=>e[0]+' · '+e[1]),te.map(e=>e[1]),te.map(e=>TYPES[e[0]]||'#cbd5e1'));
+      document.getElementById('type-sub').textContent='— '+commits.length+more+' commits, 30d';
+
+      if(commits.length){
+        const ac={};
+        commits.forEach(cm=>{const k=(cm.author&&cm.author.login)||(cm.commit&&cm.commit.author&&cm.commit.author.name)||'unknown';ac[k]=(ac[k]||0)+1;});
+        const ae=Object.entries(ac).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        dough('authorChart',ae.map(e=>e[0]+' · '+e[1]),ae.map(e=>e[1]),['#4f46e5','#0d9488','#7c3aed','#d97706','#cbd5e1']);
+        document.getElementById('auth-sub').textContent='— '+commits.length+more+' commits, 30d';
+      }
+
+      const dow=[0,0,0,0,0,0,0], hod=new Array(24).fill(0);
+      commits.forEach(cm=>{const d=new Date(cdate(cm)); if(isNaN(d))return; dow[(d.getDay()+6)%7]++; hod[d.getHours()]++;});
+      bar('dowChart',['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],dow,'#0d9488',7);
+      bar('hourChart',Array.from({length:24},(_,h)=>h),hod,'#7c3aed',12);
+
+      const clist=document.getElementById('commit-list');
+      if(commits.length){
+        clist.innerHTML='';
+        commits.slice(0,12).forEach(cm=>{
+          const sha=cm.sha?cm.sha.slice(0,7):'';
+          const msg=((cm.commit&&cm.commit.message)||'').split('\n')[0].replace(/^﻿/,'');
+          const url=cm.html_url||('https://github.com/'+OWNER+'/'+REPO+'/commit/'+cm.sha);
+          const li=document.createElement('li');
+          li.innerHTML='<a class="sha mono" href="'+url+'" target="_blank" rel="noopener">'+sha+'</a><span class="m">'+esc(msg)+'</span><span class="w">'+(cdate(cm)?rel(cdate(cm)):'')+'</span>';
+          clist.appendChild(li);
+        });
+      }else clist.innerHTML='<li class="empty">No commits in the last 30 days.</li>';
+
+      await loadPRs(branch);
+      fetchedEl.textContent='fetched '+new Date().toLocaleTimeString();
+    }catch(err){
+      fetchedEl.textContent='live fetch unavailable';
+      document.getElementById('gh-commit').innerHTML='<span style="color:#fca5a5">Could not reach GitHub right now. Hit Reload to retry.</span>';
+      ['s-age','s-7d','s-30d','s-push','s-prs','s-issues'].forEach(id=>{const e=document.getElementById(id);if(e&&e.textContent==='…')e.textContent='—';});
+      document.getElementById('commit-list').innerHTML='<li class="empty">Could not load commits.</li>';
+      document.getElementById('pr-list').innerHTML='<li class="empty">Could not load pull requests.</li>';
+    }
+  }
+
+  async function loadPRs(branch){
+    let prs=[],page=1;
+    for(;page<=3;page++){
+      const batch=asArray(await call('list_pull_requests',{owner:OWNER,repo:REPO,state:'all',perPage:100,page:page}));
+      prs=prs.concat(batch);
+      if(batch.length<100) break;
+    }
+    const isbot=p=>(((p.user&&p.user.login)||'').indexOf('[bot]')>-1);
+    const merged=prs.filter(p=>p.merged_at);
+    document.getElementById('s-prs').textContent=merged.length;
+    const botN=merged.filter(isbot).length, humN=merged.length-botN;
+    dough('prSplitChart',['You · '+humN,'Bot · '+botN],[humN,botN],['#4f46e5','#94a3b8'],{plugins:{legend:{display:false}}});
+    document.getElementById('pr-sub').textContent='— '+merged.length+' merged total';
+
+    const days=[],idx={};
+    for(let i=29;i>=0;i--){const d=new Date(Date.now()-i*86400000);const k=d.toISOString().slice(0,10);idx[k]=days.length;days.push({label:d.toLocaleDateString(undefined,{month:'short',day:'numeric'}),n:0});}
+    merged.forEach(p=>{const k=(p.merged_at||'').slice(0,10); if(k in idx) days[idx[k]].n++;});
+    bar('prChart',days.map(d=>d.label),days.map(d=>d.n),'#7c3aed');
+
+    const list=document.getElementById('pr-list');
+    const recent=merged.slice().sort((a,b)=>new Date(b.merged_at)-new Date(a.merged_at)).slice(0,12);
+    if(recent.length){
+      list.innerHTML='';
+      recent.forEach(p=>{
+        const badge=isbot(p)?'<span class="badge bot">bot</span>':'<span class="badge you">you</span>';
+        const li=document.createElement('li');
+        li.innerHTML='<a class="sha mono" href="'+esc(p.html_url)+'" target="_blank" rel="noopener">#'+p.number+'</a><span class="m">'+esc(p.title)+badge+'</span><span class="w">'+rel(p.merged_at)+'</span>';
+        list.appendChild(li);
+      });
+    }else list.innerHTML='<li class="empty">No merged pull requests.</li>';
+  }
+
+  // ===== CI METRICS (stats.json + stats-history.json) =====
+  // Reads the published JSON via plain fetch: same-origin (Pages site root) first,
+  // then the raw.githubusercontent mirror as a fallback.
+  async function fetchJson(path){
+    const name=(path||'').split('/').pop();
+    for(const url of [name, RAW+name]){
+      try{ const r=await fetch(url,{cache:'no-store'}); if(r.ok) return await r.json(); }catch(e){}
+    }
+    return null;
+  }
+
+  function fileList(el, items, color, valueKey, fmt){
+    el.innerHTML='';
+    if(!items||!items.length){ el.innerHTML='<div class="empty">None 🎉</div>'; return; }
+    const max=items.reduce((m,i)=>Math.max(m,i[valueKey]||0),0)||1;
+    items.forEach(it=>{
+      const v=it[valueKey]||0;
+      const wrap=document.createElement('div');
+      wrap.innerHTML='<div class="filerow"><span class="mono" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(it.file)+'</span><b>'+fmt(it)+'</b></div><div class="filetrack"><div class="filebar" style="width:'+Math.round((v/max)*100)+'%;background:'+color+'"></div></div>';
+      el.appendChild(wrap);
+    });
+  }
+
+  async function loadStats(){
+    const stats=await fetchJson('stats.json');
+    const pending=document.getElementById('stats-pending'), body=document.getElementById('stats-body');
+    if(!stats||!stats.headline){ pending.style.display='block'; body.style.display='none'; return; }
+    pending.style.display='none'; body.style.display='block';
+
+    const h=stats.headline||{};
+    document.getElementById('m-lines').textContent=nfmt(h.linesTsJs);
+    document.getElementById('m-tests').textContent=nfmt(h.tests);
+    document.getElementById('m-cov').textContent=(h.lineCoveragePct!=null)?h.lineCoveragePct+'%':'—';
+    document.getElementById('m-files').textContent=nfmt(h.trackedFiles);
+    if(stats.generatedAt){ document.getElementById('stats-fresh').textContent='generated '+rel(stats.generatedAt)+(stats.commit?' · '+stats.commit:''); }
+
+    // code by category
+    const code=stats.code||[];
+    const palette=['#4f46e5','#0d9488','#7c3aed','#d97706','#0284c7','#e11d48','#16a34a'];
+    const rows=document.getElementById('code-rows'); rows.innerHTML='';
+    code.forEach((c,i)=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML='<td><span class="swatch" style="background:'+palette[i%palette.length]+'"></span>'+esc(c.category)+'</td><td class="r">'+(c.files||'—')+'</td><td class="r">'+nfmt(c.lines)+'</td>';
+      rows.appendChild(tr);
+    });
+    const app=code.find(c=>/app code/i.test(c.category)), unit=code.find(c=>/unit/i.test(c.category));
+    if(app&&unit&&app.lines){ document.getElementById('code-note').innerHTML='<b>Test-to-code ratio ≈ '+(unit.lines/app.lines).toFixed(2)+'</b> — unit-test lines vs. app-code lines.'; }
+    dough('codeChart',code.map(c=>c.category.replace(/\s*\(.*\)/,'')),code.map(c=>c.lines),code.map((_,i)=>palette[i%palette.length]));
+
+    // coverage bars + test timing
+    const cov=stats.coverage, cb=document.getElementById('cov-bars');
+    if(cov){
+      const order=[['lines','Lines','#16a34a'],['statements','Statements','#0d9488'],['functions','Functions','#4f46e5'],['branches','Branches','#d97706']];
+      cb.innerHTML='';
+      order.forEach(([k,label,color])=>{
+        const m=cov[k]; if(!m) return;
+        const div=document.createElement('div'); div.className='cov-row';
+        div.innerHTML='<div class="name">'+label+'</div><div class="cov-track"><div class="cov-fill" style="width:'+m.pct+'%;background:'+color+'"></div></div><div class="cov-val"><b>'+m.pct+'%</b> · '+nfmt(m.covered)+' / '+nfmt(m.total)+'</div>';
+        cb.appendChild(div);
+      });
+    }else{ document.getElementById('cov-card').style.display='none'; }
+    const t=stats.tests||{};
+    const tbits=[];
+    if(t.unit!=null) tbits.push(nfmt(t.unit)+' unit tests'+(t.e2e?' + '+nfmt(t.e2e)+' e2e':''));
+    if(t.durationMs!=null) tbits.push('suite '+(t.durationMs/1000).toFixed(1)+'s');
+    if(t.slowest&&t.slowest.length) tbits.push('slowest: '+t.slowest.slice(0,3).map(s=>esc((s.file||'').split('/').pop())+' '+(s.ms/1000).toFixed(1)+'s').join(' · '));
+    document.getElementById('test-note').innerHTML=tbits.join(' · ');
+
+    renderTrends();      // async, independent
+    renderQuality(stats);
+    renderHygiene(stats);
+    renderDomain(stats);
+    renderFootprint(stats);
+    renderFeatureCoverage(stats);
+  }
+
+  function renderFeatureCoverage(stats){
+    const fc=stats.featureCoverage, h=stats.headline||{};
+    const sec=document.getElementById('doccov-section');
+    const manualPct=(h.featureManualPct!=null)?h.featureManualPct:(fc&&fc.manualPct);
+    const bookPct=(h.featureBookPct!=null)?h.featureBookPct:(fc&&fc.bookPct);
+    const exPct=(h.featureExamplePct!=null)?h.featureExamplePct:(fc&&fc.bookExamplePct);
+    if(manualPct==null && bookPct==null && !fc){ sec.style.display='none'; return; }
+    sec.style.display='block';
+    const total=fc&&fc.total;
+    const setPct=(id,p)=>{ document.getElementById(id).textContent=(p!=null)?p+'%':'n/a'; };
+    setPct('dc-manual',manualPct); setPct('dc-book',bookPct); setPct('dc-example',exPct);
+    document.getElementById('dc-manual-sub').textContent=(fc&&fc.manual!=null&&total!=null)?nfmt(fc.manual)+' / '+nfmt(total)+' features':'';
+    document.getElementById('dc-book-sub').textContent=(fc&&fc.book!=null&&total!=null)?nfmt(fc.book)+' / '+nfmt(total)+' features':'';
+    document.getElementById('dc-example-sub').textContent=(fc&&fc.bookExample!=null&&total!=null)?nfmt(fc.bookExample)+' / '+nfmt(total)+' with a worked example':'';
+
+    const AREA={editing:'Editing',notes:'Notes',markers:'Markers',styling:'Styling',images:'Images',structure:'Structure',navigation:'Navigation',library:'Library',import:'Import',export:'Export',presentation:'Presentation',pwa:'PWA'};
+    const ar=document.getElementById('doccov-areas');
+    if(fc&&fc.byArea){
+      const rows=Object.entries(fc.byArea).map(([name,a])=>({name:AREA[name]||name,book:a.book||0,total:a.total||0,pct:a.total?(a.book/a.total*100):0}));
+      rows.sort((x,y)=>x.pct-y.pct || y.total-x.total);
+      ar.innerHTML='';
+      rows.forEach(r=>{
+        const c=r.pct>=80?'#16a34a':r.pct>=60?'#0d9488':r.pct>=40?'#d97706':'#e11d48';
+        const w=document.createElement('div');
+        w.innerHTML='<div class="filerow"><span>'+esc(r.name)+'</span><b>'+r.book+' / '+r.total+'</b></div><div class="filetrack"><div class="filebar" style="width:'+Math.max(2,Math.round(r.pct))+'%;background:'+c+'"></div></div>';
+        ar.appendChild(w);
+      });
+    }else ar.innerHTML='<div class="empty">n/a</div>';
+
+    const gl=document.getElementById('doccov-gaps');
+    const gaps=fc&&fc.gaps&&fc.gaps.noBook;
+    if(gaps&&gaps.length){
+      gl.innerHTML='';
+      gaps.slice(0,8).forEach(g=>{
+        const li=document.createElement('li');
+        li.innerHTML='<span class="m">'+esc(g.name||g.id)+'</span><span class="w">since '+esc(g.since)+'</span>';
+        gl.appendChild(li);
+      });
+    }else gl.innerHTML='<li class="empty">'+(fc?'Every feature is in the book 🎉':'n/a')+'</li>';
+  }
+
+  function renderQuality(stats){
+    const q=stats.quality; const sec=document.getElementById('quality-section');
+    if(!q){ sec.style.display='none'; return; }
+    sec.style.display='block';
+    const qs=document.getElementById('quality-stats'); qs.innerHTML='';
+    const cov=stats.headline&&stats.headline.lineCoveragePct;
+    const addStat=(num,lbl,color)=>{ const d=document.createElement('div'); d.className='stat'; d.innerHTML='<span class="accent" style="background:'+color+'"></span><div class="num">'+num+'</div><div class="lbl">'+lbl+'</div>'; qs.appendChild(d); };
+    if(q.mutationScore!=null) addStat(q.mutationScore+'%','mutation score','#7c3aed');
+    if(cov!=null) addStat(cov+'%','line coverage','#16a34a');
+    if(q.churnHotspots&&q.churnHotspots.length) addStat(q.churnHotspots[0].commits,'hottest file · changes','#e11d48');
+    if(q.risky&&q.risky.length) addStat(q.risky.length,'risky files','#d97706');
+
+    fileList(document.getElementById('least-covered'), (q.leastCovered||[]).slice(0,6), '#16a34a', 'pct', (it)=>it.pct+'%');
+    fileList(document.getElementById('hotspots'), (q.churnHotspots||[]).slice(0,6), '#e11d48', 'commits', (it)=>it.commits+'×');
+    const note=document.getElementById('risky-note');
+    if(q.risky&&q.risky.length){ note.innerHTML='<b style="color:var(--rose)">High churn × low coverage:</b> '+q.risky.slice(0,6).map(r=>'<span class="mono">'+esc(r.file)+'</span> ('+r.pct+'%, '+r.commits+'×)').join(' · '); }
+    else note.innerHTML='';
+  }
+
+  function renderHygiene(stats){
+    const hy=stats.hygiene; const sec=document.getElementById('hygiene-section');
+    if(!hy){ sec.style.display='none'; return; }
+    sec.style.display='block';
+    const box=document.getElementById('hygiene-chips'); box.innerHTML='';
+    const defs=[['todo','TODO'],['fixme','FIXME'],['hack','HACK'],['anyCount','“any” uses'],['tsIgnore','@ts-ignore'],['tsExpectError','@ts-expect-error'],['biomeIgnore','biome-ignore'],['nonNull','non-null “!”']];
+    defs.forEach(([k,lbl])=>{ if(hy[k]==null) return; const clean=hy[k]===0; const d=document.createElement('div'); d.className='chip'; d.innerHTML='<div class="v" style="color:'+(clean?'var(--green)':'var(--ink)')+'">'+hy[k]+'</div><div class="k">'+lbl+'</div>'; box.appendChild(d); });
+  }
+
+  function renderDomain(stats){
+    const dom=stats.domain||{}, chips=document.getElementById('domain-chips');
+    const order=[['components','React components'],['hooks','Hooks'],['ioModules','I/O modules'],['canvasThemes','Canvas themes'],['markers','Marker palette'],['templates','Map templates'],['exportFormats','Export formats']];
+    chips.innerHTML='';
+    order.forEach(([k,lbl])=>{ if(dom[k]==null) return; const d=document.createElement('div'); d.className='chip'; d.innerHTML='<div class="v">'+dom[k]+'</div><div class="k">'+lbl+'</div>'; chips.appendChild(d); });
+  }
+
+  function renderFootprint(stats){
+    const fp=stats.footprint||{};
+    document.getElementById('m-deps').textContent=(fp.depsProd!=null&&fp.depsDev!=null)?(fp.depsProd+fp.depsDev):'—';
+    document.getElementById('m-deps-sub').textContent='dependencies — '+nfmt(fp.depsProd)+' prod · '+nfmt(fp.depsDev)+' dev';
+    const b=stats.bundle;
+    if(b&&b.totalGzipKb!=null){
+      const within=b.withinBudget!==false;
+      document.getElementById('m-bundle').innerHTML='<b>Bundle:</b> '+b.totalGzipKb+' KB gzip'+(b.entryGzipKb!=null?' · entry '+b.entryGzipKb+' KB':'')+(b.budgetKb!=null?' / '+b.budgetKb+' KB budget <span style="color:'+(within?'var(--green)':'var(--rose)')+'">'+(within?'✓':'✗')+'</span>':'');
+    }
+    const g=stats.git||{};
+    if(g.churn30d){ document.getElementById('m-churn').innerHTML='<b>Churn · 30d:</b> +'+nfmt(g.churn30d.added)+' / −'+nfmt(g.churn30d.removed)+' lines'; }
+    const clBits=[]; if(g.commits!=null) clBits.push(nfmt(g.commits)+' commits'); if(g.changelogEntries!=null) clBits.push(nfmt(g.changelogEntries)+' changelog entries');
+    document.getElementById('m-changelog').textContent=clBits.join(' · ');
+    const dc=stats.docs;
+    if(dc&&dc.bookWords){ document.getElementById('m-docs').innerHTML='<b>Book:</b> '+nfmt(dc.bookWords)+' words'+(dc.chapters?' · '+dc.chapters+' ch.':'')+(dc.docToCodeRatio!=null?' · doc/code '+dc.docToCodeRatio:''); }
+
+    const bf=fp.biggestFiles||[], box=document.getElementById('bigfiles');
+    const max=bf.reduce((m,f)=>Math.max(m,f.lines||0),0)||1; box.innerHTML='';
+    bf.forEach(f=>{
+      const wrap=document.createElement('div');
+      wrap.innerHTML='<div class="filerow"><span class="mono">'+esc(f.name)+'</span><b>'+nfmt(f.lines)+'</b></div><div class="filetrack"><div class="filebar" style="width:'+Math.round((f.lines/max)*100)+'%;background:linear-gradient(90deg,var(--indigo),var(--violet))"></div></div>';
+      box.appendChild(wrap);
+    });
+  }
+
+  async function renderTrends(){
+    const hist=await fetchJson('stats-history.json');
+    const sec=document.getElementById('trends-section'), grid=document.getElementById('trend-grid');
+    const arr=Array.isArray(hist)?hist:(hist&&hist.entries)||[];
+    if(!arr || arr.length<2){ sec.style.display='none'; return; }
+    sec.style.display='block';
+    const recent=arr.slice(-60);
+    const labels=recent.map(e=>e.date);
+    document.getElementById('trend-range').textContent='● last '+recent.length+' data points';
+    const series=[
+      {key:'coveragePct',label:'Line coverage',color:'#16a34a',pct:true,suffix:'%'},
+      {key:'linesTsJs',label:'Lines of TS/JS',color:'#4f46e5',pct:false,suffix:''},
+      {key:'tests',label:'Tests',color:'#0d9488',pct:false,suffix:''},
+      {key:'bundleKb',label:'Bundle (KB gzip)',color:'#d97706',pct:false,suffix:''},
+      {key:'featureManualPct',label:'Manual coverage',color:'#4f46e5',pct:true,suffix:'%'},
+      {key:'featureBookPct',label:'Book coverage',color:'#0d9488',pct:true,suffix:'%'},
+    ];
+    grid.innerHTML='';
+    series.forEach(s=>{
+      const pts=recent.map(e=>e[s.key]);
+      if(pts.every(v=>v==null)) return;
+      const last=[...pts].reverse().find(v=>v!=null);
+      const first=pts.find(v=>v!=null);
+      const delta=(first!=null&&last!=null)?(last-first):null;
+      const arrow=delta==null?'':(delta>0?'▲':(delta<0?'▼':'■'));
+      const dcolor=delta==null?'var(--muted)':(delta>0?'var(--green)':(delta<0?'var(--rose)':'var(--muted)'));
+      const card=document.createElement('div'); card.className='card';
+      card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0;font-size:13px">'+s.label+'</h3>'+
+        '<span style="font-size:12px;font-weight:700">'+(last!=null?nfmt(last)+s.suffix:'—')+' <span style="color:'+dcolor+';font-size:11px">'+arrow+'</span></span></div>'+
+        '<div style="height:120px;margin-top:8px"><canvas></canvas></div>';
+      grid.appendChild(card);
+      const canvas=card.querySelector('canvas'); canvas.className='spark';
+      const lbl=labels.filter((_,i)=>pts[i]!=null), dat=pts.filter(v=>v!=null);
+      spark(canvas,lbl,dat,s.color,s.pct);
+    });
+    if(!grid.children.length) sec.style.display='none';
+  }
+
+  window.addEventListener('load',function(){ loadLive(); loadStats(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notices — MindMap Studio</title>
+  <style>
+  :root {
+    --bg: #ffffff;
+    --fg: #18181b;
+    --muted: #71717a;
+    --accent: #6366f1;
+    --border: #e4e4e7;
+    --code-bg: #f4f4f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0a0a;
+      --fg: #fafafa;
+      --muted: #a1a1aa;
+      --accent: #818cf8;
+      --border: #27272a;
+      --code-bg: #18181b;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65;
+    font-size: 16px;
+    padding: 2rem 1.25rem 4rem;
+  }
+  main { max-width: 44rem; margin: 0 auto; }
+  header.page-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 1rem; margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  header.page-header a.back {
+    font-size: 0.875rem; color: var(--accent); text-decoration: none;
+  }
+  header.page-header a.back:hover { text-decoration: underline; }
+  header.page-header .brand { font-size: 0.875rem; color: var(--muted); }
+  h1 { font-size: 1.75rem; margin: 0 0 1rem; letter-spacing: -0.02em; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; letter-spacing: -0.01em; }
+  h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+  p, ul, ol { margin: 0 0 1rem; }
+  ul, ol { padding-left: 1.5rem; }
+  li { margin-bottom: 0.35rem; }
+  a { color: var(--accent); }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+  pre {
+    background: var(--code-bg); padding: 0.9rem 1rem; border-radius: 0.5rem;
+    overflow-x: auto; font-size: 0.875rem; line-height: 1.5;
+  }
+  pre code { background: transparent; padding: 0; }
+  blockquote {
+    border-left: 3px solid var(--accent); padding: 0.1rem 1rem;
+    margin: 1rem 0; color: var(--muted);
+  }
+  table { border-collapse: collapse; margin: 1rem 0; font-size: 0.93rem; }
+  th, td { border: 1px solid var(--border); padding: 0.4rem 0.7rem; text-align: left; }
+  th { background: var(--code-bg); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  footer {
+    margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+  <main>
+    <header class="page-header">
+      <a href="/" class="back">← Back to MindMap Studio</a>
+      <span class="brand">MindMap Studio</span>
+    </header>
+    <h1>Third-party notices</h1>
+    <p>This file documents third-party names, marks, and references that appear in MindMap
+Studio&#39;s source code, user interface, and accompanying documentation.</p>
+<h2>Trademark notice — MindManager</h2>
+<p>&quot;MindManager&quot; is a trademark of Corel Corporation (and/or its predecessors and
+successors in interest, including Mindjet). MindMap Studio is an independent,
+open-source project. There is <strong>no affiliation, endorsement, sponsorship, or
+partnership</strong> between MindMap Studio and the owner of the MindManager trademark.</p>
+<p>Every reference to &quot;MindManager&quot; in this repository is <strong>nominative</strong> — used
+only to identify the third-party product to which MindMap Studio relates by
+interoperability, comparison, or factual reference. Specifically:</p>
+<ul>
+<li><p><strong>File format interoperability.</strong> MindMap Studio can read MindManager <code>.mmap</code>
+files. This one-way importer was implemented from the publicly distributed
+MindManager XML Schema (the bundled XSD), for the purpose of letting users bring
+existing maps into MindMap Studio. Interoperability of this kind is recognized as
+a legitimate use of a trademark to identify the format being interoperated with.</p>
+</li>
+<li><p><strong>Comparative reference.</strong> MindMap Studio&#39;s documentation describes the project
+as &quot;a MindManager replacement&quot; — a local-first, open alternative. That phrasing is
+comparative product positioning, not a claim of affiliation.</p>
+</li>
+</ul>
+<p>Users who hold the MindManager trademark or its associated rights and who believe
+any specific reference in this repository exceeds nominative use are invited to
+contact the project maintainer via the repository&#39;s issue tracker; we will revise
+the language in good faith.</p>
+<h2>Trademark notice — &quot;Mind Map&quot; / the Buzan Organisation</h2>
+<p>&quot;Mind Map&quot; and &quot;Mind Mapping&quot; are associated with, and claimed as marks by, the
+Buzan Organisation in some jurisdictions. MindMap Studio uses the term &quot;mind map&quot;
+<strong>descriptively</strong>, to name the radiant, node-and-branch diagram type the tool
+produces — the ordinary generic meaning of the phrase. No affiliation with, or
+endorsement by, the Buzan Organisation is implied.</p>
+<h2>Trademark notice — other third-party products</h2>
+<p>Other product and format names appearing in MindMap Studio&#39;s documentation —
+including but not limited to <strong>XMind</strong>, <strong>FreeMind</strong>, <strong>Freeplane</strong>, <strong>Coggle</strong>,
+<strong>Miro</strong>, <strong>Microsoft OneNote</strong>, <strong>Microsoft Word / PowerPoint / Project</strong>,
+<strong>OPML</strong>, and <strong>Markdown</strong> — are the trademarks or marks of their respective
+owners. Their use in this repository is nominative or comparative; no affiliation
+or endorsement is implied.</p>
+<h2>Open-source dependencies</h2>
+<p>MindMap Studio&#39;s production runtime depends on third-party open-source software,
+including <strong>@xyflow/react</strong> (React Flow — the canvas renderer, MIT), <strong>d3-hierarchy</strong>
+(tree / radial layout, ISC), <strong>fast-xml-parser</strong> (<code>.mmap</code>/OPML parsing), <strong>fflate</strong>
+(compression for <code>.mmap</code>), <strong>idb</strong> (IndexedDB wrapper), and <strong>React</strong> /
+<strong>React-DOM</strong>. Each dependency carries its own license; the full list and license
+texts are produced by the package manager&#39;s manifest (<code>package.json</code> +
+<code>pnpm-lock.yaml</code>).</p>
+<h2>MindMap Studio&#39;s own license</h2>
+<p>MindMap Studio is dual-licensed across two distinct artefacts in this repository:</p>
+<ul>
+<li><p><strong>The software</strong> — all source code (<code>src/</code>, <code>test/</code>, <code>scripts/</code>,
+build configuration, etc.) — is licensed under the <strong>Apache License 2.0</strong>. See
+<a href="LICENSE"><code>LICENSE</code></a> in the repository root for the full text.
+Permissive: free for use, modification, and redistribution (including commercial
+use) with attribution and a patent grant.</p>
+</li>
+<li><p><strong>The book</strong> — the practitioner guide in <a href="docs/guide/"><code>docs/guide/</code></a>,
+including the assembled EPUB and PDF artefacts — is licensed under <strong>Creative
+Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)</strong>. See
+<a href="LICENSE-BOOK"><code>LICENSE-BOOK</code></a> in the repository root for the full
+text and scope. Free for non-commercial use with attribution; commercial use (paid
+courses, paid consulting deliverables, paid republishing) requires prior written
+permission from the author.</p>
+</li>
+</ul>
+<p>Both licenses apply only to the original work of the MindMap Studio project.
+Third-party trademarks and third-party authors&#39; work referenced in the book remain
+the property of their respective owners; see the trademark notices above and the
+<strong>Scope of this license</strong> section of <code>LICENSE-BOOK</code> for the boundary.</p>
+
+    <footer>
+      Rendered from the canonical Markdown in the MindMap Studio repo.
+      For the source, open <code>NOTICE.md</code> in the repository.
+    </footer>
+  </main>
+</body>
+</html>

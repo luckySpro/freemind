@@ -1,0 +1,97 @@
+name: Stats
+
+# Regenerates public/stats.json + public/stats-history.json (lines of code,
+# coverage, test counts, domain richness, quality/risk map, hygiene, bundle
+# size and the git story) after every push to main, then commits them back if
+# they changed. The live dashboard (public/dashboard.html) reads these files.
+#
+# Two loop-guards keep this from triggering itself forever:
+#   1. the refresh commit carries "[skip ci]", so it starts no workflow runs;
+#   2. paths-ignore lists BOTH generated files, so even a manual edit to them
+#      never re-triggers this job.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "public/stats.json"
+      - "public/stats-history.json"
+  schedule:
+    # Weekly refresh (Mon 06:17 UTC) so the dashboard keeps moving during quiet
+    # weeks with no pushes — the git-story + feature-coverage numbers still drift.
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stats-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # full history for the git story (commits, authors, churn)
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.0.9
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Coverage (summary + per-file json) plus the Vitest run report (test
+      # timing). continue-on-error so a flaky test never blocks a stats refresh —
+      # partial coverage/timing is still written and the rest of the run proceeds.
+      - name: Tests with coverage + run report
+        continue-on-error: true
+        run: pnpm exec vitest run --coverage --coverage.reporter=json-summary --coverage.reporter=json --coverage.reporter=text-summary --reporter=json --outputFile=.tmp/vitest-report.json
+
+      # Production build so build-stats can read dist/ for gzip bundle sizes.
+      - name: Build
+        run: pnpm build
+
+      # Fail loudly on a malformed feature catalogue rather than letting
+      # build-stats silently emit a null featureCoverage via its safe() guard.
+      - name: Validate feature catalogue
+        run: node ./scripts/check-feature-coverage.mjs
+
+      # build-stats REFUSES to write if coverage-summary.json is missing and the committed stats.json
+      # already has real coverage, so this step now fails instead of silently blanking the dashboard's
+      # coverage figure. That is a deliberate narrowing of the continue-on-error above: a flaky test
+      # still produces partial coverage and refreshes fine, but a run where coverage was never written
+      # at all no longer overwrites good numbers with nulls. Not refreshing beats corrupting.
+      - name: Build stats.json
+        run: node ./scripts/build-stats.mjs
+
+      - name: Commit refreshed stats
+        run: |
+          if [[ -n "$(git status --porcelain public/stats.json public/stats-history.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add public/stats.json public/stats-history.json
+            git commit -m "chore(stats): refresh stats [skip ci]"
+            # A concurrent push to main (e.g. a follow-up feature commit) can land
+            # between our checkout and push. Rebase our stats-only commit on top
+            # and retry rather than failing the whole run on a benign race.
+            pushed=false
+            for attempt in 1 2 3 4 5; do
+              if git pull --rebase --autostash origin main && git push; then
+                pushed=true; echo "pushed on attempt $attempt"; break
+              fi
+              echo "push attempt $attempt rejected; retrying in 5s…"; sleep 5
+            done
+            if [[ "$pushed" != true ]]; then
+              echo "::error::stats push failed after 5 attempts"; exit 1
+            fi
+          else
+            echo "stats unchanged."
+          fi
