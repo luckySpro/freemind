@@ -119,7 +119,7 @@ describe("About section", () => {
     expect(guide.getAttribute("href")).toBe("/user-guide.html");
     expect(guide.getAttribute("target")).toBe("_blank");
     expect(screen.getByRole("link", { name: /Source/i }).getAttribute("href")).toBe(
-      "https://github.com/dannbleeker/mindmap-studio",
+      "https://github.com/luckySpro/freemind",
     );
     // All six resource links render.
     expect(screen.getAllByRole("link")).toHaveLength(6);

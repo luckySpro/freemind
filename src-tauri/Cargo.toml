@@ -1,0 +1,18 @@
+[package]
+name = "freemind"
+version = "0.1.0"
+description = "Offline mind mapping and engineering document writing"
+edition = "2021"
+
+[lib]
+name = "freemind_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+

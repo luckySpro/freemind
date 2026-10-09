@@ -23,6 +23,16 @@ import "../src/i18n";
 const hasDom = typeof window !== "undefined" && typeof document !== "undefined";
 
 if (hasDom) {
+  // Node 25+ exposes Web Storage globals even without a backing file. Explicitly
+  // use jsdom's per-test origin storage, rather than the host's undefined getter.
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: window.localStorage,
+  });
+  Object.defineProperty(globalThis, "sessionStorage", {
+    configurable: true,
+    value: window.sessionStorage,
+  });
   // Unmount any rendered trees + clear jsdom between tests, so one panel render can't leak DOM into
   // the next assertion. (Vitest doesn't auto-cleanup; @testing-library leaves it to the setup file.)
   // Imported lazily so the `node`-environment tests never load testing-library (which needs a DOM).

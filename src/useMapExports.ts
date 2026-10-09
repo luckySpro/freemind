@@ -335,11 +335,11 @@ export function useMapExports(
     // Word .docx — the outline as an editable document. Model-backed, lazy-loaded
     // (docx.ts pulls fflate for the OPC zip), kept out of the entry bundle.
     async exportDocx() {
-      const { buildDocx } = await import("./io/docx");
+      const { buildEngineeringDocx } = await import("./io/engineeringDocx");
       // fflate returns Uint8Array<ArrayBufferLike>; at runtime it's always a
       // plain ArrayBuffer-backed view, so it's a valid BlobPart — the cast just
       // satisfies the stricter lib.dom generic.
-      const bytes = buildDocx(getDoc()) as BlobPart;
+      const bytes = (await buildEngineeringDocx(getDoc())) as BlobPart;
       downloadBlob(
         new Blob([bytes], {
           type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

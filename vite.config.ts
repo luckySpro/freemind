@@ -190,9 +190,9 @@ export default defineConfig({
         // language these three strings ARE, which is what a screen reader in the launcher needs.
         lang: "en",
         dir: "ltr",
-        name: "MindMap Studio",
-        short_name: "MindMap",
-        description: "Local-first mind mapping — a self-hosted MindManager replacement.",
+        name: "FreeMind",
+        short_name: "FreeMind",
+        description: "Offline mind mapping and engineering document writing.",
         theme_color: "#26215c",
         background_color: "#ffffff",
         display: "standalone",

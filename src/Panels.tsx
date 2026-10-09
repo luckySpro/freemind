@@ -4,6 +4,8 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
   type PointerEvent as ReactPointerEvent,
+  Suspense,
+  lazy,
   useEffect,
   useMemo,
   useRef,
@@ -37,6 +39,7 @@ import {
 import { t } from "./i18n";
 import { markerImage, searchMarkers } from "./icons";
 import { formatBytes } from "./io/attachment";
+import { readNoteImage } from "./io/noteImage";
 import { suggestNewMarkers } from "./markerSuggest";
 import {
   MARKER_DND_TYPE,
@@ -57,6 +60,7 @@ import type {
   RuleConditionKind,
   SlideRef,
 } from "./model/types";
+const RichNoteEditor = lazy(() => import("./components/RichNoteEditor"));
 import { htmlToNote, renderNote } from "./noteFormat";
 import {
   type Backlink,
@@ -4034,6 +4038,10 @@ export function NotesPanel({
   spellCheck?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [writing, setWriting] = useState(false);
+  const [pasteError, setPasteError] = useState("");
+  const currentNode = useRef(selected?.id);
+  currentNode.current = selected?.id;
 
   // The editor is an uncontrolled contentEditable: set its HTML imperatively only when the note
   // arrives from elsewhere (a different node / external edit) AND the editor isn't focused — writing
@@ -4045,7 +4053,7 @@ export function NotesPanel({
     if (!el || document.activeElement === el) return;
     const html = renderNote(value);
     if (el.innerHTML !== html) el.innerHTML = html;
-  }, [value, selected?.id]);
+  }, [value, selected?.id, writing]);
 
   const serialize = () => {
     if (ref.current) onChange(htmlToNote(ref.current.innerHTML));
@@ -4055,6 +4063,40 @@ export function NotesPanel({
   // so typed formatting still works; only the paste path is constrained.
   const onPaste = (e: ReactClipboardEvent<HTMLDivElement>) => {
     e.preventDefault(); // block the default rich paste regardless — pasted HTML must never enter the DOM
+    const files = Array.from(e.clipboardData.files ?? []).filter((file) =>
+      file.type.startsWith("image/"),
+    );
+    if (files.length) {
+      const element = ref.current;
+      const nodeId = selected?.id;
+      const original = element?.innerHTML;
+      const selection = window.getSelection();
+      const range = selection?.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
+      void Promise.all(files.map(readNoteImage))
+        .then((images) => {
+          if (!element || ref.current !== element || currentNode.current !== nodeId) return;
+          if (element.innerHTML !== original) {
+            setPasteError("图片读取期间正文已改变，请重新粘贴。");
+            return;
+          }
+          const fragment = document.createDocumentFragment();
+          for (const src of images) {
+            const image = document.createElement("img");
+            image.src = src;
+            fragment.append(image);
+          }
+          if (range && element.contains(range.commonAncestorContainer)) {
+            range.deleteContents();
+            range.insertNode(fragment);
+          } else element.append(fragment);
+          onChange(htmlToNote(element.innerHTML));
+          setPasteError("");
+        })
+        .catch((cause: unknown) =>
+          setPasteError(cause instanceof Error ? cause.message : "图片粘贴失败。"),
+        );
+      return;
+    }
     const text = e.clipboardData.getData("text/plain");
     if (ref.current) insertPlainText(ref.current, text);
     serialize();
@@ -4194,7 +4236,17 @@ export function NotesPanel({
       {cue ? (
         <div style={{ padding: "0 14px 4px", fontSize: 11.5, color: "var(--ed-faint)" }}>{cue}</div>
       ) : null}
-      {selected ? (
+      {selected && (
+        <Button onClick={() => setWriting((open) => !open)}>
+          {writing ? "返回简洁编辑" : "图文写作 · 粘贴图片与表格"}
+        </Button>
+      )}
+      {pasteError && <div role="alert">{pasteError}</div>}
+      {selected && writing ? (
+        <Suspense fallback={<p>正在打开图文编辑器…</p>}>
+          <RichNoteEditor key={selected.id} value={value} onChange={onChange} onBlur={onBlur} />
+        </Suspense>
+      ) : selected ? (
         <>
           <div
             role="toolbar"

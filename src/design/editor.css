@@ -1765,3 +1765,56 @@
   ) {
   display: none !important;
 }
+
+/* Offline technical notes: preserve screenshots at readable size. */
+.freemind-writer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.freemind-writing-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.freemind-writing-toolbar button {
+  border: 1px solid var(--ed-border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  background: var(--ed-card);
+  color: var(--ed-ink);
+  cursor: pointer;
+}
+.freemind-writing-hint {
+  font-size: 12px;
+  color: var(--ed-muted);
+}
+.freemind-writing {
+  min-height: 220px;
+  border: 1px solid var(--ed-border);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--ed-card);
+  color: var(--ed-ink);
+  outline: none;
+}
+.freemind-writing img {
+  max-width: 100%;
+  height: auto;
+}
+.freemind-writing table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.freemind-writing td,
+.freemind-writing th {
+  border: 1px solid var(--ed-border);
+  padding: 6px;
+}
+.freemind-writing pre {
+  padding: 10px;
+  background: var(--ed-bg);
+  overflow-x: auto;
+}

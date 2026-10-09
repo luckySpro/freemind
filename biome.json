@@ -1,9 +1,19 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
-    "ignore": ["dist", "node_modules", "pnpm-lock.yaml", "coverage", ".tmp"]
+    "ignore": [
+      "dist",
+      "node_modules",
+      "pnpm-lock.yaml",
+      "coverage",
+      ".tmp",
+      "src-tauri/target",
+      "src-tauri/gen"
+    ]
   },
-  "organizeImports": { "enabled": true },
+  "organizeImports": {
+    "enabled": true
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -11,7 +21,14 @@
       "correctness": {
         "useExhaustiveDependencies": {
           "level": "error",
-          "options": { "hooks": [{ "name": "useLatestRef", "stableResult": true }] }
+          "options": {
+            "hooks": [
+              {
+                "name": "useLatestRef",
+                "stableResult": true
+              }
+            ]
+          }
         }
       }
     }
@@ -25,7 +42,13 @@
   "overrides": [
     {
       "include": ["src/components/CommandPalette.tsx"],
-      "linter": { "rules": { "a11y": { "useSemanticElements": "off" } } }
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off"
+          }
+        }
+      }
     }
   ]
 }

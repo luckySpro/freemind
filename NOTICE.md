@@ -1,3 +1,13 @@
+# FreeMind additions
+
+FreeMind incorporates MindMap Studio, upstream commit
+2c4749d1f1719ec2158c81cce6e9047a8e0a1e91, under Apache-2.0.
+Upstream copyright and notices below are retained. Changes add offline rich-note
+editing, engineering Word export, application branding and Tauri packaging.
+
+Tiptap open-source packages and docx are MIT licensed. Tauri is MIT / Apache-2.0.
+No cloud or commercial Tiptap extensions are included.
+
 # Notices
 
 This file documents third-party names, marks, and references that appear in

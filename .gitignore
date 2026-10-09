@@ -11,3 +11,7 @@ coverage
 
 # Local tooling config (Claude Code preview launch config, etc.)
 .claude
+
+# Native build outputs
+src-tauri/target
+src-tauri/gen

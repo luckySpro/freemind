@@ -39,7 +39,7 @@ const LINKS: { href: string; label: string }[] = [
     },
   },
   {
-    href: "https://github.com/dannbleeker/mindmap-studio",
+    href: "https://github.com/luckySpro/freemind",
     get label() {
       return t("about.source");
     },

@@ -824,9 +824,7 @@ export function App() {
   // Reflect the linked file + unsaved-to-disk state in the tab/window title (a ● marks unsaved file
   // changes — the in-app library is always saved). Plain "MindMap Studio" when no file is bound.
   useEffect(() => {
-    document.title = fileName
-      ? `${dirty ? "● " : ""}${fileName} — MindMap Studio`
-      : "MindMap Studio";
+    document.title = fileName ? `${dirty ? "● " : ""}${fileName} — FreeMind` : "FreeMind";
   }, [fileName, dirty]);
 
   // A fresh import collapses the warnings banner back to its summary line.

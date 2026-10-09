@@ -1,11 +1,31 @@
+import { isTauri } from "@tauri-apps/api/core";
+
 /** Trigger a browser download of a Blob as `filename` — an object URL behind a transient <a>, revoked
  *  right after the click. The one place the download mechanism lives (export handlers, the map-card
  *  "download", and the save-picker fallback all share it). */
 export function downloadBlob(blob: Blob, filename: string): void {
+  if (isTauri()) {
+    void saveNativeExport(blob, filename).catch((error: unknown) => {
+      window.alert(`导出失败：${error instanceof Error ? error.message : String(error)}`);
+    });
+    return;
+  }
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+async function saveNativeExport(blob: Blob, filename: string): Promise<void> {
+  const { save } = await import("@tauri-apps/plugin-dialog");
+  const { writeFile } = await import("@tauri-apps/plugin-fs");
+  const extension = filename.split(".").pop() ?? "";
+  const path = await save({
+    defaultPath: filename,
+    filters: [{ name: extension.toUpperCase(), extensions: [extension] }],
+  });
+  if (!path) return;
+  await writeFile(path, new Uint8Array(await blob.arrayBuffer()));
 }

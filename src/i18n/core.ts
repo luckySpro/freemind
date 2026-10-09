@@ -703,7 +703,7 @@ export const CORE_EN = {
 
   // About dialog. The product name is a message so a locale that requires transliteration can supply
   // one; most will leave it exactly as it is.
-  "about.appName": "MindMap Studio",
+  "about.appName": "FreeMind",
   "about.close": "Close about dialog",
   "about.tagline":
     "Local-first mind mapping — a MindManager replacement. Your maps stay in your browser.",

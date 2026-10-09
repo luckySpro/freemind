@@ -1,3 +1,15 @@
+# FreeMind 0.1.0 — 2026-10-10
+
+- Import MindMap Studio as the application foundation, retaining upstream notices.
+- Paste local screenshot bytes into notes without downscaling technical text.
+- Add a lazy-loaded Tiptap writing mode with safe rich paste, images and tables.
+- Export engineering DOCX with true headings, cached linked TOC, embedded note images,
+  editable tables, code paragraphs and page fields.
+- Add Tauri 2 shell and native export save path.
+- Preserve the original outline DOCX adapter for compatibility tests and imports.
+
+---
+
 # Changelog
 
 Notable changes to MindMap Studio. Loosely follows Keep a Changelog; pre-1.0 and

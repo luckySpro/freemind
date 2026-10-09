@@ -1,279 +1,46 @@
-# MindMap Studio
+# FreeMind
 
-**Live:** [mindmap-studio.struktureretsundfornuft.dk](https://mindmap-studio.struktureretsundfornuft.dk/)
-· **Status: finished** — feature-complete for its scope ([details](#status))
+离线思维导图与工程文档写作工具。用节点组织章节，在备注里撰写图文资料，导出有标题层级和目录的 Word 文档。
 
-A local-first, offline mind-mapping PWA — a self-hosted replacement for Corel/Mindjet
-MindManager. Built on [React Flow](https://reactflow.dev) (`@xyflow/react`, MIT) with a
-format-agnostic canonical model as the single source of truth. No telemetry, no accounts —
-your maps live in your browser (IndexedDB) and on disk.
+## 当前版本 0.1.0
 
-Sibling to TP Studio and MECE Studio (same stack: React 19 + Vite + TypeScript, deployed to
-GitHub Pages).
+- 完整导图编辑、文件库、自动保存与 `.mmst` 本地文件。
+- 节点备注支持直接粘贴截图；点击 **图文写作 · 粘贴图片与表格** 使用 Tiptap 图文编辑器。
+- 图片以内嵌数据保存，随导图文件传递，无需图床。单图上限 10 MB；WebP/GIF 在本地转为 PNG，GIF 保留静态帧。
+- 图文编辑器支持粘贴清理后的 HTML、表格、段落、列表、代码及图片。仅有远程链接而没有图片字节时会显示占位提示，不自动联网获取图片。
+- 导出菜单的 **.docx (Word)** 输出封面、可点击目录、真实 Heading 1–9、章节编号、正文、图片、表格、代码及页码域。
+- Tauri 2 macOS 封装配置及原生导出保存对话框。
 
-## Features
+## 开发
 
-- **Start screen** — a dedicated home (shown when no map is open, and reachable any time via
-  **⌂ Start**): capture a new map (type a topic, paste an outline, or a blank canvas), reopen
-  **Recent** maps grouped by last-edited, browse **Templates** (with computed node counts) and
-  **Layouts**, import files, or hit **⌘K** for a command palette. Theme-aware and fully local.
-- **Open** `.mmap` (MindManager exports) and `.md` (Markdown outlines) — rendered as a
-  MindManager-style map. The `.mmap` importer is field-mapped from the bundled MindManager
-  XSD (topic tree, notes, icons, hyperlinks, relationships, boundaries, floating topics).
-  Select multiple files to batch-import a whole folder of maps into the library at once.
-  Also opens native `.json` maps (exported from this app) losslessly, and interchanges with
-  other tools: `.opml` outlines, **FreeMind/Freeplane `.mm`**, **Mermaid** `mindmap`,
-  **XMind `.xmind`** (modern + legacy), **SimpleMind `.smmx`**, **iThoughts `.itmz`**,
-  **MindMeister `.mind`**, **MindMup `.mup`**, **Markmap** (`.md`), and **Word `.docx` / Excel
-  `.xlsx`** outlines.
-- **Paste text → map** — turn a pasted outline / bullet list / Markdown into topics (indentation or
-  `#` levels set the hierarchy); drop in as a new map or graft under the selected node.
-- **Edit** on the canvas — keyboard-first (Enter = sibling, Tab = child, just start typing or F2 to
-  edit in place), drag-to-reparent,
-  undo/redo (Ctrl+Z / Ctrl+Shift+Z), inline **rich-text** topics (Ctrl+B/I/U), images on
-  nodes, and a unified **ℹ Info** panel (note, markers, tags, style, links) for the selected node.
-- **Find & Replace** — search the map by topic or note (matches focused on the canvas,
-  cycling on repeated Enter), and replace the search text across all matching topics. Find is
-  **typo-tolerant** — it falls back to a fuzzy match when nothing matches exactly (`Launhc` → Launch).
-  It searches **every node field** (tags, markers, links, callouts, attachments), supports
-  **operators** (`tag:`, `marker:`, `priority:`, `due:`, `has:`, `level:`, `-exclude`, `"phrase"`),
-  lists **all matches** as a clickable list, and recalls your recent queries.
-- **Library-wide search** — the **🔎 All maps** button searches every map in the library by
-  topic or note (floating topics included) and jumps to the chosen map and node.
-- **Outline** — a side panel showing the map as an indented outline; click a row to jump to
-  that node (noted nodes are marked 📝).
-- **Marker & tag index** — a side panel listing every marker and tag in the map, grouped with
-  the topics carrying each one; click a topic to jump to it.
-- **Auto-numbering** — a toggle that prefixes every topic with its outline number (1, 1.2, …)
-  on the canvas, in the outline, and in exports; purely a view (your topic text is untouched).
-- **Power Filter** — a read-only filter that dims every topic except those matching your criteria
-  (text, markers, tags) and the paths to them; nothing is hidden or deleted. Name and **save** a
-  filter to reuse it as a preset across maps.
-- **Focus a branch** — spotlight one branch (and its path to the root); everything else dims (Esc exits).
-- **Per-map canvas background** — set a background colour for a map; it persists and exports with it.
-- **Full screen + read-only mode** — ⛶ hides all the chrome so the map fills the window (and the
-  browser goes full screen where it can); the 🔒 lock makes maps read-only for the session — pan,
-  zoom, fold, search, present and export still work, but nothing can be edited by a stray tap.
-- **Minimap + zoom** — the status bar's live zoom % opens a zoom menu (in / out / 100% / fit map /
-  fit selection) with a **Show minimap** toggle for the corner overview (off by default) whose
-  draggable viewport pans large maps. Fit-to-screen never zooms a small map past 100%.
-- **Topic info panel** — one **ℹ Info** side panel consolidating the selected node's note,
-  markers (click-to-toggle, with active highlighted), **tags** (add/remove), style
-  (shape/fill/border/bold), and links, organised into **Details / Style / Notes** tabs. It opens on
-  request — the **ⓘ** in a selected topic's action bar — or on every selection if you turn on
-  *Settings → Open topic info on select*.
-- **Task progress** — set a topic's completion (0–100%) and a small **completion pie**
-  (MindManager-style, ✓ at 100%) shows on the node — click the pie to step it (0→25→…→100→0).
-  Parents **roll up automatically** (average + done/total count), with the percentage echoed in the
-  Outline and in image exports.
-- **Due & start dates** — give a topic dates in the **ℹ Info** panel; a **📅 chip** shows on the node
-  and turns **red when overdue**. Date fields take **natural language** ("tomorrow", "next monday",
-  "+3d"). Filter by due date (has-a-date / overdue / due ≤ 7 days) in the Power Filter, and
-  **Move project** shifts every start/due date on a branch (or the whole map) ±N days in one undo step.
-- **Task priority** — set High / Med / Low on a topic (coloured chip on the node); filter by priority
-  in the Power Filter.
-- **Fast capture** — a header **Quick add** box (type + Enter to add under the selection, keeps
-  focus), **drop a link** from your browser onto the canvas to make a floating topic, and a
-  **⏱ brainstorm timer** for timeboxed sprints.
-- **File attachments** — attach any file to a topic (**📎 chip** on the node); stored inline so it
-  travels with the map, with one-click download.
-- **Board view (Kanban)** — **▦ Board** shows topics grouped into columns; a **Group by**
-  selector lays them out by **tag**, by a **marker group** (Priority / Status / Mood / Vote — one
-  column per member), or by a **schedule** of date buckets (Overdue / Today / This week / Later /
-  Unscheduled). Cards carry progress + due; clicking one jumps to it on the map, and **dragging a
-  card to another column re-tags / re-marks / re-schedules** the topic.
-- **Summary topics** — **⊐ Summary** draws a labelled bracket beside a branch (side-aware;
-  double-click to rename), the classic MindManager summary.
-- **Node shapes** — beyond box / rounded / pill, give a topic a **diamond** (decision), **oval**
-  (start/end), **parallelogram** (I/O), **hexagon**, or **cylinder** (data store) from the style
-  bar — the flowchart vocabulary. Drawn from one path builder shared by the canvas, exports, and the
-  picker, so the screen and the export always match.
-- **Conditional formatting** — a **🎨 Styles** panel of rules that auto-style topics by tag, marker,
-  or completion (view-only; manual styling wins).
-- **Styles organizer** — save a topic's look as a **named style** and reuse it on others (in the same
-  **🎨 Styles** panel); persists across maps.
-- **Layouts** — beyond the two-sided map: all-left / all-right, org-chart (down/up), radial,
-  timeline, fishbone, a **grid / matrix** (tiles the first-level branches into a grid — a
-  2×2 for SWOT / Eisenhower frames), and a **brace map** (left-to-right tree with `{` fork
-  connectors), switchable from the toolbar and remembered per session. **Per-branch layout**:
-  right-click a branch → *Branch layout* to give just that subtree a different layout (e.g. an
-  org-chart branch inside a radial map).
-- **Free-canvas (whiteboard) mode** — **🧲 Free layout** turns any map into a free canvas: drag
-  topics anywhere and they stay (the auto-layout pauses). With shapes + directional arrows it makes
-  place-anywhere flowcharts, concept maps, and whiteboards; positions persist on the node and flip
-  back to auto-layout cleanly.
-- **Diagram backdrops** — **◎ Diagram** draws a geometric frame behind your topics — **onion**
-  (concentric rings), **funnel** (stacked stages), or **Venn** (2 or 3 overlapping circles) — and
-  switches to free layout so you drop topics into its regions; **−/+** changes the ring/stage count.
-  The frame renders into image exports too.
-- **Free background shapes** — **Insert → Shapes** drops ad-hoc canvas objects behind your topics —
-  **rectangle, ellipse, block arrow, chevron** (SWOT quadrants, flow arrows, framing). Click to select,
-  drag the body to move, drag a corner grip to resize; a small inline toolbar recolours it, changes its
-  kind, or deletes it. Shapes render behind the topics on the canvas and in every image / PDF / HTML
-  export (canvas == export).
-- **Smart containers** — two of the shapes are **containers**: a **Swimlane** (lanes) and a **Matrix**
-  (grid) that behave like MindManager Smart Shapes — **dragging the container moves every topic sitting
-  inside it** (membership is by position, so there's nothing to wire up: drop topics onto a lane and
-  drag it).
-- **Multi-map library** — keep many named maps; switch, create, and delete from the header. Group
-  maps into **folders** (the ⌘K switcher groups by folder), **pin** favourites to the top, filter by
-  title, and recover deleted maps from a **Trash** (soft-delete with undo). Open maps appear as
-  **tabs** under the toolbar (the open set is remembered across reloads). Promote a branch to its
-  own map, or insert a library map as a branch — maps **cross-link**: topic links can target another
-  map's topic, and a backlinks section shows what links here from other maps.
-- **Version history** — per-map snapshots (auto while editing + on demand) with one-click restore;
-  capped at 30, stored in IndexedDB, deleted with the map.
-- **Autosave + reload** — every change persists to IndexedDB; your last map is restored on
-  startup. Works fully offline.
-- **Work with files (`.mmst`)** — open and save maps as real files on disk, like a desktop app:
-  **Open file…** (Ctrl+O), **Save** (Ctrl+S, writes back to the same file with no dialog), and
-  **Save as…** (Ctrl+Shift+S). Once a map is linked to a file, edits **autosave through to it** and
-  the title bar shows a ● until the file is up to date. A `.mmst` is the same lossless schema as
-  `.json`. On Chromium desktop (Chrome/Edge), an **installed** copy can be set as the default app for
-  `.mmst`, so double-clicking one in Windows Explorer opens it here. Browsers without the File System
-  Access API (Firefox/Safari) fall back to a download/upload, and IndexedDB autosave still applies.
-  An installed copy also registers for MindManager **`.mmap`** files: double-clicking (or **Open
-  file…**) one **imports** it into the library (the import is one-way + lossy, and an opened `.mmap`
-  isn't bound for autosave — use *Save as… `.mmst`* to keep working in a linked file). You can still
-  **Export → `.mmap`** to write a map back out for MindManager.
-- **Relationships** — draw a labelled, **directional** arrow (arrowhead at the target) between two
-  nodes: right-click a node → **Link to…**, then click the target (with an optional label). Give it a
-  **semantic type** (relates-to / depends-on / causes / supports / blocks) and filter by it;
-  double-click to relabel, right-click for the full menu (label, arrowheads/direction, line style,
-  type, delete). A map-wide **Relationships panel** lists every arrow and link, click-to-jump.
-  Imported `.mmap` relationships render too.
-- **Links** — from the **ℹ Info** panel, give a node a clickable 🔗 to another **topic** in the
-  same map, to another **map**, or to a **web page**; click the 🔗 to follow it.
-- **Boundaries** — a toolbar **⬚ Group** draws a shaded, rounded box around the selected
-  branch and its subtree (double-click the box's chip to label it); imported MindManager
-  boundaries render the same way, and boundaries you draw round-trip back into the model.
-- **Callouts** — anchored sticky-note annotations on any node (right-click → Add callout),
-  inline-editable; they render into image exports too.
-- **Floating topics** — imported detached topics render in a labelled "Floating topics"
-  branch, and are editable: rename, add, remove, nest, or drag them in/out of the tree, and
-  the changes round-trip back into the model.
-- **Export** — native `.json` (lossless — the format for backup/transfer), Markdown
-  (`.md`), OPML (`.opml`), **FreeMind/Freeplane `.mm`**, **Mermaid** (`.mmd`), **XMind `.xmind`**,
-  **SimpleMind `.smmx`**, **MindManager `.mmap`** (round-trips topics/notes/links/icons, tags,
-  task metadata, and embedded images — the inverse of the importer), PNG (with **2×/4× scale** and
-  **transparent background** options), SVG, a self-contained HTML file, a standalone HTML
-  **slide deck** and a **PowerPoint** (`.pptx`) deck (both render **each branch as its actual map
-  image**, not a bullet outline, and carry per-slide **speaker notes**), a Word **`.docx`**
-  outline document, an Excel **`.xlsx`** outline sheet, direct **PDF** (fit / A4 / Letter, portrait
-  or landscape) as well as print-to-PDF. **Export a single branch** in any of these formats from
-  the node's context menu.
-- **Copy outline / copy image** — copy the map as a Markdown outline, or as a **PNG image**,
-  straight to the clipboard (no file) for pasting into an email, chat, or doc.
-- **Present** — a Walk-Through mode that steps through the map as fullscreen slides, plus a
-  **cinematic guided walk** that frames each branch with animated zoom on the real canvas. A
-  presenter **pacing timer** (with a time budget and colour cues) and a **B/W blackout** key
-  round out the workshop kit.
-- **Theme gallery** — pick a canvas style (Light, Dark, Ocean, Sunset) or **design your own** in
-  the custom theme designer (save, import, and export themes); persists and carries into image
-  exports. Per-topic font/colour/background via the node editor panel. The app chrome itself has
-  **System / Light / Dark** modes plus **high-contrast** and **reduced-motion** support (following
-  the OS or an in-app toggle).
-- **Quick-capture Inbox** — a map-independent **Unfiled** bucket: jot ideas down without leaving
-  the map you're in, and file them onto a map later.
-- **Editing accelerators** — a **slash menu** in the topic editor (insert child / task / date /
-  boundary / note / marker from the keyboard), an inline **`#tag`** picker, **`[[` / `@`**
-  name-based link autocomplete, **smart Ctrl+V** (image / outline / URL / internal branch routed
-  automatically), **sort children** (by name / priority / due / progress), and drag modifiers
-  (**Shift-drag** detaches a topic to floating, **Ctrl-drag** copies the subtree).
-- **Deep links & history** — every topic has a copyable **deep link** (`?node=` URL), in-note
-  links can jump to any topic or map, and **Alt+← / Alt+→** walk your navigation history.
-- **Scales to big maps** — viewport virtualisation keeps the canvas responsive above ~500 nodes.
-- **Installable PWA** — install to the home screen / desktop; precached app shell for offline use.
-
-## Architecture
-
-A format-agnostic **canonical model** (`src/model/types.ts`) is the single source of truth.
-Everything targets it through thin adapters, so the rendering engine and file formats stay
-replaceable:
-
-- `src/mindmap/flow/` — the React Flow canvas: model→nodes/edges projection (`project.ts`),
-  layouts (`layout.ts`), pure edit ops (`ops.ts`), and the native-text SVG exporter (`exportSvg.ts`).
-- `src/import/mmap.ts` — one-way `.mmap` importer (ZIP of `Document.xml`; XSD-sourced mapping);
-  `src/io/mmap.ts` is the paired `.mmap` writer (the export inverse).
-- `src/mindmap/flow/canvasShapes.ts` — the free background-shape + smart-container geometry, shared
-  by the canvas (`ShapeLayer.tsx`) and the exporters so screen and export always match.
-- `src/io/` — the interchange adapters (Markdown, native-JSON, OPML, FreeMind, Mermaid, XMind,
-  SimpleMind, docx/xlsx, …) plus self-contained-HTML/print I/O.
-- `src/io/fileSystem.ts` — native `.mmst` open/save/autosave via the File System Access API
-  (download/upload fallback + Windows file association through the PWA manifest `file_handlers`).
-- `src/useMapExports.ts` — the header's export handlers (json/md/png/svg/html/pdf).
-- `src/store/mapStore.ts` — IndexedDB-backed multi-map library (autosave + last-opened + file handles).
-- `src/present/` — the Walk-Through presentation overlay.
-
-## Commands
+需要 Node.js 22.12+ 和 pnpm 11；桌面构建还需要 Rust 和 Apple 命令行工具。
 
 ```sh
-pnpm install
-pnpm dev         # dev server (preview: "mindmap-dev", port 5175)
-pnpm gate        # full local gate — run before every push
-pnpm test        # unit + integration tests (vitest)
-pnpm build       # production build
+pnpm install --frozen-lockfile
+pnpm dev
+pnpm gate
+pnpm desktop:dev
+pnpm desktop:build
 ```
 
-`pnpm gate` is the "green before done" check: typecheck → lint/format (Biome) → dead-code
-(knip) → tests → build → bundle-size budget (entry chunk), fail-fast. CI
-(`.github/workflows/ci.yml`) runs the same command. See `USER_GUIDE.md` for how to use the
-app, `CLAUDE.md` for how we build, `CHANGELOG.md` for what's shipped, and `NEXT_STEPS.md` for
-open work.
+网页预览默认使用 Vite 输出的地址。桌面开发服务器固定为 `127.0.0.1:1437`。
 
-## The `.mmap` importer
+## Word 输出规则
 
-`.mmap` is a ZIP of `Document.xml` (Mindjet's proprietary, partly-binary schema). The import is
-**one-way and lossy by design** — it recovers the topic tree, notes, icons, hyperlinks,
-relationships, and boundaries (field-mapped from the bundled MindManager XSD), warns about
-out-of-scope data (e.g. tasks), and flags any topics it leaves behind. Validated against a real
-MindManager export (a 25-topic map imported with zero content loss) plus synthetic unit fixtures
-and a CI-safe, env-gated (`MMAP_FILE`) integration test. A paired **`.mmap` writer** (`src/io/mmap.ts`)
-exports maps back out — round-tripping topics, notes, links, icons, tags, task metadata, and embedded
-images through our own importer.
+根节点用于文档名称，其备注为概述；子节点按先序遍历生成章节，备注放在对应标题之后。节点内的小标题采用正文强调，不加入章节目录。导图超过九层时标题样式限制为 Heading 9，完整编号仍保留。当前没有节点输出角色和模板选择器。
 
-## Status
+目录包含缓存条目，首次打开即可看到章节与链接；准确页码依赖 Word 排版，打开时接受更新域，或在 Word 中更新目录。已在 Mac Word 中验证中文内容、章节层级、表格、图片和目录页码更新；WPS 与 Pages 兼容性仍待验证。
 
-**Finished — feature-complete for its scope.** MindMap Studio set out to be a free, local-first,
-offline, single-user replacement for MindManager, and everything in that scope has shipped: the
-brainstorming MVP, the editor/UX redesign, the MindManager canvas-fidelity pass, the competitive
-gap-closing effort (19-tool survey), and the 2026 review programmes (the UX + feature-gap audit,
-two UI reviews, and the MindManager-inspired review — all tiers shipped). The app is **live** at
-<https://mindmap-studio.struktureretsundfornuft.dk/> (GitHub Pages, custom domain, redeployed on
-every push to `main`). Documentation coverage is complete (the user manual covers 100% of the feature
-catalogue) and the review backlog closed on 2026-07-26; what remains is two small deliberate
-residuals — see `NEXT_STEPS.md`.
-Scope intentionally excludes the task / Gantt / resource PM layer and real-time collaboration —
-recorded decisions, not gaps.
+正文图片仅导出已包含的 PNG/JPEG 数据，不访问外网。现有 `.mmst` JSON 兼容保留，备注存储为 Markdown；独立资源包和结构化富文本存储属于后续工作。
 
-## The book
+## macOS / iOS 状态
 
-A longer-form guide to mind mapping — _Thinking in Maps_ — lives in
-[`docs/guide/`](docs/guide/), built from one Markdown source to two downloads that refresh
-automatically when the manuscript changes:
+macOS 可通过 Tauri 构建本地应用；正式分发的签名、公证与安装体验尚需配置。iOS 共用前端与 Tauri 入口，但需完整 Xcode、签名团队和真机验证；目前没有已验证的 iOS 安装包或移动文件分享实现。
 
-- **EPUB** (reflowable, Kindle-friendly):
-  [`/Thinking-in-Maps.epub`](https://mindmap-studio.struktureretsundfornuft.dk/Thinking-in-Maps.epub)
-- **PDF** (fixed A4, cover + clickable TOC + bookmarks):
-  [`/Thinking-in-Maps.pdf`](https://mindmap-studio.struktureretsundfornuft.dk/Thinking-in-Maps.pdf)
+## 来源与许可证
 
-Run `pnpm book` to rebuild both (pure Node — no Chromium or LaTeX). Authoring notes are in
-[`docs/guide/AUTHORING.md`](docs/guide/AUTHORING.md).
+本项目基于 [MindMap Studio](https://github.com/dannbleeker/mindmap-studio)，导入提交为 `2c4749d1f1719ec2158c81cce6e9047a8e0a1e91`。保留 Apache-2.0 的 LICENSE、NOTICE.md 及上游文档。FreeMind 增加离线图文备注、工程 Word 输出与原生封装。
 
-## License
+新增组件：Tiptap 开源核心与扩展、docx、Tauri（各自许可证见依赖包）。不依赖 Tiptap 云服务或付费扩展。
 
-MindMap Studio is dual-licensed. The two artefacts in this repository are governed by different
-licenses:
-
-- **The software** — all source code under `src/`, `test/`, `scripts/`, the build configuration,
-  etc. — is licensed under the **Apache License 2.0**. See [LICENSE](LICENSE) for the full text.
-  Permissive use including commercial use, with attribution and a patent grant.
-- **The book** — the practitioner guide in [`docs/guide/`](docs/guide/) (the source Markdown, the
-  assembled EPUB, the PDF) — is licensed under **Creative Commons Attribution-NonCommercial 4.0
-  International (CC BY-NC 4.0)**. See [LICENSE-BOOK](LICENSE-BOOK) for the full text + scope. Free
-  for non-commercial use with attribution; commercial republishing or paid courses / consulting use
-  requires prior written permission.
-
-Third-party trademarks and third-party authors' work referenced in the book remain the property of
-their respective owners. See [NOTICE.md](NOTICE.md) for the trademark notices and the boundary
-between MindMap Studio's own license and what it doesn't grant rights to.
+上游说明在 [docs/UPSTREAM_README.md](docs/UPSTREAM_README.md)，后续计划见 [docs/ROADMAP.md](docs/ROADMAP.md)。本项目与已有同名 FreeMind Java 项目无隶属关系。
