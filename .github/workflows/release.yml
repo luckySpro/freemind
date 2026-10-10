@@ -47,16 +47,17 @@ jobs:
             const params = {owner: context.repo.owner, repo: context.repo.repo};
             // getReleaseByTag does not find untagged drafts; list them to resume safely.
             const releases = await github.paginate(github.rest.repos.listReleases, {...params, per_page: 100});
-            const matching = releases.filter(r => r.tag_name === tag);
+            const matching = releases.filter(r => r.tag_name === tag || (r.draft && r.name === `FreeMind ${tag}`));
             if (matching.some(r => !r.draft)) throw new Error('Published releases are immutable; bump the version');
-            let release = matching.find(r => r.draft);
+            let release = matching.find(r => r.draft && r.tag_name === tag)
+              || matching.filter(r => r.draft).sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))[0];
             if (!release) release = (await github.rest.repos.createRelease({
               ...params, tag_name: tag, target_commitish: context.sha,
               name: `FreeMind ${tag}`, draft: true,
               body: 'M&J Group · mail:473276@qq.com\n\nmacOS: Apple Silicon / Intel DMG. Windows x64: EXE / MSI. Linux x64: AppImage / DEB.\n\n更新包附带签名，latest.json 在所有桌面平台构建成功后生成。Apple / Windows 系统发行证书尚未配置，首次安装可能显示系统安全提示。Android: 签名 ARM64 APK。iOS: ARM64 模拟器测试 ZIP，仅供 Xcode 模拟器运行；不是真机 IPA。'
             })).data;
             // A resumed draft must point at the commit actually rebuilt by this run.
-            await github.rest.repos.updateRelease({...params, release_id: release.id, target_commitish: context.sha});
+            await github.rest.repos.updateRelease({...params, release_id: release.id, tag_name: tag, target_commitish: context.sha});
             core.setOutput('tag', tag);
             core.setOutput('release_id', String(release.id));
 
@@ -315,7 +316,7 @@ jobs:
               });
               const signature = typeof response.data === 'string' ? response.data.trim() : Buffer.from(response.data).toString('utf8').trim();
               if (!signature || signature.startsWith('{')) throw new Error(`Invalid signature for ${target}`);
-              platforms[target] = {signature, url: asset.browser_download_url};
+              platforms[target] = {signature, url: `https://github.com/${context.repo.owner}/${context.repo.repo}/releases/download/${encodeURIComponent(process.env.RELEASE_TAG)}/${encodeURIComponent(asset.name)}`};
             }
             // Match Tauri's installer-aware targets as well as its classic OS-arch targets.
             platforms['darwin-aarch64-app'] = platforms['darwin-aarch64'];
@@ -349,6 +350,7 @@ jobs:
         uses: actions/github-script@v8
         env:
           RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
         with:
           script: |
             const fs = require('node:fs');
@@ -365,4 +367,4 @@ jobs:
               await github.rest.repos.uploadReleaseAsset({...params, release_id, name, data,
                 headers: {'content-type': name === 'latest.json' ? 'application/json' : 'text/plain', 'content-length': data.length}});
             }
-            await github.rest.repos.updateRelease({...params, release_id, draft: false, make_latest: 'true'});
+            await github.rest.repos.updateRelease({...params, release_id, tag_name: process.env.RELEASE_TAG, draft: false, make_latest: 'true'});
