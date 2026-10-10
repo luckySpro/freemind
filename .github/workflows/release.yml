@@ -1,0 +1,301 @@
+name: Release FreeMind clients
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-freemind
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      release_id: ${{ steps.release.outputs.release_id }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.0.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm gate
+      - name: Validate version and prepare draft
+        id: release
+        uses: actions/github-script@v8
+        env:
+          SIGNING_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        with:
+          script: |
+            if (!process.env.SIGNING_KEY) throw new Error('Missing TAURI_SIGNING_PRIVATE_KEY repository secret');
+            const fs = require('node:fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            const config = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+            const cargo = fs.readFileSync('src-tauri/Cargo.toml', 'utf8').match(/^version = "([^"]+)"/m)?.[1];
+            if (pkg.version !== config.version || cargo !== pkg.version) throw new Error('Package, Tauri and Cargo versions must match');
+            const tag = `v${pkg.version}`;
+            if (context.ref.startsWith('refs/tags/') && context.ref !== `refs/tags/${tag}`) throw new Error('Tag must match app version');
+            const params = {owner: context.repo.owner, repo: context.repo.repo};
+            let release;
+            try { release = (await github.rest.repos.getReleaseByTag({...params, tag})).data; }
+            catch (error) { if (error.status !== 404) throw error; }
+            if (release && !release.draft) throw new Error('Published releases are immutable; bump the version');
+            if (!release) release = (await github.rest.repos.createRelease({
+              ...params, tag_name: tag, target_commitish: context.sha,
+              name: `FreeMind ${tag}`, draft: true,
+              body: 'M&J Group · mail:473276@qq.com\n\nmacOS: Apple Silicon / Intel DMG. Windows x64: EXE / MSI. Linux x64: AppImage / DEB.\n\n更新包附带签名，latest.json 在所有桌面平台构建成功后生成。Apple / Windows 系统发行证书尚未配置，首次安装可能显示系统安全提示。Android: 签名 ARM64 APK。iOS: ARM64 模拟器测试 ZIP，仅供 Xcode 模拟器运行；不是真机 IPA。'
+            })).data;
+            core.setOutput('tag', tag);
+            core.setOutput('release_id', String(release.id));
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            bundles: app,dmg
+          - platform: macos-latest
+            target: x86_64-apple-darwin
+            bundles: app,dmg
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundles: nsis,msi
+          - platform: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            bundles: appimage,deb
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.0.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+      - name: Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+      - run: pnpm install --frozen-lockfile
+      - name: Build and upload signed installers
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          releaseId: ${{ needs.prepare.outputs.release_id }}
+          tagName: ${{ needs.prepare.outputs.tag }}
+          releaseDraft: true
+          args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+          releaseAssetNamePattern: '[name]_[version]_[platform]_[arch][ext]'
+          uploadUpdaterJson: false
+          uploadUpdaterSignatures: true
+
+  android:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.0.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: android-aarch64
+      - name: Prepare Android SDK
+        run: |
+          sdkmanager "platforms;android-35" "platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973"
+          echo "NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> "$GITHUB_ENV"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tauri android init --ci --skip-targets-install
+      - run: pnpm tauri android build --ci --apk --target aarch64
+      - name: Align and sign Android APK
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo 'Missing ANDROID_KEYSTORE_BASE64 secret'; exit 1; }
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/freemind.keystore"
+          chmod 600 "$RUNNER_TEMP/freemind.keystore"
+          APK_SOURCE=$(find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' -path '*release*' | head -n 1)
+          test -n "$APK_SOURCE"
+          APK_NAME="FreeMind_${RELEASE_TAG#v}_android_aarch64.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -P 16 -f 4 "$APK_SOURCE" "$RUNNER_TEMP/aligned.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign --ks "$RUNNER_TEMP/freemind.keystore" --ks-key-alias "$ANDROID_KEY_ALIAS" --ks-pass env:ANDROID_KEYSTORE_PASSWORD --key-pass env:ANDROID_KEYSTORE_PASSWORD --out "$APK_NAME" "$RUNNER_TEMP/aligned.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK_NAME"
+          rm "$RUNNER_TEMP/freemind.keystore"
+          pnpm tauri signer sign "$APK_NAME"
+      - name: Upload Android installer to draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release upload "$RELEASE_TAG" "FreeMind_${RELEASE_TAG#v}_android_aarch64.apk" "FreeMind_${RELEASE_TAG#v}_android_aarch64.apk.sig" --clobber
+
+  ios-simulator:
+    needs: prepare
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.0.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios-sim
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ios-simulator-aarch64
+      - run: brew install xcodegen
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tauri ios init --ci --skip-targets-install
+      - run: pnpm tauri ios build --ci --target aarch64-sim --no-sign --archive-only
+      - name: Package iOS simulator application
+        env:
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          SIM_APP=$(find src-tauri/gen/apple -type d -name '*.app' -path '*Products/Applications/*' | head -n 1)
+          test -n "$SIM_APP"
+          ditto -c -k --sequesterRsrc --keepParent "$SIM_APP" "FreeMind_${RELEASE_TAG#v}_ios_simulator_aarch64.zip"
+      - name: Upload simulator package to draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release upload "$RELEASE_TAG" "FreeMind_${RELEASE_TAG#v}_ios_simulator_aarch64.zip" --clobber
+
+  publish:
+    needs: [prepare, build, android, ios-simulator]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.0.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate platform assets and assemble update manifest
+        uses: actions/github-script@v8
+        env:
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        with:
+          script: |
+            const params = {owner: context.repo.owner, repo: context.repo.repo};
+            const release_id = Number(process.env.RELEASE_ID);
+            const assets = await github.paginate(github.rest.repos.listReleaseAssets, {...params, release_id, per_page: 100});
+            const version = process.env.RELEASE_TAG.slice(1);
+            const platforms = {};
+            const specs = [
+              ['darwin-aarch64', /_darwin_(aarch64|arm64)\.app\.tar\.gz$/],
+              ['darwin-x86_64', /_darwin_(x86_64|x64)\.app\.tar\.gz$/],
+              ['windows-x86_64', /_windows_(x86_64|x64|amd64)\.exe$/],
+              ['windows-x86_64-msi', /_windows_(x86_64|x64|amd64)\.msi$/],
+              ['linux-x86_64', /_linux_(x86_64|x64|amd64)\.AppImage$/],
+              ['android-aarch64', /_android_aarch64\.apk$/]
+            ];
+            for (const [target, pattern] of specs) {
+              const asset = assets.find(a => pattern.test(a.name));
+              const sig = asset && assets.find(a => a.name === `${asset.name}.sig`);
+              if (!asset || !sig || !asset.size || !sig.size) throw new Error(`Missing signed updater for ${target}`);
+              const response = await github.request('GET /repos/{owner}/{repo}/releases/assets/{asset_id}', {
+                ...params, asset_id: sig.id, headers: {accept: 'application/octet-stream'}
+              });
+              const signature = typeof response.data === 'string' ? response.data.trim() : Buffer.from(response.data).toString('utf8').trim();
+              if (!signature || signature.startsWith('{')) throw new Error(`Invalid signature for ${target}`);
+              platforms[target] = {signature, url: asset.browser_download_url};
+            }
+            // Match Tauri's installer-aware targets as well as its classic OS-arch targets.
+            platforms['darwin-aarch64-app'] = platforms['darwin-aarch64'];
+            platforms['darwin-x86_64-app'] = platforms['darwin-x86_64'];
+            platforms['windows-x86_64-nsis'] = platforms['windows-x86_64'];
+            platforms['linux-x86_64-appimage'] = platforms['linux-x86_64'];
+            for (const pattern of [/darwin_(aarch64|arm64)\.dmg$/, /darwin_(x86_64|x64)\.dmg$/, /linux_(x86_64|x64|amd64)\.deb$/, /_android_aarch64\.apk$/, /_ios_simulator_aarch64\.zip$/]) {
+              if (!assets.some(a => pattern.test(a.name) && a.size)) throw new Error(`Missing installer ${pattern}`);
+            }
+            const manifest = {version, minSupportedVersion: version, notes: `FreeMind ${version} · M&J Group`, pub_date: new Date().toISOString(), platforms};
+            const data = Buffer.from(JSON.stringify(manifest, null, 2));
+            require('node:fs').writeFileSync('latest.json', data);
+            const crypto = require('node:crypto');
+            const sums = [];
+            for (const asset of assets.filter(a => !['latest.json', 'latest.json.sig', 'SHA256SUMS'].includes(a.name))) {
+              const response = await github.request('GET /repos/{owner}/{repo}/releases/assets/{asset_id}', {
+                ...params, asset_id: asset.id, headers: {accept: 'application/octet-stream'}
+              });
+              const bytes = Buffer.from(response.data);
+              sums.push(`${crypto.createHash('sha256').update(bytes).digest('hex')}  ${asset.name}`);
+            }
+            sums.push(`${crypto.createHash('sha256').update(data).digest('hex')}  latest.json`);
+            const checksumData = Buffer.from(`${sums.sort().join('\n')}\n`);
+            require('node:fs').writeFileSync('SHA256SUMS', checksumData);
+      - name: Sign mandatory-upgrade manifest
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: pnpm tauri signer sign latest.json
+      - name: Upload authenticated manifest and publish
+        uses: actions/github-script@v8
+        env:
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const crypto = require('node:crypto');
+            const params = {owner: context.repo.owner, repo: context.repo.repo};
+            const release_id = Number(process.env.RELEASE_ID);
+            const signature = fs.readFileSync('latest.json.sig');
+            fs.appendFileSync('SHA256SUMS', `${crypto.createHash('sha256').update(signature).digest('hex')}  latest.json.sig\n`);
+            const assets = await github.paginate(github.rest.repos.listReleaseAssets, {...params, release_id, per_page: 100});
+            for (const name of ['latest.json', 'latest.json.sig', 'SHA256SUMS']) {
+              const old = assets.find(a => a.name === name);
+              if (old) await github.rest.repos.deleteReleaseAsset({...params, asset_id: old.id});
+              const data = fs.readFileSync(name);
+              await github.rest.repos.uploadReleaseAsset({...params, release_id, name, data,
+                headers: {'content-type': name === 'latest.json' ? 'application/json' : 'text/plain', 'content-length': data.length}});
+            }
+            await github.rest.repos.updateRelease({...params, release_id, draft: false, make_latest: 'true'});
