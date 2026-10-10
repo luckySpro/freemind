@@ -14,6 +14,11 @@ import type { MindMapHandle } from "../src/mindmap";
 import type { MindMapDoc } from "../src/model/types";
 import { useMapExports } from "../src/useMapExports";
 
+const pdfBuilder = vi.hoisted(() =>
+  vi.fn(async (_doc: MindMapDoc) => new Uint8Array([37, 80, 68, 70])),
+);
+vi.mock("../src/io/engineeringPdf", () => ({ buildEngineeringPdf: pdfBuilder }));
+
 const docOf = (title: string): MindMapDoc => ({
   schemaVersion: 1,
   id: "doc-1",
@@ -44,6 +49,7 @@ let lastBlob: Blob;
 
 beforeEach(() => {
   downloads = [];
+  pdfBuilder.mockClear();
   // jsdom implements neither URL.createObjectURL nor anchor downloads — assign stubs directly
   // (vi.spyOn can't wrap a method that doesn't exist) and capture what would have been written.
   URL.createObjectURL = vi.fn((b: Blob | MediaSource) => {
@@ -73,6 +79,7 @@ describe("useMapExports — filenames + MIME types", () => {
     ["exportXmind", "Demo Map.xmind", "application/vnd.xmind.workbook"],
     ["exportSmmx", "Demo Map.smmx", "application/octet-stream"],
     ["exportInteractiveHtml", "Demo Map-interactive.html", "text/html"],
+    ["exportEngineeringPdf", "Demo Map-document.pdf", "application/pdf"],
     ["exportDeck", "Demo Map-slides.html", "text/html"],
     [
       "exportDocx",
@@ -122,6 +129,26 @@ describe("useMapExports — filenames + MIME types", () => {
     const parsed = JSON.parse(await downloads[0].blob.text());
     expect(parsed.title).toBe("Demo Map");
     expect(parsed.root.children).toHaveLength(2);
+  });
+});
+
+describe("useMapExports — engineering PDF", () => {
+  it("uses the live document including notes without requiring a canvas", async () => {
+    const doc = docOf("Engineering");
+    doc.root.children[0].note = "**Evidence** with image bytes";
+    const ex = useMapExports({ current: null }, () => doc);
+    await ex.exportEngineeringPdf();
+    expect(pdfBuilder).toHaveBeenCalledWith(doc);
+    expect(downloads[0].name).toBe("Engineering-document.pdf");
+  });
+
+  it("surfaces generation failures without downloading a broken file", async () => {
+    pdfBuilder.mockRejectedValueOnce(new Error("bad image"));
+    const hint = vi.fn();
+    const ex = useMapExports({ current: null }, () => docOf("Demo"), undefined, hint);
+    await ex.exportEngineeringPdf();
+    expect(hint).toHaveBeenCalledWith("Export failed: Error: bad image");
+    expect(downloads).toHaveLength(0);
   });
 });
 

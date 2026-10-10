@@ -21,6 +21,8 @@ type BranchIo = Pick<
   | "exportHtml"
   | "exportInteractiveHtml"
   | "exportPdf"
+  | "exportEngineeringPdf"
+  | "exportDocx"
   | "exportJson"
   | "exportMarkdown"
 >;
@@ -63,6 +65,20 @@ const FORMATS: { id: string; label: string; run: (io: BranchIo) => void | Promis
       return t("panel.pdfPrint");
     },
     run: (io) => io.exportPdf(),
+  },
+  {
+    id: "pdf-document",
+    get label() {
+      return t("writing.pdfDocument");
+    },
+    run: (io) => io.exportEngineeringPdf(),
+  },
+  {
+    id: "docx",
+    get label() {
+      return t("cmd.export.docx");
+    },
+    run: (io) => io.exportDocx(),
   },
   {
     id: "json",

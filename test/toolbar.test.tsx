@@ -174,6 +174,7 @@ function setup(
         "exportDeck",
         "exportPdf",
         "exportPdfFile",
+        "exportEngineeringPdf",
         "exportDocx",
         "exportPptx",
         "exportXlsx",
@@ -280,6 +281,16 @@ describe("Toolbar — Export menu", () => {
     await u.click(screen.getByRole("button", { name: /^export/i }));
     await u.click(screen.getByRole("menuitem", { name: /\.pptx/i }));
     expect(t.io.exportPptx).toHaveBeenCalled();
+  });
+
+  it("offers a document PDF separately from the original map PDFs", async () => {
+    localStorage.removeItem("mindmap-last-export");
+    const t = setup();
+    await u.click(screen.getByRole("button", { name: /^export/i }));
+    await u.click(screen.getByRole("menuitem", { name: ".pdf document (with contents)" }));
+    expect(t.io.exportEngineeringPdf).toHaveBeenCalledTimes(1);
+    expect(t.io.exportPdfFile).not.toHaveBeenCalled();
+    expect(t.io.exportPdf).not.toHaveBeenCalled();
   });
 
   it("pins the last-used format atop the menu and re-runs it", async () => {

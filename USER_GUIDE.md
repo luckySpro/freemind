@@ -4,6 +4,8 @@
 - 全选节点：画板中按 Command+A / Ctrl+A，选择全部可见节点；文字编辑时该快捷键仍全选文字。
 - 图文写作：选中节点，打开备注中的图文写作，可直接粘贴截图和表格。
 
+- 工程文档：导出菜单选择 **.pdf 文档（含目录）**，得到封面、目录、章节和图文正文；选择 Word 可继续编辑。右键节点的“导出此分支”也支持两种文档。原有导图 PDF 用于导出画板图像。
+
 # MindMap Studio — User Guide
 
 A local-first, offline mind-mapping app — a self-hosted replacement for Corel/Mindjet

@@ -180,7 +180,7 @@ export default defineConfig({
       // and we surface an explicit "Refresh now" toast (src/pwa/pwaUpdate.ts),
       // so a background reload never throws away in-flight edits.
       registerType: "prompt",
-      includeAssets: ["icon.svg", "apple-touch-icon.png"],
+      includeAssets: ["icon.svg", "apple-touch-icon.png", "Noto-OFL.txt"],
       manifest: {
         // A manifest is BAKED AT BUILD TIME, so unlike `<html lang>` and the exporters it cannot follow
         // the locale the user picks at runtime — the install prompt and the OS launcher read this file
@@ -213,7 +213,9 @@ export default defineConfig({
         launch_handler: { client_mode: "focus-existing" },
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg}"],
+        globPatterns: ["**/*.{js,css,html,svg,ttf}"],
+        // The embedded CJK font is required for engineering PDF exports without a network.
+        maximumFileSizeToCacheInBytes: 32 * 1024 * 1024,
         // Don't rewrite navigations to real files (the book PDF/EPUB, the
         // standalone .html pages, stats.json) into the SPA shell — see the
         // unit-tested constant for the rule.

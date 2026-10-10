@@ -15,7 +15,7 @@ export const WRITING_EN = {
   "writing.undo": "Undo",
   "writing.redo": "Redo",
   "writing.hint":
-    "Paste screenshots, rich text and tables directly. Images stay with your map and are included in Word exports.",
+    "Paste screenshots, rich text and tables directly. Images stay with your map and are included in Word and document PDF exports.",
   "writing.open": "Rich writing · paste images and tables",
   "writing.simple": "Return to simple editing",
   "writing.loading": "Opening rich editor…",
@@ -37,6 +37,7 @@ export const WRITING_EN = {
   "writing.htmlOmitted": "[HTML was not exported. Paste content using the rich editor.]",
   "writing.document": "Engineering document",
   "writing.description": "Engineering document generated from an offline mind map",
+  "writing.pdfDocument": ".pdf document (with contents)",
   "writing.contents": "Contents",
   "writing.exportFailed": "Export failed: {error}",
   "writing.languageHelp": "Switching language saves your map and reloads the app.",

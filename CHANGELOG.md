@@ -1,3 +1,8 @@
+# FreeMind 0.1.2 — 2026-10-10
+
+- 新增离线文档 PDF 导出，章节与 Word 输出同步，包含封面、可点击目录、图文备注和页码。
+- 导出菜单与单分支导出均提供文档 PDF；单分支同时新增 Word 输出。原有导图 PDF 保留。
+
 # FreeMind 0.1.0 — 2026-10-10
 
 - Import MindMap Studio as the application foundation, retaining upstream notices.

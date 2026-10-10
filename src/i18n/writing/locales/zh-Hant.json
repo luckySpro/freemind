@@ -12,7 +12,7 @@
   "writing.image": "圖片",
   "writing.undo": "復原",
   "writing.redo": "重做",
-  "writing.hint": "可直接貼上截圖、圖文和表格。圖片隨心智圖儲存，Word 匯出包含正文。",
+  "writing.hint": "可直接貼上截圖、圖文和表格。圖片隨心智圖儲存，Word 與文件 PDF 匯出包含圖文正文。",
   "writing.open": "圖文寫作 · 貼上圖片與表格",
   "writing.simple": "返回簡易編輯",
   "writing.loading": "正在開啟圖文編輯器…",
@@ -54,5 +54,6 @@
   "ui.resume": "繼續",
   "ui.selectAll": "全選畫板中的可見節點",
   "ui.closeDialog": "關閉對話框",
-  "ui.saving": "正在儲存…"
+  "ui.saving": "正在儲存…",
+  "writing.pdfDocument": ".pdf 文件（含目錄）"
 }

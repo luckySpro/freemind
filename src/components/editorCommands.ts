@@ -123,6 +123,7 @@ const EXPORTS = (io: ToolbarProps["io"]): [string, string, () => void][] => [
     () => io.exportPdfFile({ pageSize: "a4", orientation: "landscape" }),
   ],
   ["pdf-print", t("cmd.export.pdf-print"), io.exportPdf],
+  ["pdf-document", t("writing.pdfDocument"), io.exportEngineeringPdf],
   ["docx", t("cmd.export.docx"), io.exportDocx],
   ["xlsx", t("cmd.export.xlsx"), io.exportXlsx],
   ["deck", t("cmd.export.deck"), io.exportDeck],

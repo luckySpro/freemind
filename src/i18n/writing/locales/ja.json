@@ -12,7 +12,7 @@
   "writing.image": "画像",
   "writing.undo": "元に戻す",
   "writing.redo": "やり直す",
-  "writing.hint": "スクリーンショット、書式付きテキスト、表を貼り付けられます。画像はマップと共に保存され、Word にも出力されます。",
+  "writing.hint": "スクリーンショット、書式付きテキスト、表を貼り付けられます。画像はマップと共に保存され、Word と文書 PDF にも出力されます。",
   "writing.open": "リッチ編集 · 画像や表を貼り付け",
   "writing.simple": "簡易編集に戻る",
   "writing.loading": "エディターを開いています…",
@@ -54,5 +54,6 @@
   "ui.resume": "再開",
   "ui.selectAll": "キャンバス上の表示中のトピックをすべて選択",
   "ui.closeDialog": "ダイアログを閉じる",
-  "ui.saving": "保存中…"
+  "ui.saving": "保存中…",
+  "writing.pdfDocument": ".pdf 文書（目次付き）"
 }

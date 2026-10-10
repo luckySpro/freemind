@@ -12,7 +12,7 @@
   "writing.image": "图片",
   "writing.undo": "撤销",
   "writing.redo": "重做",
-  "writing.hint": "可直接粘贴截图、图文和表格。图片随导图保存，Word 导出包含正文。",
+  "writing.hint": "可直接粘贴截图、图文和表格。图片随导图保存，Word 与文档 PDF 导出包含图文正文。",
   "writing.open": "图文写作 · 粘贴图片与表格",
   "writing.simple": "返回简洁编辑",
   "writing.loading": "正在打开图文编辑器…",
@@ -54,5 +54,6 @@
   "ui.resume": "继续",
   "ui.selectAll": "全选画板中的可见节点",
   "ui.closeDialog": "关闭对话框",
-  "ui.saving": "正在保存…"
+  "ui.saving": "正在保存…",
+  "writing.pdfDocument": ".pdf 文档（含目录）"
 }

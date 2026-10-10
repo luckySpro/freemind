@@ -260,6 +260,7 @@ export interface ToolbarIo {
     pageSize?: "fit" | "a4" | "letter";
     orientation?: "portrait" | "landscape";
   }) => void;
+  exportEngineeringPdf: () => void;
   exportDocx: () => void;
   exportPptx: () => void;
   exportXlsx: () => void;
@@ -488,6 +489,7 @@ export function Toolbar({
           () => io.exportPdfFile({ pageSize: "letter" }),
         ],
         ["pdf-print", t("cmd.export.pdf-print"), io.exportPdf],
+        ["pdf-document", t("writing.pdfDocument"), io.exportEngineeringPdf],
         ["docx", t("cmd.export.docx"), io.exportDocx],
         ["xlsx", t("cmd.export.xlsx"), io.exportXlsx],
       ],

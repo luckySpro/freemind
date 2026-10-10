@@ -10,6 +10,11 @@ import type { MindMapDoc } from "../src/model/types";
 // closes. The renderer-backed (SVG-from-live-canvas) path is exercised via the handle's exportSvg(rootId)
 // in the app; here we cover the picker's own wiring with a stub handle.
 
+const pdfBuilder = vi.hoisted(() =>
+  vi.fn(async (_doc: MindMapDoc) => new Uint8Array([37, 80, 68, 70])),
+);
+vi.mock("../src/io/engineeringPdf", () => ({ buildEngineeringPdf: pdfBuilder }));
+
 const doc: MindMapDoc = {
   schemaVersion: 1,
   id: "d",
@@ -64,11 +69,29 @@ describe("BranchExportDialog (B4)", () => {
       "HTML (standalone picture)",
       "HTML (interactive)",
       "PDF (print)",
+      ".pdf document (with contents)",
+      ".docx (Word)",
       ".json (lossless)",
       "Markdown",
     ]) {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
+  });
+
+  it("exports document PDF with only the selected branch model", async () => {
+    const user = userEvent.setup();
+    const { onClose } = setup();
+    await user.click(screen.getByRole("button", { name: ".pdf document (with contents)" }));
+    expect(pdfBuilder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Alpha",
+        root: expect.objectContaining({
+          id: "a",
+          children: [{ id: "a1", topic: "A1", children: [] }],
+        }),
+      }),
+    );
+    expect(onClose).toHaveBeenCalled();
   });
 
   it("fires a model-backed export (scoped) and closes", async () => {

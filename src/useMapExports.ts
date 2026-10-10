@@ -83,6 +83,8 @@ export interface MapExports {
   exportPdf: () => Promise<void>;
   /** Direct PDF file download (item 7): the map rendered + embedded, with page size / orientation. */
   exportPdfFile: (opts?: import("./io/pdf").MapPdfOptions) => Promise<void>;
+  /** Structured document PDF with contents, matching the Word chapter model. */
+  exportEngineeringPdf: () => Promise<void>;
   exportDocx: () => Promise<void>;
   exportPptx: () => Promise<void>;
   exportXlsx: () => Promise<void>;
@@ -331,6 +333,19 @@ export function useMapExports(
       const dims = await pngPixelSize(png);
       const pdf = await buildMapPdf(bytes, opts, dims.width, dims.height);
       downloadBlob(new Blob([pdf as BlobPart], { type: "application/pdf" }), `${baseName()}.pdf`);
+    },
+    async exportEngineeringPdf() {
+      try {
+        const { buildEngineeringPdf } = await import("./io/engineeringPdf");
+        const doc = getDoc();
+        const bytes = (await buildEngineeringPdf(doc)) as BlobPart;
+        downloadBlob(
+          new Blob([bytes], { type: "application/pdf" }),
+          `${doc.title || "mindmap"}-document.pdf`,
+        );
+      } catch (error) {
+        onHint?.(t("writing.exportFailed", { error: String(error) }));
+      }
     },
     // Word .docx — the outline as an editable document. Model-backed, lazy-loaded
     // (docx.ts pulls fflate for the OPC zip), kept out of the entry bundle.

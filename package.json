@@ -1,7 +1,7 @@
 {
   "name": "freemind",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "packageManager": "pnpm@11.0.9",
   "description": "Offline mind mapping and engineering Word document writing",
@@ -31,6 +31,7 @@
     "desktop:build": "tauri build"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "@tauri-apps/api": "^2.12.1",
     "@tauri-apps/plugin-dialog": "^2.8.1",
     "@tauri-apps/plugin-fs": "^2.6.0",
@@ -47,6 +48,7 @@
     "fflate": "^0.8.2",
     "idb": "^8.0.3",
     "marked": "^18.0.5",
+    "pdf-lib": "^1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -66,7 +68,6 @@
     "jsdom": "^29.1.1",
     "jszip": "^3.10.1",
     "knip": "^6.16.1",
-    "pdf-lib": "^1.17.1",
     "typescript": "^5.7.2",
     "vite": "^8.0.16",
     "vite-plugin-pwa": "^1.3.0",

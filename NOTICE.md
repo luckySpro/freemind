@@ -89,3 +89,10 @@ Both licenses apply only to the original work of the MindMap Studio project.
 Third-party trademarks and third-party authors' work referenced in the book remain
 the property of their respective owners; see the trademark notices above and the
 **Scope of this license** section of `LICENSE-BOOK` for the boundary.
+
+FreeMind bundles Noto Sans CJK SC Regular from https://github.com/notofonts/noto-cjk
+for offline PDF typography. The font is licensed under SIL Open Font License 1.1;
+see src/assets/fonts/OFL.txt. Font copyright belongs to the Noto Project Authors.
+
+The bundled TrueType font is a static weight-400 instance of
+`Sans/Variable/TTF/NotoSansCJKsc-VF.ttf`, generated with fontTools.
