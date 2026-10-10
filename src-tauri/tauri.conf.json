@@ -36,7 +36,10 @@
       "icons/icon.ico"
     ],
     "createUpdaterArtifacts": true,
-    "publisher": "M&J Group"
+    "publisher": "M&J Group",
+    "windows": {
+      "webviewInstallMode": { "type": "offlineInstaller", "silent": true }
+    }
   },
   "plugins": {
     "updater": {

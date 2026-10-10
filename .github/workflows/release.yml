@@ -95,12 +95,24 @@ jobs:
         with:
           workspaces: src-tauri
           key: ${{ matrix.target }}
+          cache-on-failure: true
       - name: Linux build dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
       - run: pnpm install --frozen-lockfile
+      - name: Ensure MSI VBScript prerequisite
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $capabilities = Get-WindowsCapability -Online | Where-Object { $_.Name -like 'VBSCRIPT*' }
+          $capabilities | Format-Table Name, State
+          foreach ($capability in $capabilities) {
+            if ($capability.State -ne 'Installed') {
+              Add-WindowsCapability -Online -Name $capability.Name
+            }
+          }
       - name: Build and upload signed installers
         uses: tauri-apps/tauri-action@v1
         env:
@@ -131,24 +143,10 @@ jobs:
           releaseId: ${{ needs.prepare.outputs.release_id }}
           tagName: ${{ needs.prepare.outputs.tag }}
           releaseDraft: true
-          args: --target x86_64-pc-windows-msvc --bundles msi --config tauri-msi-release.json
+          args: --target x86_64-pc-windows-msvc --bundles msi --config tauri-msi-release.json --verbose
           releaseAssetNamePattern: '[name]_[version]_[platform]_[arch][ext]'
           uploadUpdaterJson: false
           uploadUpdaterSignatures: true
-      - name: Sign Linux DEB manual upgrade package
-        if: runner.os == 'Linux'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: |
-          DEB_SOURCE=$(find src-tauri/target -name '*.deb' -path '*/release/bundle/deb/*' | head -n 1)
-          DEB_ASSET=$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | endswith(".deb")) | .name')
-          test -n "$DEB_SOURCE" && test -n "$DEB_ASSET"
-          cp "$DEB_SOURCE" "$DEB_ASSET"
-          pnpm tauri signer sign "$DEB_ASSET"
-          gh release upload "$RELEASE_TAG" "$DEB_ASSET.sig" --clobber
 
   android:
     needs: prepare
@@ -177,6 +175,7 @@ jobs:
         with:
           workspaces: src-tauri
           key: android-aarch64
+          cache-on-failure: true
       - name: Prepare Android SDK
         run: |
           sdkmanager "platforms;android-35" "platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973"
@@ -205,10 +204,24 @@ jobs:
           rm "$RUNNER_TEMP/freemind.keystore"
           pnpm tauri signer sign "$APK_NAME"
       - name: Upload Android installer to draft
+        uses: actions/github-script@v8
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
           RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
-        run: gh release upload "$RELEASE_TAG" "FreeMind_${RELEASE_TAG#v}_android_aarch64.apk" "FreeMind_${RELEASE_TAG#v}_android_aarch64.apk.sig" --clobber
+        with:
+          script: |
+            const fs = require('node:fs');
+            const params = {owner: context.repo.owner, repo: context.repo.repo};
+            const release_id = Number(process.env.RELEASE_ID);
+            const name = `FreeMind_${process.env.RELEASE_TAG.slice(1)}_android_aarch64.apk`;
+            const assets = await github.paginate(github.rest.repos.listReleaseAssets, {...params, release_id, per_page: 100});
+            for (const filename of [name, `${name}.sig`]) {
+              const old = assets.find(a => a.name === filename);
+              if (old) await github.rest.repos.deleteReleaseAsset({...params, asset_id: old.id});
+              const data = fs.readFileSync(filename);
+              await github.rest.repos.uploadReleaseAsset({...params, release_id, name: filename, data,
+                headers: {'content-type': 'application/octet-stream', 'content-length': data.length}});
+            }
 
   ios-simulator:
     needs: prepare
@@ -229,6 +242,7 @@ jobs:
         with:
           workspaces: src-tauri
           key: ios-simulator-aarch64
+          cache-on-failure: true
       - run: brew install xcodegen
       - run: pnpm install --frozen-lockfile
       - run: pnpm tauri ios init --ci --skip-targets-install
@@ -241,10 +255,22 @@ jobs:
           test -n "$SIM_APP"
           ditto -c -k --sequesterRsrc --keepParent "$SIM_APP" "FreeMind_${RELEASE_TAG#v}_ios_simulator_aarch64.zip"
       - name: Upload simulator package to draft
+        uses: actions/github-script@v8
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
           RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
-        run: gh release upload "$RELEASE_TAG" "FreeMind_${RELEASE_TAG#v}_ios_simulator_aarch64.zip" --clobber
+        with:
+          script: |
+            const fs = require('node:fs');
+            const params = {owner: context.repo.owner, repo: context.repo.repo};
+            const release_id = Number(process.env.RELEASE_ID);
+            const name = `FreeMind_${process.env.RELEASE_TAG.slice(1)}_ios_simulator_aarch64.zip`;
+            const assets = await github.paginate(github.rest.repos.listReleaseAssets, {...params, release_id, per_page: 100});
+            const old = assets.find(a => a.name === name);
+            if (old) await github.rest.repos.deleteReleaseAsset({...params, asset_id: old.id});
+            const data = fs.readFileSync(name);
+            await github.rest.repos.uploadReleaseAsset({...params, release_id, name, data,
+              headers: {'content-type': 'application/zip', 'content-length': data.length}});
 
   publish:
     needs: [prepare, build, android, ios-simulator]

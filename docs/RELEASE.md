@@ -6,6 +6,8 @@
 
 安装文件包括 macOS DMG、Windows EXE / MSI、Linux AppImage / DEB。macOS `.app.tar.gz`、Windows EXE、Linux AppImage 用作自动升级包。Linux DEB 的升级先下载并验证安装包签名，再打开系统安装器；自动替换只适用于 AppImage 安装。
 
+Windows 安装包内置 WebView2 离线安装器，缺少运行时的设备也无需联网补装，因此文件比仅含应用的安装包更大。
+
 ## 一次性配置
 
 1. 使用 `pnpm tauri signer generate -w <仓库外的安全路径>` 生成签名密钥。私钥不要提交，丢失后旧客户端将无法验证新更新。
@@ -15,7 +17,7 @@
 
 升级签名与 Apple Developer / Windows Authenticode 的操作系统发行证书不同。本工作流签署更新包，但未配置系统发行证书，首次安装可能出现系统安全提示。
 
-Windows MSI 使用 `src-tauri/wix/main.wxs`，基于 Tauri CLI 2.12.1 默认模板，仅对组织名称中的 `&` 做 XML 转义。升级 Tauri CLI 时需同步检查该模板；应用和 EXE 的组织名称仍为 M&J Group。
+Windows MSI 使用 `src-tauri/wix/main.wxs`，基于 Tauri CLI 2.12.1 默认模板，对组织名称中的 `&` 做 XML 转义并规范注册表路径分隔符。升级 Tauri CLI 时需同步检查该模板；应用和 EXE 的组织名称仍为 M&J Group。
 
 ## 发布新版
 
