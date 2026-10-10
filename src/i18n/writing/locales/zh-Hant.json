@@ -75,6 +75,6 @@
   "updates.checkFailed": "無法檢查更新，可以繼續離線使用。",
   "updates.description": "桌面用戶端在連線時檢查必要更新。導圖和富文字備註仍保持完全離線。",
   "updates.pwaBody": "FreeMind 新版本已準備就緒。請儲存導圖並重新整理，以保持用戶端功能一致。",
-  "updates.manualInstall": "儲存並下載 Android 更新",
-  "updates.manualHelp": "已開啟 APK 下載。請透過 Android 安裝並重新開啟 FreeMind。導圖已儲存在此裝置；安裝新版本之前，升級提示將保持顯示。"
+  "updates.manualInstall": "儲存並下載更新",
+  "updates.manualHelp": "已開啟安裝套件下載。請使用系統安裝下載的套件，然後重新開啟 FreeMind。導圖已儲存在此裝置；安裝新版本之前，升級提示將保持顯示。"
 }

@@ -40,7 +40,7 @@ fn trusted_asset(url: &Url) -> bool {
         && url.fragment().is_none()
 }
 
-fn verify_manifest(payload: &[u8], signature: &str, pubkey: &str) -> Result<(), String> {
+fn verify_signed_payload(payload: &[u8], signature: &str, pubkey: &str) -> Result<(), String> {
     let decode = |value: &str| -> Result<String, String> {
         let bytes = base64::engine::general_purpose::STANDARD
             .decode(value.trim())
@@ -95,7 +95,7 @@ async fn signed_manifest(
         .and_then(|value| value.get("pubkey"))
         .and_then(|value| value.as_str())
         .ok_or("Missing updater public key")?;
-    verify_manifest(&payload, &signature, pubkey)?;
+    verify_signed_payload(&payload, &signature, pubkey)?;
     let authenticated: serde_json::Value =
         serde_json::from_slice(&payload).map_err(|e| e.to_string())?;
     Ok((authenticated, endpoint))
@@ -122,12 +122,25 @@ async fn check_endpoint(webview: &Webview, accelerated: bool) -> Result<Option<U
     Ok(update)
 }
 
+#[cfg(any(target_os = "linux", test))]
+fn linux_manual_target(is_appimage: bool) -> Option<&'static str> {
+    if is_appimage {
+        None
+    } else {
+        Some("linux-x86_64-deb")
+    }
+}
+
 #[cfg(desktop)]
 #[tauri::command]
 pub async fn freemind_check_update(
     webview: Webview,
     accelerated: bool,
 ) -> Result<Option<UpdateInfo>, String> {
+    #[cfg(target_os = "linux")]
+    if let Some(target) = linux_manual_target(std::env::var_os("APPIMAGE").is_some()) {
+        return check_manual_update(&webview, accelerated, target, ".deb").await;
+    }
     // A stale mirror returning no update must not hide a newer official release.
     let update = if accelerated {
         match check_endpoint(&webview, true).await {
@@ -184,6 +197,9 @@ pub async fn freemind_install_update(
     accelerated: bool,
     progress: Channel<Progress>,
 ) -> Result<(), String> {
+    if webview.resources_table().get::<ManualUpdate>(id).is_ok() {
+        return open_manual_update(&webview, id, accelerated, &progress).await;
+    }
     let resource = webview
         .resources_table()
         .get::<Update>(id)
@@ -210,11 +226,11 @@ pub async fn freemind_install_update(
     Ok(())
 }
 
-#[cfg(mobile)]
 struct ManualUpdate {
     url: Url,
+    signature: String,
+    version: String,
 }
-#[cfg(mobile)]
 impl tauri::Resource for ManualUpdate {}
 
 #[cfg(mobile)]
@@ -227,6 +243,16 @@ pub async fn freemind_check_update(
     if cfg!(target_os = "ios") || !cfg!(target_arch = "aarch64") {
         return Ok(None);
     }
+    check_manual_update(&webview, accelerated, "android-aarch64", ".apk").await
+}
+
+#[cfg(any(mobile, target_os = "linux"))]
+async fn check_manual_update(
+    webview: &Webview,
+    accelerated: bool,
+    target: &str,
+    suffix: &str,
+) -> Result<Option<UpdateInfo>, String> {
     let (mut manifest, _) = if accelerated {
         match signed_manifest(&webview, true).await {
             Ok(result) => result,
@@ -258,20 +284,30 @@ pub async fn freemind_check_update(
     }
     let platform = manifest
         .get("platforms")
-        .and_then(|v| v.get("android-aarch64"))
-        .ok_or("No Android update package")?;
+        .and_then(|v| v.get(target))
+        .ok_or("No update package for this installation")?;
     let url = Url::parse(
         platform
             .get("url")
             .and_then(|v| v.as_str())
-            .ok_or("Missing Android package URL")?,
+            .ok_or("Missing package URL")?,
     )
     .map_err(|e| e.to_string())?;
-    if !trusted_asset(&url) || !url.path().ends_with(".apk") {
-        return Err("Invalid Android release URL".into());
+    if !trusted_asset(&url) || !url.path().ends_with(suffix) {
+        return Err("Invalid manual update package URL".into());
     }
     let download_url = Some(url.to_string());
-    let id = webview.resources_table().add(ManualUpdate { url });
+    let signature = platform
+        .get("signature")
+        .and_then(|v| v.as_str())
+        .filter(|v| !v.trim().is_empty())
+        .ok_or("Missing package signature")?
+        .to_owned();
+    let id = webview.resources_table().add(ManualUpdate {
+        url,
+        signature,
+        version: version.to_string(),
+    });
     Ok(Some(UpdateInfo {
         id,
         version: version.to_string(),
@@ -293,20 +329,81 @@ pub async fn freemind_install_update(
     accelerated: bool,
     progress: Channel<Progress>,
 ) -> Result<(), String> {
+    open_manual_update(&webview, id, accelerated, &progress).await
+}
+
+async fn open_manual_update(
+    webview: &Webview,
+    id: ResourceId,
+    accelerated: bool,
+    progress: &Channel<Progress>,
+) -> Result<(), String> {
     use tauri_plugin_opener::OpenerExt;
     let release = webview
         .resources_table()
         .get::<ManualUpdate>(id)
         .map_err(|e| e.to_string())?;
-    if !trusted_asset(&release.url) || !release.url.path().ends_with(".apk") {
-        return Err("Invalid Android release URL".into());
+    if !trusted_asset(&release.url)
+        || !(release.url.path().ends_with(".apk") || release.url.path().ends_with(".deb"))
+    {
+        return Err("Invalid manual update package URL".into());
     }
-    let _ = progress;
-    let url = if accelerated {
-        format!("{ACCELERATOR}{}", release.url)
-    } else {
-        release.url.to_string()
-    };
+    if release.url.path().ends_with(".deb") {
+        let config = &webview.app_handle().config().plugins.0;
+        let pubkey = config
+            .get("updater")
+            .and_then(|v| v.get("pubkey"))
+            .and_then(|v| v.as_str())
+            .ok_or("Missing updater public key")?;
+        let _ = progress.send(Progress {
+            downloaded: 0,
+            total: None,
+        });
+        let client = reqwest::Client::builder()
+            .timeout(Duration::from_secs(300))
+            .build()
+            .map_err(|e| e.to_string())?;
+        let bytes = if accelerated {
+            let mirror = format!("{ACCELERATOR}{}", release.url);
+            match download_verified_package(&client, &mirror, &release.signature, pubkey).await {
+                Ok(bytes) => bytes,
+                Err(_) => {
+                    download_verified_package(
+                        &client,
+                        release.url.as_str(),
+                        &release.signature,
+                        pubkey,
+                    )
+                    .await?
+                }
+            }
+        } else {
+            download_verified_package(&client, release.url.as_str(), &release.signature, pubkey)
+                .await?
+        };
+        let _ = progress.send(Progress {
+            downloaded: bytes.len() as u64,
+            total: Some(bytes.len() as u64),
+        });
+        let folder = webview
+            .app_handle()
+            .path()
+            .app_cache_dir()
+            .map_err(|e| e.to_string())?
+            .join("updates");
+        std::fs::create_dir_all(&folder).map_err(|e| e.to_string())?;
+        let version = semver::Version::parse(&release.version).map_err(|e| e.to_string())?;
+        let path = folder.join(format!("FreeMind-{version}.deb"));
+        // Only authenticated bytes reach the system package installer.
+        std::fs::write(&path, bytes).map_err(|e| e.to_string())?;
+        return webview
+            .app_handle()
+            .opener()
+            .open_path(path.to_string_lossy().to_string(), None::<&str>)
+            .map_err(|e| e.to_string());
+    }
+    // Manual APK updates use the official HTTPS URL; Android checks the installed app's signing identity.
+    let url = release.url.to_string();
     // Android's system installer verifies the APK against the installed application's keystore certificate.
     webview
         .app_handle()
@@ -315,9 +412,35 @@ pub async fn freemind_install_update(
         .map_err(|e| e.to_string())
 }
 
+async fn download_verified_package(
+    client: &reqwest::Client,
+    url: &str,
+    signature: &str,
+    pubkey: &str,
+) -> Result<Vec<u8>, String> {
+    let bytes = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?
+        .error_for_status()
+        .map_err(|e| e.to_string())?
+        .bytes()
+        .await
+        .map_err(|e| e.to_string())?;
+    verify_signed_payload(&bytes, signature, pubkey)?;
+    Ok(bytes.to_vec())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn deb_installations_use_manual_package_update_and_appimages_remain_automatic() {
+        assert_eq!(linux_manual_target(false), Some("linux-x86_64-deb"));
+        assert_eq!(linux_manual_target(true), None);
+    }
 
     #[test]
     fn authenticated_manifest_rejects_tampered_payload_and_signature() {
@@ -325,10 +448,10 @@ mod tests {
         let public_key = "untrusted comment: minisign public key E7620F1842B4E81F\nRWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
         let signature = "untrusted comment: signature from minisign secret key\nRWQf6LRCGA9i59SLOFxz6NxvASXDJeRtuZykwQepbDEGt87ig1BNpWaVWuNrm73YiIiJbq71Wi+dP9eKL8OC351vwIasSSbXxwA=\ntrusted comment: timestamp:1555779966\tfile:test\nQtKMXWyYcwdpZAlPF7tE2ENJkRd1ujvKjlj1m9RtHTBnZPa5WKU5uWRs5GoP5M/VqE81QFuMKI5k/SfNQUaOAA==";
         let encode = |value: &str| base64::engine::general_purpose::STANDARD.encode(value);
-        assert!(verify_manifest(b"test", &encode(signature), &encode(public_key)).is_ok());
-        assert!(verify_manifest(b"Test", &encode(signature), &encode(public_key)).is_err());
-        assert!(verify_manifest(b"test", "garbage", &encode(public_key)).is_err());
-        assert!(verify_manifest(b"test", &encode(signature), "garbage").is_err());
+        assert!(verify_signed_payload(b"test", &encode(signature), &encode(public_key)).is_ok());
+        assert!(verify_signed_payload(b"Test", &encode(signature), &encode(public_key)).is_err());
+        assert!(verify_signed_payload(b"test", "garbage", &encode(public_key)).is_err());
+        assert!(verify_signed_payload(b"test", &encode(signature), "garbage").is_err());
     }
 
     #[test]

@@ -4,7 +4,7 @@
 
 `.github/workflows/release.yml` 在版本标签 `vX.Y.Z` 或手动运行时执行完整质量门禁，随后构建 macOS Apple Silicon、macOS Intel、Windows x64 和 Linux x64。所有桌面、Android 和 iOS 模拟器构建均成功、对应签名齐全后才发布 GitHub Release；失败时保留草稿，当前正式版本继续可用。
 
-安装文件包括 macOS DMG、Windows EXE / MSI、Linux AppImage / DEB。macOS `.app.tar.gz`、Windows EXE、Linux AppImage 用作自动升级包。Linux DEB 的升级应通过系统包管理器重新安装，自动替换只适用于 AppImage 安装。
+安装文件包括 macOS DMG、Windows EXE / MSI、Linux AppImage / DEB。macOS `.app.tar.gz`、Windows EXE、Linux AppImage 用作自动升级包。Linux DEB 的升级先下载并验证安装包签名，再打开系统安装器；自动替换只适用于 AppImage 安装。
 
 ## 一次性配置
 
@@ -25,7 +25,7 @@
 
 ## 手机构建与签名
 
-Android ARM64 APK 在 Actions 中初始化原生工程并构建，用固定发行密钥签署，方便以后直接覆盖安装。额外设置 `ANDROID_KEYSTORE_BASE64`（仓库外 keystore 的 base64 内容）、`ANDROID_KEYSTORE_PASSWORD`（store / key 同密码）及 `ANDROID_KEY_ALIAS`。私钥必须长期保存，更换密钥将无法直接更新旧安装。自动升级插件仅用于桌面；Android 通过新 APK 安装更新。
+Android ARM64 APK 在 Actions 中初始化原生工程并构建，用固定发行密钥签署，方便以后直接覆盖安装。额外设置 `ANDROID_KEYSTORE_BASE64`（仓库外 keystore 的 base64 内容）、`ANDROID_KEYSTORE_PASSWORD`（store / key 同密码）及 `ANDROID_KEY_ALIAS`。私钥必须长期保存，更换密钥将无法直接更新旧安装。自动升级插件仅用于桌面；Android 从 GitHub 官方源下载新 APK，通过系统安装更新。
 
 iOS 在完整 Xcode runner 中生成 ARM64 模拟器 `.app` ZIP，适合开发测试，无法在 iPhone 真机安装。发布流程不会把这个文件标成 IPA。要发行真机版仍需 Apple Developer 身份、证书及 provisioning profile，以及 App Store / TestFlight 或明确的设备分发范围。
 

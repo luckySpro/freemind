@@ -42,9 +42,9 @@ export const WRITING_EN = {
   "writing.exportFailed": "Export failed: {error}",
   "writing.languageHelp": "Switching language saves your map and reloads the app.",
   "writing.languageFailed": "Could not save the map. Language was not changed: {error}",
-  "updates.manualInstall": "Save and download Android update",
+  "updates.manualInstall": "Save and download update",
   "updates.manualHelp":
-    "The APK download is open. Install it through Android and reopen FreeMind. Maps are saved on this device; the required update remains active until the new version is installed.",
+    "The installer download is open. Install the downloaded package using your operating system, then reopen FreeMind. Maps are saved on this device; the required update remains active until the new version is installed.",
   "updates.organization": "Organization",
   "updates.contact": "Email",
   "updates.pwaBody":
