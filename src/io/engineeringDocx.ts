@@ -18,7 +18,8 @@ import {
 } from "docx";
 import { type Token, type Tokens, marked } from "marked";
 import { t } from "../i18n";
-import type { MapNode, MindMapDoc } from "../model/types";
+import type { MindMapDoc } from "../model/types";
+import { engineeringSections } from "./engineeringDocument";
 
 type Inline = TextRun | ImageRun | ExternalHyperlink;
 type Block = Paragraph | Table;
@@ -186,29 +187,20 @@ export async function buildEngineeringDocx(doc: MindMapDoc): Promise<Uint8Array>
   const title = doc.title || doc.root.topic || t("writing.document");
   const body: Block[] = [];
   const entries: { title: string; level: number; href: string }[] = [];
-  let index = 0;
   if (doc.root.note) body.push(...noteBlocks(doc.root.note));
-  const walk = (nodes: MapNode[], path: number[]) => {
-    nodes.forEach((node, position) => {
-      const numbers = [...path, position + 1];
-      const level = Math.min(numbers.length, 9);
-      const heading = `${numbers.join(".")} ${node.topic}`;
-      const bookmark = `section_${++index}`;
-      entries.push({ title: heading, level, href: bookmark });
-      body.push(
-        new Paragraph({
-          heading: HeadingLevel[`HEADING_${level}` as keyof typeof HeadingLevel],
-          children: [new Bookmark({ id: bookmark, children: [new TextRun(heading)] })],
-          spacing: { before: level === 1 ? 280 : 180, after: 120 },
-          keepNext: true,
-        }),
-      );
-      if (node.note) body.push(...noteBlocks(node.note));
-      if (node.image) body.push(new Paragraph({ children: imageRun(node.image.url, node.topic) }));
-      walk(node.children, numbers);
-    });
-  };
-  walk(doc.root.children, []);
+  for (const { node, title: heading, level, bookmark } of engineeringSections(doc)) {
+    entries.push({ title: heading, level, href: bookmark });
+    body.push(
+      new Paragraph({
+        heading: HeadingLevel[`HEADING_${level}` as keyof typeof HeadingLevel],
+        children: [new Bookmark({ id: bookmark, children: [new TextRun(heading)] })],
+        spacing: { before: level === 1 ? 280 : 180, after: 120 },
+        keepNext: true,
+      }),
+    );
+    if (node.note) body.push(...noteBlocks(node.note));
+    if (node.image) body.push(new Paragraph({ children: imageRun(node.image.url, node.topic) }));
+  }
   const document = new Document({
     title,
     creator: "FreeMind",
