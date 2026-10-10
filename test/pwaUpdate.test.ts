@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { __resetPwaUpdateForTest, checkForUpdate, initPwaUpdateToast } from "../src/pwa/pwaUpdate";
 import type { ToastKind, ToastOptions } from "../src/pwa/pwaUpdate";
 // Same module instance the service imports via the `virtual:pwa-register` alias.
@@ -59,6 +59,17 @@ describe("initPwaUpdateToast", () => {
     expect(toasts[0].message).toMatch(/new version/i);
     expect(toasts[0].action?.label).toBe("Refresh now");
     toasts[0].action?.run();
+    expect(__getUpdateCalls()).toEqual([true]);
+  });
+
+  it("delegates confirmed updates to the mandatory gate without activating or offering a dismissible toast", async () => {
+    const required = vi.fn();
+    initPwaUpdateToast(showToast, required);
+    __triggerNeedRefresh();
+    expect(required).toHaveBeenCalledOnce();
+    expect(toasts).toHaveLength(0);
+    expect(__getUpdateCalls()).toEqual([]);
+    await required.mock.calls[0][0]();
     expect(__getUpdateCalls()).toEqual([true]);
   });
 

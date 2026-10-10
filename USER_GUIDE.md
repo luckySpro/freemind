@@ -1133,3 +1133,9 @@ MindMap Studio targets **brainstorming, knowledge mapping, and presentation/shar
 project / task-management layer (Gantt, schedules, dependencies, resources) is intentionally
 out of scope, as are MindManager's collaboration / enterprise features (real-time co-editing,
 cloud sync, the web/Teams apps); see `NEXT_STEPS.md` for the current edges.
+
+## 客户端更新
+
+联网时自动检查签名版本。确认有更新后，选择“保存并升级”；也可先导出导图库备份。下载失败可重试或取消勾选加速使用 GitHub 官方源。断网或无法认证版本信息时可继续离线使用。桌面安装成功后重启，Android 下载新版 APK 后需完成系统安装；iOS 模拟器包不用于真机安装。
+
+关于与设置中可查看版本和维护组织 M&J Group，联系邮箱 473276@qq.com。

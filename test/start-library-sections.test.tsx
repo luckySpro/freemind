@@ -121,8 +121,11 @@ describe("About section", () => {
     expect(screen.getByRole("link", { name: /Source/i }).getAttribute("href")).toBe(
       "https://github.com/luckySpro/freemind",
     );
-    // All six resource links render.
-    expect(screen.getAllByRole("link")).toHaveLength(6);
+    // Resource links plus the organization contact link render.
+    expect(screen.getAllByRole("link")).toHaveLength(7);
+    expect(screen.getByRole("link", { name: "473276@qq.com" }).getAttribute("href")).toBe(
+      "mailto:473276@qq.com",
+    );
   });
 });
 

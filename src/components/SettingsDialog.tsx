@@ -5,6 +5,7 @@ import type { Appearance } from "../useAppearance";
 import type { ContrastPref } from "../useHighContrast";
 import type { MotionPref } from "../useReducedMotion";
 import { Dialog } from "./Dialog";
+import { OrganizationInfo } from "./OrganizationInfo";
 
 // Settings / Preferences — the one place to see and reset the bits of app state that otherwise live
 // invisibly in ~a dozen localStorage keys + the IndexedDB library. Local-first means everything lives
@@ -109,6 +110,9 @@ export function SettingsDialog({
         boxShadow: "var(--ed-shadow-pop)",
       }}
     >
+      <Section title={t("cmd.about")}>
+        <OrganizationInfo />
+      </Section>
       <Section title={t("settings.language")}>
         <select
           className="mm-map-control"

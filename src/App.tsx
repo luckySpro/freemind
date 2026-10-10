@@ -1,3 +1,4 @@
+import { isTauri } from "@tauri-apps/api/core";
 import {
   type CSSProperties,
   type ChangeEvent,
@@ -40,6 +41,7 @@ import { InspectorRail } from "./components/InspectorRail";
 import { InstallButton } from "./components/InstallButton";
 import { MapPanel } from "./components/MapPanel";
 import { MobileSheetScrim } from "./components/MobileSheetScrim";
+import { OrganizationInfo } from "./components/OrganizationInfo";
 import { OverlayInspector } from "./components/OverlayInspector";
 import { type DockEntry, PanelDock } from "./components/PanelDock";
 import { SearchResults } from "./components/SearchResults";
@@ -76,7 +78,7 @@ import { setLocale, t } from "./i18n";
 import { tNodes } from "./i18n/nodes";
 import { MARKER_PALETTE } from "./icons";
 import { fileToAttachment } from "./io/attachment";
-import { downloadBlob } from "./io/download";
+import { downloadBlob, downloadBlobAwaited } from "./io/download";
 import { isNativeExt, readMapFromHandle } from "./io/fileSystem";
 import { fileToMapImage } from "./io/image";
 import { parseImport } from "./io/importDispatch";
@@ -171,6 +173,8 @@ declare global {
 // matching the canvas's own code-split idiom (src/mindmap/index.tsx). The Start screen is shown only
 // on a fresh boot with no open document — an async decision, so deferring its chunk is invisible to the
 // common (returning-user) path; the Presentation deck loads only when the user clicks Present.
+const PwaUpdateGate = lazy(() => import("./components/PwaUpdateGate"));
+const UpdateGate = lazy(() => import("./components/UpdateGate"));
 const StartScreen = lazy(() =>
   import("./components/start/StartScreen").then((m) => ({ default: m.StartScreen })),
 );
@@ -635,14 +639,20 @@ export function App() {
 
   // Register the PWA self-updater once: a new deploy surfaces a "Refresh now" toast
   // through showToast (no-op in dev — the service worker is disabled there).
+  const [pwaRefresh, setPwaRefresh] = useState<(() => Promise<void>) | null>(null);
   useEffect(() => {
-    initPwaUpdateToast(showToast);
+    if (!isTauri()) initPwaUpdateToast(showToast, (refresh) => setPwaRefresh(() => refresh));
   }, [showToast]);
 
   // Manual "Check for updates", shared by the editor's About dialog and the Start screen's About.
   // Maps the check result to a toast (the surface — ToastBar — is now mounted in both views, so the
   // result, and any re-surfaced "Refresh now" prompt, shows wherever the user triggered it).
+  const [desktopCheckNonce, setDesktopCheckNonce] = useState(0);
   const checkForUpdates = useCallback(async () => {
+    if (isTauri()) {
+      setDesktopCheckNonce((value) => value + 1);
+      return;
+    }
     const result = await checkForUpdate();
     if (result === "up-to-date") {
       showToast("success", t("hint.upToDate"));
@@ -883,18 +893,29 @@ export function App() {
     });
   }, [adoptOpenedFile, importForeignFile]);
 
+  async function saveBeforeUpdate() {
+    if (startupReady.current && view === "editor" && mapRef.current) {
+      if (selectedIdRef.current) flushNote();
+      await saveMap(liveDocRef.current);
+    }
+  }
+
+  async function exportLibraryBackup() {
+    await saveBeforeUpdate();
+    const docs: MindMapDoc[] = [];
+    for (const s of await listMaps()) {
+      const d = await loadMap(s.id);
+      if (d) docs.push(d);
+    }
+    await downloadBlobAwaited(
+      new Blob([serializeLibrary(docs, await getFolders())], { type: "application/json" }),
+      "mindmap-library.json",
+    );
+  }
+
   async function exportLibrary() {
     try {
-      await saveMap(liveDocRef.current); // flush current edits into the backup
-      const docs: MindMapDoc[] = [];
-      for (const s of await listMaps()) {
-        const d = await loadMap(s.id);
-        if (d) docs.push(d);
-      }
-      downloadBlob(
-        new Blob([serializeLibrary(docs, await getFolders())], { type: "application/json" }),
-        "mindmap-library.json",
-      );
+      await exportLibraryBackup();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -1750,6 +1771,30 @@ export function App() {
     );
   }, [openDockKey, setActiveDock]);
 
+  const updateGate = isTauri() ? (
+    <Suspense fallback={null}>
+      <UpdateGate
+        checkNonce={desktopCheckNonce}
+        beforeInstall={saveBeforeUpdate}
+        onBackup={exportLibraryBackup}
+        onCheckResult={(result) =>
+          showToast(
+            result === "current" ? "success" : "info",
+            result === "current" ? t("hint.upToDate") : t("updates.checkFailed"),
+          )
+        }
+      />
+    </Suspense>
+  ) : pwaRefresh ? (
+    <Suspense fallback={null}>
+      <PwaUpdateGate
+        beforeInstall={saveBeforeUpdate}
+        onBackup={exportLibraryBackup}
+        refresh={pwaRefresh}
+      />
+    </Suspense>
+  ) : null;
+
   if (view === "start") {
     return (
       <>
@@ -1764,6 +1809,7 @@ export function App() {
         {/* The toast surface must render on Start too, or the PWA "Refresh now" prompt (and any
             other toast) is silently swallowed here — Start is the most common landing screen. */}
         <ToastBar toast={toast} onDismiss={dismissToast} variant="floating" />
+        {updateGate}
       </>
     );
   }
@@ -2670,6 +2716,8 @@ export function App() {
         )}
       </Dialog>
 
+      {updateGate}
+
       {/* About — controlled <Dialog>; the browser handles modal semantics, focus trap and Esc. */}
       <Dialog
         open={aboutOpen}
@@ -2705,6 +2753,9 @@ export function App() {
         <p style={{ margin: "8px 0 14px", color: "var(--ed-muted)", fontSize: 13 }}>
           {t("about.tagline")}
         </p>
+        <div style={{ marginBottom: 14 }}>
+          <OrganizationInfo />
+        </div>
         <p style={{ margin: "0 0 14px", fontSize: 13 }}>© 2026 Dann Bleeker Pedersen</p>
         <div style={{ fontSize: 13, marginBottom: 14 }}>
           <div style={{ fontWeight: 600, marginBottom: 4 }}>{t("about.licenseHeading")}</div>
@@ -2727,11 +2778,7 @@ export function App() {
           <a href="/dashboard.html" target="_blank" rel="noopener noreferrer">
             {t("about.dashboard")}
           </a>
-          <a
-            href="https://github.com/dannbleeker/mindmap-studio"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://github.com/luckySpro/freemind" target="_blank" rel="noopener noreferrer">
             {t("about.source")}
           </a>
         </div>

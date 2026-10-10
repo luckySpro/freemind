@@ -1,13 +1,9 @@
 import { registerSW } from "virtual:pwa-register";
 
-// Self-update for the PWA: when a new build is deployed, the waiting service worker
-// triggers a non-intrusive "New version available — Refresh now" toast; clicking it
-// swaps to the new build and reloads. Never reloads silently (registerType is
-// "prompt", not "autoUpdate") — the user may have an in-flight, debounced edit.
-//
-// Adapted from the reference recipe: instead of importing a global showToast, the
-// app injects its toast surface via initPwaUpdateToast(showToast) at boot, so this
-// stays decoupled from the React component that owns the toast UI.
+// A waiting worker has fully downloaded the new build. App supplies a required-update
+// gate that saves the current map before activation; callers without that UI retain
+// the original toast fallback. Registration remains "prompt": no silent reload can
+// discard a debounced edit. Native clients use the signed installer updater instead.
 
 export type ToastKind = "info" | "success";
 export interface ToastAction {
@@ -23,11 +19,16 @@ export type ShowToast = (kind: ToastKind, message: string, opts?: ToastOptions) 
 let registered = false;
 let cachedUpdateSW: ((reloadPage?: boolean) => Promise<void>) | null = null;
 let toast: ShowToast | null = null;
+let requiredUpdate: ((refresh: () => Promise<void>) => void) | null = null;
 
 /** Canonical "New version… Refresh now" prompt. Shared by the plugin's
  *  onNeedRefresh callback and the manual-check already-waiting branch. */
 const showUpdateAvailableToast = (): void => {
   const refresh = cachedUpdateSW;
+  if (refresh && requiredUpdate) {
+    requiredUpdate(() => refresh(true));
+    return;
+  }
   toast?.("info", "A new version is available.", {
     action: refresh
       ? {
@@ -42,10 +43,14 @@ const showUpdateAvailableToast = (): void => {
 };
 
 /** Register the SW once and wire its update/offline callbacks to the app's toast. */
-export const initPwaUpdateToast = (showToast: ShowToast): void => {
+export const initPwaUpdateToast = (
+  showToast: ShowToast,
+  onRequiredUpdate?: (refresh: () => Promise<void>) => void,
+): void => {
   if (registered || typeof window === "undefined") return;
   registered = true;
   toast = showToast;
+  requiredUpdate = onRequiredUpdate ?? null;
   // registerSW() registers the generated SW and returns updateSW(reload?); we hoist
   // it to module scope so the manual "Check for updates" path can drive it too.
   cachedUpdateSW = registerSW({
@@ -91,4 +96,5 @@ export const __resetPwaUpdateForTest = (): void => {
   registered = false;
   cachedUpdateSW = null;
   toast = null;
+  requiredUpdate = null;
 };

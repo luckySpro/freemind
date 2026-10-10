@@ -42,6 +42,34 @@ export const WRITING_EN = {
   "writing.exportFailed": "Export failed: {error}",
   "writing.languageHelp": "Switching language saves your map and reloads the app.",
   "writing.languageFailed": "Could not save the map. Language was not changed: {error}",
+  "updates.manualInstall": "Save and download Android update",
+  "updates.manualHelp":
+    "The APK download is open. Install it through Android and reopen FreeMind. Maps are saved on this device; the required update remains active until the new version is installed.",
+  "updates.organization": "Organization",
+  "updates.contact": "Email",
+  "updates.pwaBody":
+    "A new FreeMind build is ready. Save your maps and refresh to keep clients on the same features.",
+  "updates.required": "Update required",
+  "updates.requiredBody":
+    "A newer FreeMind version {next} is available (current: {current}). Update to keep the same features across clients.",
+  "updates.offlineHelp":
+    "Your maps remain on this device. They are saved before installation; you can also export a library backup.",
+  "updates.releaseNotes": "Release notes",
+  "updates.acceleration": "Use download acceleration for mainland China",
+  "updates.accelerationHelp":
+    "Downloads pass through gh-proxy.com with automatic GitHub fallback. Every installer must pass signature verification.",
+  "updates.saving": "Saving your maps…",
+  "updates.downloading": "Downloading update · {progress}",
+  "updates.restarting": "Restarting FreeMind…",
+  "updates.install": "Save and update",
+  "updates.retry": "Retry update",
+  "updates.backup": "Export library backup",
+  "updates.installFailed":
+    "Update failed: {error}. Your maps are retained; retry or use the direct download route.",
+  "updates.backupFailed": "Backup failed: {error}",
+  "updates.checkFailed": "Could not check for updates. You can continue working offline.",
+  "updates.description":
+    "Desktop clients check for required updates when online. Maps and rich notes stay fully offline.",
   "ui.openDocuments": "Open documents",
   "ui.newDocument": "New document",
   "ui.closeDocument": "Close {name}",

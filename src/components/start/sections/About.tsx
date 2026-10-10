@@ -1,6 +1,7 @@
 import { t } from "../../../i18n/registry";
 import "../messages";
 import { InstallButton } from "../../InstallButton";
+import { OrganizationInfo } from "../../OrganizationInfo";
 
 // Local-first / format-agnostic / open-source blurb, plus the book, user guide, and other resource
 // links — mirrors the editor's ⓘ About so the Start screen exposes the same downloads.
@@ -64,6 +65,7 @@ export function About({ onCheckForUpdates }: { onCheckForUpdates?: () => void })
           work is never locked in. Install it as a PWA to use it fully offline.
         </p>
         <p className="st-prose">{t("start.openSourceAndASibling")}</p>
+        <OrganizationInfo />
       </div>
 
       <section>
@@ -95,9 +97,7 @@ export function About({ onCheckForUpdates }: { onCheckForUpdates?: () => void })
         <h3 className="st-section-title" style={{ fontSize: 13, color: "var(--st-muted)" }}>
           {t("start.updates")}
         </h3>
-        <p className="st-section-sub">
-          Installed as a PWA, MindMap Studio updates itself; check here to pull a new version now.
-        </p>
+        <p className="st-section-sub">{t("updates.description")}</p>
         <div className="st-card" style={{ padding: 16, marginTop: 10 }}>
           <button type="button" className="st-btn" onClick={() => onCheckForUpdates?.()}>
             {t("about.checkUpdates")}

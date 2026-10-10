@@ -53,3 +53,13 @@ macOS 可通过 Tauri 构建本地应用；正式分发的签名、公证与安�
 上游说明在 [docs/UPSTREAM_README.md](docs/UPSTREAM_README.md)，后续计划见 [docs/ROADMAP.md](docs/ROADMAP.md)。本项目与已有同名 FreeMind Java 项目无隶属关系。
 
 文档 PDF 内嵌完整中日韩字体以确保离线阅读；基础文件约 11 MB，图片会增加文件大小。
+
+## 客户端升级与发布
+
+维护组织：**M&J Group** · mail:473276@qq.com。关于和设置页面显示组织、联系方式及当前版本。
+
+原生客户端启动、恢复联网及每小时检查更新。只有通过签名验证、确认高于当前版本的发行清单才显示不可跳过的升级界面；检查失败仍允许离线使用。安装前保存当前导图，也可先导出完整导图库备份。桌面下载和安装再次验签，GH-Proxy 下载失败回退 GitHub 官方源。Android 通过系统安装新版 APK；PWA 在新版本已缓存后要求保存并刷新。
+
+选择 GH-Proxy 的原因是它直接支持 GitHub Release 二进制附件。jsDelivr 的 GitHub 接口用于仓库文件，不用于本项目发行安装包。仅公开版本文件经过加速服务，导图与备注不上传。测速受网络和运营状态影响，不保证所有线路更快。
+
+发布支持 macOS Apple Silicon / Intel、Windows x64、Linux x64、Android ARM64 APK，iOS 暂为 ARM64 模拟器测试包。iPhone 真机版需要 Apple Developer 证书和 provisioning profile。流程与签名密钥维护见 [发布文档](docs/RELEASE.md)。
