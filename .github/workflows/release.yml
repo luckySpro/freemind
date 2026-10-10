@@ -112,6 +112,20 @@ jobs:
           releaseAssetNamePattern: '[name]_[version]_[platform]_[arch][ext]'
           uploadUpdaterJson: false
           uploadUpdaterSignatures: true
+      - name: Sign Linux DEB manual upgrade package
+        if: runner.os == 'Linux'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          DEB_SOURCE=$(find src-tauri/target -name '*.deb' -path '*/release/bundle/deb/*' | head -n 1)
+          DEB_ASSET=$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | select(.name | endswith(".deb")) | .name')
+          test -n "$DEB_SOURCE" && test -n "$DEB_ASSET"
+          cp "$DEB_SOURCE" "$DEB_ASSET"
+          pnpm tauri signer sign "$DEB_ASSET"
+          gh release upload "$RELEASE_TAG" "$DEB_ASSET.sig" --clobber
 
   android:
     needs: prepare
@@ -130,6 +144,9 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android
@@ -237,6 +254,7 @@ jobs:
               ['windows-x86_64', /_windows_(x86_64|x64|amd64)\.exe$/],
               ['windows-x86_64-msi', /_windows_(x86_64|x64|amd64)\.msi$/],
               ['linux-x86_64', /_linux_(x86_64|x64|amd64)\.AppImage$/],
+              ['linux-x86_64-deb', /_linux_(x86_64|x64|amd64)\.deb$/],
               ['android-aarch64', /_android_aarch64\.apk$/]
             ];
             for (const [target, pattern] of specs) {
