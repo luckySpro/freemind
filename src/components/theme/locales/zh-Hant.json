@@ -1,0 +1,18 @@
+{
+  "theme.themeDesigner": "主題設計器",
+  "theme.themeName": "主題名稱",
+  "theme.nodeFillColour": "節點填充顏色",
+  "theme.themeFont": "主題字型",
+  "theme.themeBranchWeight": "主題分支線寬",
+  "theme.themePreview": "主題預覽",
+  "theme.myTheme": "我的主題",
+  "theme.branch": "分支",
+  "theme.yourThemes": "你的主題",
+  "theme.name": "名稱",
+  "theme.palette": "調色盤",
+  "theme.nodeFill": "節點填充",
+  "theme.saveTheme": "儲存主題",
+  "theme.downloadJson": "下載 .json",
+  "theme.importJson": "匯入 .json",
+  "theme.branchColourN": "分支顏色 {n}"
+}

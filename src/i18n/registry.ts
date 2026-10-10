@@ -1,7 +1,6 @@
 import type { MessageKey } from "./keys";
 
-// The localisation layer. English ships as the only locale; the point of this module is that adding a
-// second one is "write a JSON file", not "re-architect the app".
+// Offline localisation: English and bundled Simplified Chinese, Traditional Chinese and Japanese.
 //
 // WHY THIS IS A REGISTRY RATHER THAN ONE BIG CATALOGUE. The obvious design — a single eager object of
 // every string — would quietly move weight between bundles. `FlowMindMap` is a ~100 kB LAZY chunk and
@@ -25,9 +24,8 @@ export type Message = string | Partial<Record<Intl.LDMLPluralRule, string>>;
 /** A catalogue is a frozen map of keys to messages for one locale. */
 export type Catalogue = Readonly<Record<string, Message>>;
 
-/** Locales the app can resolve to. English only for now — adding one means adding it here and shipping
- *  a JSON catalogue for it; nothing else in this module changes. */
-export const LOCALES = ["en"] as const;
+/** Locales the app can resolve to. English, Simplified Chinese, Traditional Chinese and Japanese. Translation JSON is bundled offline. */
+export const LOCALES = ["en", "zh-Hans", "zh-Hant", "ja"] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "en";
@@ -61,8 +59,7 @@ export function registerMessages(locale: Locale, catalogue: Catalogue): void {
 let active: Locale = DEFAULT_LOCALE;
 
 /** Resolve the locale to use: an explicit stored choice wins, else the best `navigator.language` match,
- *  else the default. With one shipped locale this always lands on `en` — the path is real, not stubbed,
- *  so a second catalogue starts working the moment it's added. */
+ *  else the default. Chinese script and region tags are matched before the base language. */
 export function resolveLocale(): Locale {
   try {
     const stored = localStorage.getItem(LOCALE_PREF_KEY);
@@ -70,12 +67,15 @@ export function resolveLocale(): Locale {
   } catch {
     // storage unavailable — fall through to the browser's preference
   }
-  const preferred = typeof navigator === "undefined" ? [] : (navigator.languages ?? []);
+  const preferred =
+    typeof navigator === "undefined" ? [] : (navigator.languages ?? [navigator.language]);
   for (const tag of preferred) {
-    // Match the base language, so "en-GB" and "en-US" both resolve to "en".
-    const base = tag.toLowerCase().split("-")[0];
-    const hit = LOCALES.find((l) => l === base);
-    if (hit) return hit;
+    const normalized = tag.toLowerCase();
+    if (/^zh(?:-|$)/.test(normalized)) {
+      return /(?:^|-)(hant|tw|hk|mo)(?:-|$)/.test(normalized) ? "zh-Hant" : "zh-Hans";
+    }
+    const base = normalized.split("-")[0];
+    if (base === "ja" || base === "en") return base;
   }
   return DEFAULT_LOCALE;
 }

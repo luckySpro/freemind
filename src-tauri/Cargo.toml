@@ -1,6 +1,6 @@
 [package]
 name = "freemind"
-version = "0.1.0"
+version = "0.1.1"
 description = "Offline mind mapping and engineering document writing"
 edition = "2021"
 

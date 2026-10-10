@@ -10,7 +10,7 @@ describe("rich note writing", () => {
   it("serialises mixed rich paste with table and embedded image to portable Markdown and reopens it", async () => {
     const onChange = vi.fn();
     const view = render(<RichNoteEditor value="" onChange={onChange} onBlur={() => {}} />);
-    const editor = screen.getByRole("textbox", { name: "图文备注" });
+    const editor = screen.getByRole("textbox", { name: "Rich notes" });
     fireEvent.paste(editor, {
       clipboardData: {
         files: [],
@@ -27,7 +27,7 @@ describe("rich note writing", () => {
     expect(markdown).toContain(image);
     view.unmount();
     render(<RichNoteEditor value={markdown} onChange={vi.fn()} onBlur={() => {}} />);
-    const reopened = screen.getByRole("textbox", { name: "图文备注" });
+    const reopened = screen.getByRole("textbox", { name: "Rich notes" });
     expect(reopened.querySelector("strong")?.textContent).toBe("设计说明");
     expect(reopened.querySelector("table")?.textContent).toContain("离线");
     expect(reopened.querySelector("img")?.getAttribute("src")).toBe(image);
@@ -37,7 +37,7 @@ describe("rich note writing", () => {
     const onChange = vi.fn();
     render(<RichNoteEditor value="已有正文" onChange={onChange} onBlur={() => {}} />);
     const bytes = Uint8Array.from(atob(image.split(",")[1]), (char) => char.charCodeAt(0));
-    fireEvent.paste(screen.getByRole("textbox", { name: "图文备注" }), {
+    fireEvent.paste(screen.getByRole("textbox", { name: "Rich notes" }), {
       clipboardData: {
         files: [new File([bytes], "screenshot.png", { type: "image/png" })],
         getData: () => "",
@@ -45,15 +45,15 @@ describe("rich note writing", () => {
     });
     await waitFor(() => expect(onChange).toHaveBeenCalledWith(expect.stringContaining(image)));
     expect(String(onChange.mock.calls.at(-1)?.[0])).toContain("已有正文");
-    expect(screen.getByRole("textbox", { name: "图文备注" }).querySelectorAll("img")).toHaveLength(
-      1,
-    );
+    expect(
+      screen.getByRole("textbox", { name: "Rich notes" }).querySelectorAll("img"),
+    ).toHaveLength(1);
   });
 
   it("does not apply an in-flight image paste after its node editor is unmounted", async () => {
     const onChange = vi.fn();
     const view = render(<RichNoteEditor value="" onChange={onChange} onBlur={() => {}} />);
-    fireEvent.paste(screen.getByRole("textbox", { name: "图文备注" }), {
+    fireEvent.paste(screen.getByRole("textbox", { name: "Rich notes" }), {
       clipboardData: {
         files: [new File(["pixels"], "screenshot.png", { type: "image/png" })],
         getData: () => "",

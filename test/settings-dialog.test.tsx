@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { SettingsDialog } from "../src/components/SettingsDialog";
@@ -44,6 +44,29 @@ function setup(over: Partial<Parameters<typeof SettingsDialog>[0]> = {}) {
 }
 
 describe("SettingsDialog", () => {
+  it("offers bundled languages and waits for saving before another change", async () => {
+    let finish: () => void = () => {};
+    const onLanguageChange = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    setup({ onLanguageChange });
+    const picker = screen.getByRole("combobox", { name: "Language" }) as HTMLSelectElement;
+    expect(Array.from(picker.options).map((option) => option.value)).toEqual([
+      "en",
+      "zh-Hans",
+      "zh-Hant",
+      "ja",
+    ]);
+    fireEvent.change(picker, { target: { value: "ja" } });
+    expect(onLanguageChange).toHaveBeenCalledWith("ja");
+    expect(picker.disabled).toBe(true);
+    finish();
+    await waitFor(() => expect(picker.disabled).toBe(false));
+  });
+
   it("toggles open-topic-info-on-select", () => {
     const props = setup();
     fireEvent.change(screen.getByLabelText("Open topic info on select"), {

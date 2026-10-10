@@ -5,8 +5,8 @@ import { type Catalogue, registerMessages } from "./registry";
 // ./registry.ts about bundle locality); this file must not become the home for all of them.
 //
 // This IS the source of truth for English: it's TypeScript so the keys form a compile-time union and a
-// typo fails `tsc`. Other locales arrive as JSON fetched at runtime and overlay these via
-// `registerMessages`, so translators never edit code.
+// typo fails `tsc`. Other locales arrive from bundled JSON before the app evaluates its UI
+// and overlay these via `registerMessages`; they never require a network service.
 //
 // Key naming: `area.thing` / `area.thing.qualifier`, lower-camel within a segment, grouped by the
 // surface a user sees. Keep the English text here identical to what the UI showed before extraction —

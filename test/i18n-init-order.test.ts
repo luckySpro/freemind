@@ -21,6 +21,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 describe("locale resolution happens before the eager graph evaluates", () => {
   beforeEach(() => {
     vi.resetModules();
+    localStorage.removeItem("mindmap-locale");
     // jsdom's default is "", and index.html ships lang="en" — clearing it means a passing assertion
     // can only come from initLocale() having run, not from the fixture.
     document.documentElement.lang = "";
@@ -46,6 +47,14 @@ describe("locale resolution happens before the eager graph evaluates", () => {
     expect(PANEL_LABELS.outline.tab).toBe("Outline");
     // The document was stamped before panelLabels evaluated, not after.
     expect(document.documentElement.lang).toBe("en");
+  });
+
+  it("loads a stored translation before module-level UI labels evaluate", async () => {
+    localStorage.setItem("mindmap-locale", "ja");
+    const { PANEL_LABELS } = await import("../src/panelLabels");
+    expect(PANEL_LABELS.outline.tab).toBe("アウトライン");
+    expect(document.documentElement.lang).toBe("ja");
+    localStorage.removeItem("mindmap-locale");
   });
 
   it("initLocale is idempotent, so main.tsx's belt-and-braces call is safe", async () => {

@@ -720,11 +720,15 @@ export function MapPanel({
               {filteredCount != null ? `${filteredCount}/${counts.total}` : counts.total}
             </div>
             {/* A Power Filter narrows the canvas; say so instead of silently showing whole-map totals. */}
-            <div className="mm-stat-label">{filteredCount != null ? "topics match" : "topics"}</div>
+            <div className="mm-stat-label">
+              {filteredCount != null ? t("ui.matchingTopics") : t("ui.topics")}
+            </div>
           </div>
           <div className="mm-stat">
             <div className="mm-stat-num">{branches}</div>
-            <div className="mm-stat-label">{branches === 1 ? "branch" : "branches"}</div>
+            <div className="mm-stat-label">
+              {branches === 1 ? t("ui.branch") : t("ui.branches")}
+            </div>
           </div>
         </div>
         {counts.withProgress > 0 && (

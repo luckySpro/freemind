@@ -290,8 +290,8 @@ describe("locale resolution", () => {
     spy.mockRestore();
   });
 
-  it("ships exactly one locale for now, and it is the default", () => {
-    expect(LOCALES).toEqual(["en"]);
+  it("ships English and the three requested Asian locales", () => {
+    expect(LOCALES).toEqual(["en", "zh-Hans", "zh-Hant", "ja"]);
     expect(LOCALES).toContain(DEFAULT_LOCALE);
   });
 });

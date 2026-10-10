@@ -57,6 +57,7 @@ export function shortcutGroups(): ShortcutGroup[] {
       id: "selectionMoving",
       title: t("shortcuts.group.selectionMoving"),
       items: [
+        { keys: "Ctrl/⌘ + A", action: t("ui.selectAll") },
         { keys: "Arrow keys", action: t("shortcuts.action.moveTheSelectionThroughTheTree") },
         {
           keys: "Ctrl/⌘ + Shift + ↑ / ↓",

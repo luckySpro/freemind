@@ -32,8 +32,8 @@ detail is in `CHANGELOG.md` — **don't re-plan the migration from this file.** 
 `io` 54, `present` 19, `theme` 16 (all lazy, chunk-local) — reached from **101 files on the guard's
 allowlist**. First-load JS is **181.9 kB gz against a 184 ceiling**; that ceiling measures entry *plus*
 modulepreloaded chunks, so it is not comparable to any figure recorded before 2026-07-27 (see the
-header of `scripts/bundle-budget.mjs`). English is the only locale and is expected to stay that way —
-adding one means adding a JSON catalogue, not changing the app.
+header of `scripts/bundle-budget.mjs`). FreeMind now bundles English, Simplified Chinese, Traditional Chinese and Japanese.
+Selected translation JSON is loaded locally before UI modules evaluate; catalog completeness and placeholders are tested.
 
 > Every number above is measured, and each says how. They were all wrong once: this paragraph read
 > "684 entries across eight migrated files" and "174.2 kB against a 175 ceiling" for sixteen commits
@@ -112,7 +112,7 @@ The rest are recorded here rather than lost:
 | 11 | `io/deck.ts:135,155` | low | Deck footer keyboard hint is a raw English sentence beside three `t()` buttons; the "N for notes" mnemonic stops making sense once the button is translated. |
 | 12 | `test/i18n.test.ts:349` | low | `LAZY_FILES` regex lacks the `i` flag, so the two **camelCase** catalogues' consumers (`Presentation.tsx`, `ThemeDesignerDialog.tsx`) are silently exempt from the barrel-import check. Mutation-proved. Fix: `[Mm]essages`. |
 
-**Read the audit's own limits before trusting the count as complete:** no second locale exists, so
+**Historical upstream audit limits:** this audit predates the real translated FreeMind build, so
 every "on locale #2" claim is reasoned from code plus three throwaway fake-catalogue harnesses — not a
 real translated build. No exported artifact was opened. No RTL, string expansion, or plural categories
 beyond one/other were examined. The detectors are structurally blind to single-word literals and prose
@@ -121,8 +121,7 @@ inventory**. Treat every number here as a floor.
 
 **Also open:** `parseNaturalDate`'s INPUT grammar ("today", "tomorrow", "+7d", weekday names) is
 English-only, and it is genuinely logic rather than translation — a second locale needs its own keyword
-table and its own relative-date shapes, not a catalogue entry. Nothing to do until a second locale
-exists.
+table and its own relative-date shapes, not a catalogue entry. Localised input grammar remains follow-up work; the new languages currently translate the UI only.
 
 ### How to add strings without undoing this
 

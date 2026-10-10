@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../design/primitives";
-import { t } from "../i18n";
+import { LOCALES, type Locale, getLocale, t } from "../i18n";
 import type { Appearance } from "../useAppearance";
 import type { ContrastPref } from "../useHighContrast";
 import type { MotionPref } from "../useReducedMotion";
@@ -15,6 +15,7 @@ import { Dialog } from "./Dialog";
 export interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
+  onLanguageChange?: (locale: Locale) => Promise<void>;
   /** App chrome appearance — System / Light / Dark (independent of the canvas theme). */
   appearance: Appearance;
   setAppearance: (a: Appearance) => void;
@@ -59,6 +60,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function SettingsDialog({
   open,
   onClose,
+  onLanguageChange,
   appearance,
   setAppearance,
   motionPref,
@@ -74,6 +76,7 @@ export function SettingsDialog({
   onImportSettings,
   onClearAllData,
 }: SettingsDialogProps) {
+  const [changingLanguage, setChangingLanguage] = useState(false);
   const [storage, setStorage] = useState<{ usage: number; quota: number } | null>(null);
   const settingsFileRef = useRef<HTMLInputElement>(null);
 
@@ -106,6 +109,36 @@ export function SettingsDialog({
         boxShadow: "var(--ed-shadow-pop)",
       }}
     >
+      <Section title={t("settings.language")}>
+        <select
+          className="mm-map-control"
+          aria-label={t("settings.language")}
+          value={getLocale()}
+          disabled={changingLanguage}
+          onChange={async (event) => {
+            if (!onLanguageChange) return;
+            setChangingLanguage(true);
+            try {
+              await onLanguageChange(event.target.value as Locale);
+            } finally {
+              setChangingLanguage(false);
+            }
+          }}
+        >
+          {LOCALES.map((locale) => (
+            <option key={locale} value={locale}>
+              {
+                { en: "English", "zh-Hans": "简体中文", "zh-Hant": "繁體中文", ja: "日本語" }[
+                  locale
+                ]
+              }
+            </option>
+          ))}
+        </select>
+        <p style={{ margin: 0, fontSize: 12, color: "var(--ed-muted)" }}>
+          {t("writing.languageHelp")}
+        </p>
+      </Section>
       <Section title={t("settings.appearance")}>
         <label className="mm-map-field">
           <span>{t("settings.appTheme")}</span>

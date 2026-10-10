@@ -1,4 +1,6 @@
+import "./messages";
 import { useEffect, useMemo, useState } from "react";
+import { t } from "../../i18n/registry";
 import type { MindMapDoc } from "../../model/types";
 import { CommandPalette } from "./CommandPalette";
 import { MapDialogs, type PendingMapAction } from "./MapDialogs";
@@ -21,16 +23,36 @@ import { useLibrary } from "./useLibrary";
 import "./start.css";
 
 const TITLES: Record<StartSection, string> = {
-  start: "Start",
-  all: "All maps",
-  recent: "Recent",
-  templates: "Templates",
-  examples: "Examples",
-  layouts: "Layouts",
-  import: "Import",
-  learn: "Learn mind mapping",
-  about: "About",
-  trash: "Trash",
+  get start() {
+    return t("start.start");
+  },
+  get all() {
+    return t("toolbar.allMaps");
+  },
+  get recent() {
+    return t("toolbar.recent");
+  },
+  get templates() {
+    return t("toolbar.templates");
+  },
+  get examples() {
+    return t("toolbar.examples");
+  },
+  get layouts() {
+    return t("start.layouts");
+  },
+  get import() {
+    return t("start.import");
+  },
+  get learn() {
+    return t("start.learnMindMapping");
+  },
+  get about() {
+    return t("start.about");
+  },
+  get trash() {
+    return t("start.trash");
+  },
 };
 
 export function StartScreen({

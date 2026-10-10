@@ -1,0 +1,21 @@
+{
+  "present.presenterViewP": "演讲者视图 (P)",
+  "present.elapsedNamed": "已用时 {time}",
+  "present.blackScreenHint": "黑屏 — 点击或按任意键继续",
+  "present.whiteScreenHint": "白屏 — 点击或按任意键继续",
+  "present.presenterView": "演讲者视图",
+  "present.decreaseBudget": "缩短计划时长",
+  "present.increaseBudget": "延长计划时长",
+  "present.elapsedTimeSetABudget": "已用时（在演讲者视图设置计划时长，用颜色提示进度）",
+  "present.resetTimer": "重置计时器",
+  "present.togglePresenterViewP": "切换演讲者视图 (P)",
+  "present.pauseTimer": "暂停计时",
+  "present.resumeTimer": "继续计时",
+  "present.noNotesForThisSlide": "此幻灯片没有备注。",
+  "present.homeSpacePBW": "← → · Home · Space · P · B/W · Esc",
+  "present.speakerNotes": "演讲备注",
+  "present.nextUp": "下一张",
+  "present.endOfMap": "导图结束",
+  "present.timer": "计时器",
+  "present.budget": "计划时长"
+}

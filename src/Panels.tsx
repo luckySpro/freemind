@@ -3281,7 +3281,7 @@ export function InfoPanel({
                     // Bulk: tri-state markers lead Details too (lit = on all, dashed = on some), so the
                     // control set doesn't reshuffle between single and multi select.
                     <>
-                      {sectionLabel("Markers")}
+                      {sectionLabel(t("common.markers"))}
                       <MarkerBar
                         markers={markers}
                         active={bulkMarkers?.all}
@@ -3293,7 +3293,7 @@ export function InfoPanel({
                   {!multi && (
                     <>
                       {/* Markers lead Details; the note moved to its own Notes tab (P3). */}
-                      {sectionLabel("Markers")}
+                      {sectionLabel(t("common.markers"))}
                       <MarkerBar markers={markers} active={node.icons} onToggle={onToggleMarker} />
                       {(() => {
                         const suggested = suggestNewMarkers(node.topic, node.icons ?? []);
@@ -3342,7 +3342,7 @@ export function InfoPanel({
                           </div>
                         ) : null;
                       })()}
-                      {sectionLabel("Tags")}
+                      {sectionLabel(t("common.tags"))}
                       <div
                         style={{ padding: "0 10px 4px", display: "flex", flexWrap: "wrap", gap: 4 }}
                       >
@@ -3394,7 +3394,7 @@ export function InfoPanel({
 
                   {multi && bulkTags && onBulkToggleTag ? (
                     <>
-                      {sectionLabel("Tags")}
+                      {sectionLabel(t("common.tags"))}
                       <div
                         style={{ padding: "0 10px 4px", display: "flex", flexWrap: "wrap", gap: 4 }}
                       >
@@ -4076,7 +4076,7 @@ export function NotesPanel({
         .then((images) => {
           if (!element || ref.current !== element || currentNode.current !== nodeId) return;
           if (element.innerHTML !== original) {
-            setPasteError("图片读取期间正文已改变，请重新粘贴。");
+            setPasteError(t("writing.changedPaste"));
             return;
           }
           const fragment = document.createDocumentFragment();
@@ -4093,7 +4093,7 @@ export function NotesPanel({
           setPasteError("");
         })
         .catch((cause: unknown) =>
-          setPasteError(cause instanceof Error ? cause.message : "图片粘贴失败。"),
+          setPasteError(cause instanceof Error ? cause.message : t("writing.pasteFailed")),
         );
       return;
     }
@@ -4238,12 +4238,12 @@ export function NotesPanel({
       ) : null}
       {selected && (
         <Button onClick={() => setWriting((open) => !open)}>
-          {writing ? "返回简洁编辑" : "图文写作 · 粘贴图片与表格"}
+          {writing ? t("writing.simple") : t("writing.open")}
         </Button>
       )}
       {pasteError && <div role="alert">{pasteError}</div>}
       {selected && writing ? (
-        <Suspense fallback={<p>正在打开图文编辑器…</p>}>
+        <Suspense fallback={<p>{t("writing.loading")}</p>}>
           <RichNoteEditor key={selected.id} value={value} onChange={onChange} onBlur={onBlur} />
         </Suspense>
       ) : selected ? (

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { t } from "./i18n";
 import { controlStyle } from "./ui";
 
 // A tiny timeboxing widget for brainstorming sessions: pick a preset, count down, get a clear
@@ -44,14 +45,14 @@ export function BrainstormTimer() {
     setLeft(0);
   };
 
-  const label = finished ? "⏱ Time's up!" : left > 0 ? `⏱ ${mmss(left)}` : "⏱ Timer";
+  const label = finished ? t("ui.timeUp") : left > 0 ? `⏱ ${mmss(left)}` : t("ui.timer");
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        title="Brainstorm timer — timebox an idea sprint"
+        title={t("ui.timerHelp")}
         style={{
           ...controlStyle,
           fontVariantNumeric: "tabular-nums",
@@ -103,7 +104,7 @@ export function BrainstormTimer() {
               onClick={() => setRunning(false)}
               style={{ ...controlStyle, padding: "2px 8px", fontSize: 12 }}
             >
-              Pause
+              {t("ui.pause")}
             </button>
           ) : left > 0 && !finished ? (
             <button
@@ -111,7 +112,7 @@ export function BrainstormTimer() {
               onClick={() => setRunning(true)}
               style={{ ...controlStyle, padding: "2px 8px", fontSize: 12 }}
             >
-              Resume
+              {t("ui.resume")}
             </button>
           ) : null}
           {(left > 0 || finished) && (
@@ -120,7 +121,7 @@ export function BrainstormTimer() {
               onClick={reset}
               style={{ ...controlStyle, padding: "2px 8px", fontSize: 12 }}
             >
-              Reset
+              {t("common.reset")}
             </button>
           )}
         </div>

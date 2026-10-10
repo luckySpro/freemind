@@ -11,7 +11,7 @@ describe("offline note paste", () => {
     expect(html).toContain("<strong>重点</strong>");
     expect(html).toContain("<td>数据</td>");
     expect(html).not.toMatch(/onclick|onerror|script|javascript:|remote.invalid/);
-    expect(html).toContain("图片未包含本地数据");
+    expect(html).toContain("Image has no local data");
   });
   it("uses clipboard image bytes once in mixed HTML and avoids duplicate images", () => {
     const data = "data:image/png;base64,AA==";

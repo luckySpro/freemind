@@ -56,7 +56,7 @@ describe("engineering Word export", () => {
     const doc = structuredClone(map);
     doc.root.children[0].note = "![远程截图](https://example.invalid/image.png)";
     const xml = strFromU8(unzipSync(await buildEngineeringDocx(doc))["word/document.xml"]);
-    expect(xml).toContain("图片未嵌入：远程截图");
+    expect(xml).toContain("Image not embedded: 远程截图");
     expect(xml).not.toContain("example.invalid");
   });
 

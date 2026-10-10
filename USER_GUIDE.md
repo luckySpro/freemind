@@ -1,3 +1,9 @@
+# FreeMind 使用补充
+
+- 语言：打开 Settings / 设置，选择简体中文、繁體中文或日本語。切换会保存导图并重新加载；之后记住选择。
+- 全选节点：画板中按 Command+A / Ctrl+A，选择全部可见节点；文字编辑时该快捷键仍全选文字。
+- 图文写作：选中节点，打开备注中的图文写作，可直接粘贴截图和表格。
+
 # MindMap Studio — User Guide
 
 A local-first, offline mind-mapping app — a self-hosted replacement for Corel/Mindjet

@@ -2263,8 +2263,10 @@ function FlowInner({
     selectedIds.size === 0
       ? ""
       : selectedIds.size === 1
-        ? `Selected: ${findAnyNode(renderDoc, [...selectedIds][0])?.topic?.trim() || "topic"}`
-        : `${selectedIds.size} topics selected`;
+        ? t("ui.selected", {
+            name: findAnyNode(renderDoc, [...selectedIds][0])?.topic?.trim() || t("common.topic"),
+          })
+        : t("canvas.bulk.selectedCount", { n: selectedIds.size });
 
   // Memoised so the read-only SR overview only re-renders when the doc changes (not on every
   // selection/hover), keeping its O(nodes) list off the hot path.

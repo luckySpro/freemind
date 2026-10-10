@@ -5,6 +5,7 @@ import { Markdown } from "@tiptap/markdown";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useRef, useState } from "react";
+import { t } from "../i18n";
 import { readNoteImage } from "../io/noteImage";
 import { sanitizeNotePaste } from "./notePaste";
 
@@ -17,6 +18,13 @@ export default function RichNoteEditor({
   onChange: (value: string) => void;
   onBlur: () => void;
 }) {
+  const alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   const callbacks = useRef({ onChange, onBlur });
   callbacks.current = { onChange, onBlur };
   const [error, setError] = useState("");
@@ -36,7 +44,7 @@ export default function RichNoteEditor({
     editorProps: {
       attributes: {
         class: "mm-note-editor freemind-writing",
-        "aria-label": "图文备注",
+        "aria-label": t("writing.label"),
         role: "textbox",
         "aria-multiline": "true",
       },
@@ -51,9 +59,9 @@ export default function RichNoteEditor({
           const selection = view.state.selection;
           void Promise.all(files.map(readNoteImage))
             .then((images) => {
-              if (view.isDestroyed) return;
+              if (!alive.current || view.isDestroyed) return;
               if (!view.state.doc.eq(originalDoc)) {
-                setError("图片读取期间正文已改变，请重新粘贴。");
+                setError(t("writing.changedPaste"));
                 return;
               }
               const content = html
@@ -67,7 +75,7 @@ export default function RichNoteEditor({
               setError("");
             })
             .catch((cause: unknown) =>
-              setError(cause instanceof Error ? cause.message : "图片粘贴失败。"),
+              setError(cause instanceof Error ? cause.message : t("writing.pasteFailed")),
             );
           return true;
         }
@@ -94,42 +102,40 @@ export default function RichNoteEditor({
   );
   return (
     <div className="freemind-writer">
-      <div className="freemind-writing-toolbar" role="toolbar" aria-label="图文格式">
-        {action("粗体", () => {
+      <div className="freemind-writing-toolbar" role="toolbar" aria-label={t("writing.toolbar")}>
+        {action(t("writing.bold"), () => {
           editor.chain().focus().toggleBold().run();
         })}
-        {action("斜体", () => {
+        {action(t("writing.italic"), () => {
           editor.chain().focus().toggleItalic().run();
         })}
-        {action("高亮", () => {
+        {action(t("writing.highlight"), () => {
           editor.chain().focus().toggleHighlight().run();
         })}
-        {action("小标题", () => {
+        {action(t("writing.heading"), () => {
           editor.chain().focus().toggleHeading({ level: 3 }).run();
         })}
-        {action("列表", () => {
+        {action(t("writing.list"), () => {
           editor.chain().focus().toggleBulletList().run();
         })}
-        {action("编号", () => {
+        {action(t("writing.numbered"), () => {
           editor.chain().focus().toggleOrderedList().run();
         })}
-        {action("代码", () => {
+        {action(t("writing.code"), () => {
           editor.chain().focus().toggleCodeBlock().run();
         })}
-        {action("表格", () => {
+        {action(t("writing.table"), () => {
           editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
         })}
-        {action("图片", () => fileInput.current?.click())}
-        {action("撤销", () => {
+        {action(t("writing.image"), () => fileInput.current?.click())}
+        {action(t("writing.undo"), () => {
           editor.chain().focus().undo().run();
         })}
-        {action("重做", () => {
+        {action(t("writing.redo"), () => {
           editor.chain().focus().redo().run();
         })}
       </div>
-      <p className="freemind-writing-hint">
-        可直接粘贴截图、图文和表格。图片随导图保存，Word 导出包含正文。
-      </p>
+      <p className="freemind-writing-hint">{t("writing.hint")}</p>
       <input
         ref={fileInput}
         type="file"
@@ -143,9 +149,8 @@ export default function RichNoteEditor({
           const selection = editor.state.selection;
           try {
             const src = await readNoteImage(file);
-            if (editor.isDestroyed) return;
-            if (!editor.state.doc.eq(originalDoc))
-              throw new Error("图片读取期间正文已改变，请重新插入。");
+            if (!alive.current || editor.isDestroyed) return;
+            if (!editor.state.doc.eq(originalDoc)) throw new Error(t("writing.changedInsert"));
             editor
               .chain()
               .focus()
@@ -156,7 +161,7 @@ export default function RichNoteEditor({
               .run();
             setError("");
           } catch (cause) {
-            setError(cause instanceof Error ? cause.message : "图片插入失败。");
+            setError(cause instanceof Error ? cause.message : t("writing.insertFailed"));
           }
         }}
       />

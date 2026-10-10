@@ -12,6 +12,13 @@
 
 # Changelog
 
+## FreeMind 0.1.1 — 2026-10-10
+
+- 修复画板 Command/Ctrl+A 触发整页文字全选，改为全选可见节点，并保留输入框与备注的原生文字全选。
+- 内置简体中文、繁体中文、日文；设置支持切换与持久化，系统语言自动匹配中文地区和日文，语言包完全离线。
+- 图文备注、图片错误提示与工程 Word 导出随界面语言切换。切换前保存当前导图。
+
+
 Notable changes to MindMap Studio. Loosely follows Keep a Changelog; pre-1.0 and
 phase-based. Open work lives in `NEXT_STEPS.md`, not here.
 

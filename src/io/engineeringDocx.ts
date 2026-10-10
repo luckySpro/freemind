@@ -17,6 +17,7 @@ import {
   WidthType,
 } from "docx";
 import { type Token, type Tokens, marked } from "marked";
+import { t } from "../i18n";
 import type { MapNode, MindMapDoc } from "../model/types";
 
 type Inline = TextRun | ImageRun | ExternalHyperlink;
@@ -25,7 +26,8 @@ type Block = Paragraph | Table;
 // Data URLs only: Word export never reaches the network. All bytes are embedded.
 function imageRun(src: string, alt: string): Inline[] {
   const match = /^data:image\/(png|jpeg);base64,([a-z0-9+/=\s]+)$/i.exec(src);
-  if (!match) return [new TextRun(`[图片未嵌入：${alt || "请先粘贴本地图片"}]`)];
+  if (!match)
+    return [new TextRun(t("writing.remoteExport", { alt: alt || t("writing.pasteLocal") }))];
   try {
     const bytes = Uint8Array.from(atob(match[2]), (char) => char.charCodeAt(0));
     let width = 480;
@@ -56,11 +58,11 @@ function imageRun(src: string, alt: string): Inline[] {
         type: match[1].toLowerCase() === "png" ? "png" : "jpg",
         data: bytes,
         transformation: { width: Math.round(width * scale), height: Math.round(height * scale) },
-        altText: { title: alt, description: alt, name: alt || "备注图片" },
+        altText: { title: alt, description: alt, name: alt || t("writing.noteImage") },
       }),
     ];
   } catch {
-    return [new TextRun(`[图片数据无效：${alt || "图片"}]`)];
+    return [new TextRun(t("writing.invalidImage", { alt: alt || t("writing.image") }))];
   }
 }
 
@@ -110,7 +112,7 @@ function noteBlocks(note: string): Block[] {
         case "html":
           return [
             new Paragraph({
-              children: [new TextRun("[HTML 内容未导出，请使用图文编辑器粘贴资料。]")],
+              children: [new TextRun(t("writing.htmlOmitted"))],
             }),
           ];
         case "table": {
@@ -181,7 +183,7 @@ function noteBlocks(note: string): Block[] {
 }
 
 export async function buildEngineeringDocx(doc: MindMapDoc): Promise<Uint8Array> {
-  const title = doc.title || doc.root.topic || "工程文档";
+  const title = doc.title || doc.root.topic || t("writing.document");
   const body: Block[] = [];
   const entries: { title: string; level: number; href: string }[] = [];
   let index = 0;
@@ -210,7 +212,7 @@ export async function buildEngineeringDocx(doc: MindMapDoc): Promise<Uint8Array>
   const document = new Document({
     title,
     creator: "FreeMind",
-    description: "由离线导图生成的工程文档",
+    description: t("writing.description"),
     features: { updateFields: true },
     styles: {
       default: {
@@ -253,9 +255,17 @@ export async function buildEngineeringDocx(doc: MindMapDoc): Promise<Uint8Array>
             heading: HeadingLevel.TITLE,
             spacing: { before: 1800, after: 400 },
           }),
-          new Paragraph({ text: "工程文档", spacing: { after: 300 }, pageBreakBefore: false }),
-          new Paragraph({ text: "目录", pageBreakBefore: true, spacing: { after: 240 } }),
-          new TableOfContents("目录", {
+          new Paragraph({
+            text: t("writing.document"),
+            spacing: { after: 300 },
+            pageBreakBefore: false,
+          }),
+          new Paragraph({
+            text: t("writing.contents"),
+            pageBreakBefore: true,
+            spacing: { after: 240 },
+          }),
+          new TableOfContents(t("writing.contents"), {
             headingStyleRange: "1-9",
             hyperlink: true,
             cachedEntries: entries,

@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+
 // Paste through a small inert DOM whitelist; no remote image loads or active attributes.
 export function sanitizeNotePaste(html: string, images: string[] = []): string {
   const template = document.createElement("template");
@@ -61,7 +63,9 @@ export function sanitizeNotePaste(html: string, images: string[] = []): string {
           child.setAttribute("alt", alt);
         } else
           child.replaceWith(
-            document.createTextNode(`[图片未包含本地数据：${alt || "请粘贴截图"}]`),
+            document.createTextNode(
+              t("writing.remotePaste", { alt: alt || t("writing.pasteScreenshot") }),
+            ),
           );
       }
       if (child.tagName === "A" && /^(https?:\/\/|mailto:|#)/i.test(href))

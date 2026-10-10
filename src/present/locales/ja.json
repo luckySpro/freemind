@@ -1,0 +1,21 @@
+{
+  "present.presenterViewP": "発表者表示 (P)",
+  "present.elapsedNamed": "経過時間 {time}",
+  "present.blackScreenHint": "黒い画面 — クリックまたは任意のキーで再開",
+  "present.whiteScreenHint": "白い画面 — クリックまたは任意のキーで再開",
+  "present.presenterView": "発表者表示",
+  "present.decreaseBudget": "予定時間を短くする",
+  "present.increaseBudget": "予定時間を長くする",
+  "present.elapsedTimeSetABudget": "経過時間（発表者表示で予定時間を設定すると、進行状況を色で表示）",
+  "present.resetTimer": "タイマーをリセット",
+  "present.togglePresenterViewP": "発表者表示を切り替える (P)",
+  "present.pauseTimer": "タイマーを一時停止",
+  "present.resumeTimer": "タイマーを再開",
+  "present.noNotesForThisSlide": "このスライドにノートはありません。",
+  "present.homeSpacePBW": "← → · Home · Space · P · B/W · Esc",
+  "present.speakerNotes": "発表者ノート",
+  "present.nextUp": "次のスライド",
+  "present.endOfMap": "マップの終わり",
+  "present.timer": "タイマー",
+  "present.budget": "予定時間"
+}

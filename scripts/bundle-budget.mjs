@@ -113,4 +113,7 @@
 // 184 → 188: FreeMind adds native export detection, full-resolution note image paste
 // and lazy writing-mode wiring. Measured first load is 185.6 kB; editor and DOCX
 // libraries remain lazy-loaded. Retain a small explicit margin for this feature.
-export const BUDGET_KB = 188;
+// 188 → 196: bundled locale discovery, persisted language controls and translatable
+// engineering writing add ~7 kB to first load (measured ~193 kB). Non-English
+// catalogues remain separate cached chunks, loaded only for the selected locale.
+export const BUDGET_KB = 196;

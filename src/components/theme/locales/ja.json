@@ -1,0 +1,18 @@
+{
+  "theme.themeDesigner": "テーマデザイナー",
+  "theme.themeName": "テーマ名",
+  "theme.nodeFillColour": "ノードの塗りつぶし色",
+  "theme.themeFont": "テーマのフォント",
+  "theme.themeBranchWeight": "テーマのブランチの太さ",
+  "theme.themePreview": "テーマのプレビュー",
+  "theme.myTheme": "マイテーマ",
+  "theme.branch": "ブランチ",
+  "theme.yourThemes": "自分のテーマ",
+  "theme.name": "名前",
+  "theme.palette": "カラーパレット",
+  "theme.nodeFill": "ノードの塗りつぶし",
+  "theme.saveTheme": "テーマを保存",
+  "theme.downloadJson": ".json をダウンロード",
+  "theme.importJson": ".json をインポート",
+  "theme.branchColourN": "ブランチの色 {n}"
+}

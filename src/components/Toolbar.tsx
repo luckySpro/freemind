@@ -585,7 +585,7 @@ export function Toolbar({
             <TBtn
               icon="grid"
               label={t("toolbar.searchAllMaps")}
-              text="All maps"
+              text={t("toolbar.allMaps")}
               ghost
               onClick={nav.openSearchAll}
             />
@@ -602,7 +602,7 @@ export function Toolbar({
             >
               <span className="mm-saved-dot" />{" "}
               {saveState === "saving"
-                ? "Saving…"
+                ? t("ui.saving")
                 : saveState === "error"
                   ? t("toolbar.saveError.label")
                   : t("toolbar.saveOk.label")}

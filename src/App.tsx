@@ -72,7 +72,7 @@ import { usePasteOutline } from "./hooks/usePasteOutline";
 import { useSheetDrag } from "./hooks/useSheetDrag";
 import { useToast } from "./hooks/useToast";
 import { useVersionHistory } from "./hooks/useVersionHistory";
-import { t } from "./i18n";
+import { setLocale, t } from "./i18n";
 import { tNodes } from "./i18n/nodes";
 import { MARKER_PALETTE } from "./icons";
 import { fileToAttachment } from "./io/attachment";
@@ -238,6 +238,7 @@ export function App() {
   // Flips true once the boot effect has decided the initial map/view, so the URL ?map= sync doesn't
   // write the pre-boot sampleDoc placeholder before boot has read the deep-link.
   const booted = useRef(false);
+  const startupReady = useRef(false);
   const [maps, setMaps] = useState<MapSummary[]>([]);
   // Start screen vs editor. Default to the editor so a returning user's last map restores without a
   // flash; the boot effect flips to "start" only when there's no map to restore (first run / empty
@@ -1257,6 +1258,7 @@ export function App() {
       if (cancelled) return;
       booted.current = true; // boot has decided; the URL ?map= sync may now run
       if (!session && !deepLinkId) {
+        startupReady.current = true;
         setView("start");
         return;
       }
@@ -1280,6 +1282,7 @@ export function App() {
       }
       const restored = activeId ? await loadMap(activeId).catch(() => null) : null;
       if (cancelled) return;
+      startupReady.current = true;
       if (restored && activeId) {
         restoreSession({
           openTabIds: openTabIds.length ? openTabIds : [activeId],
@@ -2800,6 +2803,23 @@ export function App() {
         setContrastPref={setContrastPref}
         infoAutoOpen={panels.infoAutoOpen}
         setInfoAutoOpen={(on) => panels.setInfoAutoOpen(on)}
+        onLanguageChange={async (locale) => {
+          try {
+            // Never persist the pre-restore sample or a placeholder on the start screen.
+            if (startupReady.current && view === "editor" && mapRef.current) {
+              if (selectedIdRef.current) flushNote();
+              await saveMap(liveDocRef.current);
+            }
+            setLocale(locale);
+            location.reload();
+          } catch (cause) {
+            setError(
+              t("writing.languageFailed", {
+                error: cause instanceof Error ? cause.message : String(cause),
+              }),
+            );
+          }
+        }}
         onReShowGettingStarted={reShowFirstRun}
         onClearRecents={() => {
           clearRecents();

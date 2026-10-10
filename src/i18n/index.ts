@@ -10,6 +10,8 @@
 // `registerMessages` from `./registry` directly — importing this barrel instead would drag the eager
 // core catalogue into that chunk.
 import "./core";
+import "./writingMessages";
+import { loadLocaleMessages } from "./loadLocale";
 import { initLocale } from "./registry";
 
 // RESOLVE THE LOCALE HERE, not in main.tsx, and for the same reason the catalogue import is here.
@@ -29,7 +31,7 @@ import { initLocale } from "./registry";
 // module-scope calls run. The alternative — an `import "./init"` placed above `import { App }` in
 // main.tsx — looks equivalent and is not: `biome check --write` sorts imports alphabetically, so
 // "./App" would move above it and silently undo the fix.
-initLocale();
+await loadLocaleMessages(initLocale());
 
 export type { Catalogue, Locale, Message, MessageVars } from "./registry";
 export {
