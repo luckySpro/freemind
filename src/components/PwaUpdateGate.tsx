@@ -16,14 +16,29 @@ export default function PwaUpdateGate({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
-    dialog.current?.showModal();
+    const element = dialog.current;
+    if (!element) return;
+    const preventCancel = (event: Event) => event.preventDefault();
+    const restore = () => {
+      if (!element.open && element.isConnected) element.showModal();
+    };
+    element.addEventListener("cancel", preventCancel);
+    element.addEventListener("close", restore);
+    restore();
+    return () => {
+      element.removeEventListener("cancel", preventCancel);
+      element.removeEventListener("close", restore);
+    };
   }, []);
   return (
     <dialog
       ref={dialog}
       aria-labelledby="pwa-update-title"
       onCancel={(event) => event.preventDefault()}
-      onKeyDown={(event) => event.stopPropagation()}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") event.preventDefault();
+        event.stopPropagation();
+      }}
       style={{
         border: "none",
         borderRadius: 16,

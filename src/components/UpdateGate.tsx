@@ -66,7 +66,21 @@ export default function UpdateGate({
   }, [checkNonce]);
 
   useEffect(() => {
-    if (update && dialog.current && !dialog.current.open) dialog.current.showModal();
+    const element = dialog.current;
+    if (!update || !element) return;
+    // Native cancel does not bubble consistently across embedded WebViews. Prevent it
+    // directly, and restore a closed dialog while the required update remains active.
+    const preventCancel = (event: Event) => event.preventDefault();
+    const restore = () => {
+      if (!element.open && element.isConnected) element.showModal();
+    };
+    element.addEventListener("cancel", preventCancel);
+    element.addEventListener("close", restore);
+    restore();
+    return () => {
+      element.removeEventListener("cancel", preventCancel);
+      element.removeEventListener("close", restore);
+    };
   }, [update]);
 
   async function install() {
@@ -107,7 +121,10 @@ export default function UpdateGate({
       ref={dialog}
       aria-labelledby="required-update-title"
       onCancel={(event) => event.preventDefault()}
-      onKeyDown={(event) => event.stopPropagation()}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") event.preventDefault();
+        event.stopPropagation();
+      }}
       style={{
         border: "none",
         borderRadius: 16,

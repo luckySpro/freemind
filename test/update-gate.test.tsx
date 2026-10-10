@@ -69,6 +69,16 @@ describe("required desktop updates", () => {
     const cancel = new Event("cancel", { cancelable: true, bubbles: true });
     fireEvent(modal, cancel);
     expect(cancel.defaultPrevented).toBe(true);
+    const escapeEvent = new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+      cancelable: true,
+    });
+    fireEvent(modal, escapeEvent);
+    expect(escapeEvent.defaultPrevented).toBe(true);
+    (modal as HTMLDialogElement).open = false;
+    fireEvent(modal, new Event("close"));
+    expect((modal as HTMLDialogElement).open).toBe(true);
     const shortcut = vi.fn();
     window.addEventListener("keydown", shortcut);
     fireEvent.keyDown(modal, { key: "a", metaKey: true });
@@ -109,11 +119,9 @@ describe("required desktop updates", () => {
   it("opens Android installation without relaunching and keeps the gate until the new app is installed", async () => {
     vi.mocked(checkForUpdate).mockResolvedValue({ ...release, kind: "manual" });
     setup();
-    fireEvent.click(
-      await screen.findByRole("button", { name: "Save and download Android update" }),
-    );
+    fireEvent.click(await screen.findByRole("button", { name: "Save and download update" }));
     await waitFor(() =>
-      expect(screen.getByRole("status").textContent).toContain("Install it through Android"),
+      expect(screen.getByRole("status").textContent).toContain("Install the downloaded package"),
     );
     expect(installUpdate).toHaveBeenCalledOnce();
     expect(restartAfterUpdate).not.toHaveBeenCalled();
@@ -184,6 +192,17 @@ describe("required PWA updates", () => {
     const cancel = new Event("cancel", { cancelable: true, bubbles: true });
     fireEvent(screen.getByRole("dialog"), cancel);
     expect(cancel.defaultPrevented).toBe(true);
+    const escapeEvent = new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+      cancelable: true,
+    });
+    const modal = screen.getByRole("dialog") as HTMLDialogElement;
+    fireEvent(modal, escapeEvent);
+    expect(escapeEvent.defaultPrevented).toBe(true);
+    modal.open = false;
+    fireEvent(modal, new Event("close"));
+    expect(modal.open).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Export library backup" }));
     await waitFor(() => expect(onBackup).toHaveBeenCalledOnce());
     fireEvent.click(screen.getByRole("button", { name: "Save and update" }));
