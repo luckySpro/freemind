@@ -132,6 +132,60 @@ const nodeEl = (container: HTMLElement, id: string): Element => {
 const openMenu = () => document.querySelector("[data-mm-menu]") as HTMLElement | null;
 
 describe("FlowMindMap canvas", () => {
+  it("Cmd+A consumes page selection and selects visible topics, including floating topics", () => {
+    const doc = baseDoc();
+    doc.root.children[0].collapsed = true;
+    doc.floatingTopics = [{ id: "floating", topic: "Floating", children: [] }];
+    const count = vi.fn();
+    const { container, onChange } = mount(doc, { onSelectionCount: count });
+    const canvas = container.querySelector("#mm-canvas") as HTMLElement;
+    run(() => {
+      expect(fireEvent.keyDown(canvas, { key: "a", metaKey: true })).toBe(false);
+    });
+    expect(count).toHaveBeenLastCalledWith(4);
+    for (const id of ["root", "a", "b", "floating"])
+      expect(nodeEl(container, id).classList.contains("selected")).toBe(true);
+    // A real bulk action operates on the selection, not browser text; root remains protected.
+    run(() => fireEvent.keyDown(canvas, { key: "Delete" }));
+    const result = onChange.mock.calls.at(-1)?.[0] as MindMapDoc;
+    expect(result.root.children).toHaveLength(0);
+    expect(result.floatingTopics ?? []).toHaveLength(0);
+  });
+
+  it("Cmd+A keeps native text selection in inputs and contenteditable notes", () => {
+    const count = vi.fn();
+    const { container } = mount(baseDoc(), { onSelectionCount: count });
+    for (const element of [document.createElement("input"), document.createElement("div")]) {
+      if (element.tagName === "DIV")
+        Object.defineProperty(element, "isContentEditable", { value: true });
+      container.append(element);
+      run(() => {
+        expect(fireEvent.keyDown(element, { key: "a", metaKey: true })).toBe(true);
+      });
+    }
+    expect(count).toHaveBeenLastCalledWith(0);
+  });
+
+  it("Ctrl+A works in view mode but leaves a focused dialog outside the canvas alone", () => {
+    const count = vi.fn();
+    const { container } = mount(baseDoc(), { readOnly: true, onSelectionCount: count });
+    const dialog = document.createElement("div");
+    dialog.setAttribute("role", "dialog");
+    container.append(dialog);
+    run(() => {
+      expect(fireEvent.keyDown(dialog, { key: "a", ctrlKey: true })).toBe(true);
+    });
+    expect(count).toHaveBeenLastCalledWith(0);
+    run(() => {
+      expect(
+        fireEvent.keyDown(container.querySelector("#mm-canvas") as HTMLElement, {
+          key: "a",
+          ctrlKey: true,
+        }),
+      ).toBe(false);
+    });
+    expect(count).toHaveBeenLastCalledWith(4);
+  });
   beforeEach(() => {
     vi.spyOn(window, "prompt").mockReturnValue("Label");
     vi.spyOn(window, "confirm").mockReturnValue(true);

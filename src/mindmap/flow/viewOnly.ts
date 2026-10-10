@@ -10,6 +10,7 @@ const VIEW_INTENTS: ReadonlySet<NonNullable<KeyIntent>["kind"]> = new Set([
   "clearLinking",
   "clearDropTarget",
   "selectDir",
+  "selectAll",
   "openNote",
   "copyBranch",
   "zoomIn",

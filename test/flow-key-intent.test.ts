@@ -27,6 +27,21 @@ const st = (over: Partial<KeyState> = {}): KeyState => ({
 });
 
 describe("keyIntent", () => {
+  it("selects all map topics with Cmd/Ctrl+A without an anchor, while leaving text fields alone", () => {
+    for (const modifier of [{ metaKey: true }, { ctrlKey: true }]) {
+      expect(keyIntent(ev({ key: "a", ...modifier }), st({ selectedId: null }))).toEqual({
+        kind: "selectAll",
+      });
+      expect(keyIntent(ev({ key: "a", ...modifier }), st({ editing: true }))).toBeNull();
+      for (const target of [
+        { tagName: "INPUT" },
+        { tagName: "TEXTAREA" },
+        { isContentEditable: true },
+      ])
+        expect(keyIntent(ev({ key: "a", ...modifier, target }), st())).toBeNull();
+      expect(keyIntent(ev({ key: "a", ...modifier, altKey: true }), st())).toBeNull();
+    }
+  });
   it("Escape cancels linking first, else clears the drag indicator — even while editing", () => {
     expect(keyIntent(ev({ key: "Escape" }), st({ linking: true }))).toEqual({
       kind: "clearLinking",
@@ -256,8 +271,8 @@ describe("keyIntent", () => {
   });
 
   it("type-to-edit only fires for an unmodified single printable char", () => {
-    expect(keyIntent(ev({ key: "a", ctrlKey: true }), st())).toBeNull();
-    expect(keyIntent(ev({ key: "a", metaKey: true }), st())).toBeNull();
+    expect(keyIntent(ev({ key: "q", ctrlKey: true }), st())).toBeNull();
+    expect(keyIntent(ev({ key: "q", metaKey: true }), st())).toBeNull();
     expect(keyIntent(ev({ key: "a", altKey: true }), st())).toBeNull();
     expect(keyIntent(ev({ key: "Home" }), st())).toBeNull(); // unhandled multi-char key name
   });

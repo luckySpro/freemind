@@ -6,6 +6,7 @@ export type KeyIntent =
   | { kind: "clearDropTarget" }
   | { kind: "undo" }
   | { kind: "redo" }
+  | { kind: "selectAll" }
   | { kind: "addChild"; id: string }
   | { kind: "addSibling"; id: string }
   | { kind: "outdent"; id: string }
@@ -65,6 +66,9 @@ export function keyIntent(e: KeyEventLike, state: KeyState): KeyIntent {
   if (state.editing) return null;
   const t = e.target;
   if (t && (t.isContentEditable || (t.tagName ? FIELD.test(t.tagName) : false))) return null;
+  // Claim the browser's page-text selection only on the map; text editors keep their native Cmd+A.
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "a")
+    return { kind: "selectAll" };
   // Undo/redo work regardless of selection.
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z")
     return e.shiftKey ? { kind: "redo" } : { kind: "undo" };

@@ -1568,6 +1568,17 @@ function FlowInner({
         },
       );
       if (!intent) return;
+      if (intent.kind === "selectAll") {
+        const target = e.target;
+        // A focused non-editor outside the canvas (e.g. a dialog) must not change map selection.
+        if (
+          target instanceof Element &&
+          target !== document.body &&
+          target !== document.documentElement &&
+          !target.closest("#mm-canvas")
+        )
+          return;
+      }
       // View mode: honour only reading / navigating keys; say why an editing key did nothing.
       if (readOnlyRef.current && !isViewIntent(intent.kind)) {
         onHintRef.current?.(t("canvas.hint.viewOnly"));
@@ -1576,6 +1587,11 @@ function FlowInner({
       // Every intent but the two clears consumes the key.
       if (intent.kind !== "clearLinking" && intent.kind !== "clearDropTarget") e.preventDefault();
       switch (intent.kind) {
+        case "selectAll":
+          // Select rendered topics, including floating topics, but leave folded descendants and
+          // decorative overlays untouched. Reuse RF's multi-selection path to retain the anchor.
+          onSelectionChange({ nodes: getNodes().filter((node) => node.type === "topic") });
+          break;
         case "clearLinking":
           setLinkingFrom(null);
           break;
@@ -1727,6 +1743,7 @@ function FlowInner({
     undoAction,
     redoAction,
     deleteSelectionWithUndo,
+    onSelectionChange,
     startEdit,
     focusNodeById,
     editingApi,
