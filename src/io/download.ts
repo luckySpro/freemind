@@ -5,14 +5,19 @@ import { t } from "../i18n";
  *  right after the click. The one place the download mechanism lives (export handlers, the map-card
  *  "download", and the save-picker fallback all share it). */
 export function downloadBlob(blob: Blob, filename: string): void {
+  void downloadBlobAwaited(blob, filename).catch((error: unknown) => {
+    window.alert(
+      t("writing.exportFailed", {
+        error: error instanceof Error ? error.message : String(error),
+      }),
+    );
+  });
+}
+
+/** Await a native save or browser download so upgrade backups can report failure before restarting. */
+export async function downloadBlobAwaited(blob: Blob, filename: string): Promise<void> {
   if (isTauri()) {
-    void saveNativeExport(blob, filename).catch((error: unknown) => {
-      window.alert(
-        t("writing.exportFailed", {
-          error: error instanceof Error ? error.message : String(error),
-        }),
-      );
-    });
+    await saveNativeExport(blob, filename);
     return;
   }
   const url = URL.createObjectURL(blob);
