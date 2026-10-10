@@ -37,6 +37,8 @@ const map: MindMapDoc = {
   },
 };
 
+// Embedding/compressing the full CJK font takes ~18s on the shared CI runner.
+// Allow headroom for the multi-page fixture while still detecting hangs.
 describe("engineering PDF export", () => {
   it("creates embedded CJK text, rich notes and image resources with linked TOC and real destinations", async () => {
     const bytes = await buildEngineeringPdf(map, font);
@@ -58,7 +60,7 @@ describe("engineering PDF export", () => {
     const resources = pdf.getPage(2).node.Resources();
     expect(resources?.lookup(PDFName.of("Font"), PDFDict).keys().length).toBeGreaterThan(0);
     expect(resources?.lookup(PDFName.of("XObject"), PDFDict).keys().length).toBeGreaterThan(0);
-  }, 30000);
+  }, 60000);
 
   it("paginates a large contents list and oversized table rows without fetching remote images", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("offline"));
@@ -79,5 +81,5 @@ describe("engineering PDF export", () => {
     expect(links).toBe(45);
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
-  }, 30000);
+  }, 60000);
 });

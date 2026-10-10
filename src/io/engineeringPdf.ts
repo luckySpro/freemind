@@ -106,7 +106,18 @@ export async function buildEngineeringPdf(
   pdf.setSubject(t("writing.description"));
   pdf.setLanguage(getLocale());
 
-  const measure = (text: string, size: number) => font.widthOfTextAtSize(text, size);
+  // Wrapping repeatedly measures the same words, characters and table headers.
+  // Cache per export so large tables avoid repeating CJK font shaping work.
+  const widths = new Map<string, number>();
+  const measure = (text: string, size: number) => {
+    const key = `${size}:${text}`;
+    let width = widths.get(key);
+    if (width === undefined) {
+      width = font.widthOfTextAtSize(text, size);
+      widths.set(key, width);
+    }
+    return width;
+  };
   const words = new Intl.Segmenter(getLocale(), { granularity: "word" });
   const wrap = (runs: Run[], width: number, size: number): Line[] => {
     const lines: Line[] = [[]];
