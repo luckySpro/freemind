@@ -54,6 +54,8 @@ jobs:
               name: `FreeMind ${tag}`, draft: true,
               body: 'M&J Group · mail:473276@qq.com\n\nmacOS: Apple Silicon / Intel DMG. Windows x64: EXE / MSI. Linux x64: AppImage / DEB.\n\n更新包附带签名，latest.json 在所有桌面平台构建成功后生成。Apple / Windows 系统发行证书尚未配置，首次安装可能显示系统安全提示。Android: 签名 ARM64 APK。iOS: ARM64 模拟器测试 ZIP，仅供 Xcode 模拟器运行；不是真机 IPA。'
             })).data;
+            // A resumed draft must point at the commit actually rebuilt by this run.
+            await github.rest.repos.updateRelease({...params, release_id: release.id, target_commitish: context.sha});
             core.setOutput('tag', tag);
             core.setOutput('release_id', String(release.id));
 
@@ -71,7 +73,7 @@ jobs:
             bundles: app,dmg
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
-            bundles: nsis,msi
+            bundles: nsis
           - platform: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             bundles: appimage,deb
@@ -109,6 +111,26 @@ jobs:
           tagName: ${{ needs.prepare.outputs.tag }}
           releaseDraft: true
           args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+          releaseAssetNamePattern: '[name]_[version]_[platform]_[arch][ext]'
+          uploadUpdaterJson: false
+          uploadUpdaterSignatures: true
+      # Vendor the matching Tauri WiX template to escape the XML manufacturer only.
+      # The executable CompanyName and NSIS publisher remain literal M&J Group.
+      - name: Select XML-safe MSI template
+        if: runner.os == 'Windows'
+        run: node -e 'require("node:fs").writeFileSync("tauri-msi-release.json", JSON.stringify({bundle:{windows:{wix:{template:require("node:path").resolve("src-tauri/wix/main.wxs")}}}}))'
+      - name: Build and upload signed MSI installer
+        if: runner.os == 'Windows'
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          releaseId: ${{ needs.prepare.outputs.release_id }}
+          tagName: ${{ needs.prepare.outputs.tag }}
+          releaseDraft: true
+          args: --target x86_64-pc-windows-msvc --bundles msi --config tauri-msi-release.json
           releaseAssetNamePattern: '[name]_[version]_[platform]_[arch][ext]'
           uploadUpdaterJson: false
           uploadUpdaterSignatures: true

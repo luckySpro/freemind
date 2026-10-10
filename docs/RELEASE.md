@@ -15,6 +15,8 @@
 
 升级签名与 Apple Developer / Windows Authenticode 的操作系统发行证书不同。本工作流签署更新包，但未配置系统发行证书，首次安装可能出现系统安全提示。
 
+Windows MSI 使用 `src-tauri/wix/main.wxs`，基于 Tauri CLI 2.12.1 默认模板，仅对组织名称中的 `&` 做 XML 转义。升级 Tauri CLI 时需同步检查该模板；应用和 EXE 的组织名称仍为 M&J Group。
+
 ## 发布新版
 
 同步修改 `package.json`、`src-tauri/Cargo.toml`、`src-tauri/tauri.conf.json` 中的版本及 Cargo lock；运行 `pnpm gate`，提交并推送对应 `vX.Y.Z` 标签。不要覆盖已发布版本，修复应增加版本号。手动运行工作流也会使用当前应用版本，并拒绝覆盖正式 Release。
