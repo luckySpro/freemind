@@ -45,10 +45,11 @@ jobs:
             const tag = `v${pkg.version}`;
             if (context.ref.startsWith('refs/tags/') && context.ref !== `refs/tags/${tag}`) throw new Error('Tag must match app version');
             const params = {owner: context.repo.owner, repo: context.repo.repo};
-            let release;
-            try { release = (await github.rest.repos.getReleaseByTag({...params, tag})).data; }
-            catch (error) { if (error.status !== 404) throw error; }
-            if (release && !release.draft) throw new Error('Published releases are immutable; bump the version');
+            // getReleaseByTag does not find untagged drafts; list them to resume safely.
+            const releases = await github.paginate(github.rest.repos.listReleases, {...params, per_page: 100});
+            const matching = releases.filter(r => r.tag_name === tag);
+            if (matching.some(r => !r.draft)) throw new Error('Published releases are immutable; bump the version');
+            let release = matching.find(r => r.draft);
             if (!release) release = (await github.rest.repos.createRelease({
               ...params, tag_name: tag, target_commitish: context.sha,
               name: `FreeMind ${tag}`, draft: true,
